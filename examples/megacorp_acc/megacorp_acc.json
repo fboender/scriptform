@@ -1,0 +1,90 @@
+{
+    "title": "MegaCorp acceptance jobs",
+    "forms": {
+        "enable_firewall": {
+            "title": "Enable firewall",
+            "description": "Enable access to the acceptance environment from the entered IP",
+            "submit_title": "Enable access",
+            "script": "job_clean_database.sh",
+            "fields": [
+                {
+                    "name": "ip_address",
+                    "title": "IP Address",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "expire_days",
+                    "title": "Expire (days)",
+                    "type": "integer",
+                    "max": 31,
+                    "min": 2
+                },
+                {
+                    "name": "expire_date",
+                    "title": "Expire (date)",
+                    "type": "date",
+                    "required": true
+                },
+                {
+                    "name": "network",
+                    "title": "Which network",
+                    "type": "radio",
+                    "options": [
+                        ["intra", "Whole intranet"],
+                        ["machine", "Acceptance machine"]
+                    ]
+                },
+                {
+                    "name": "comment",
+                    "title": "Comment",
+                    "type": "text"
+                }
+            ]
+        },
+        "clean_database": {
+            "title": "Load clean database",
+            "description": "Recreate the acceptance database from scratch. This deletes all the information in the database",
+            "submit_title": "Run",
+            "script": "job_clean_database.sh",
+            "fields": [
+                {
+                    "name": "sample_db",
+                    "title": "Sample database",
+                    "type": "select",
+                    "options": [
+                        ["empty", "Empty database"],
+                        ["dev", "Development test database"],
+                        ["ua", "Acceptance database"]
+                    ]
+                }
+            ]
+        },
+        "import_csv": {
+            "title": "Import CSV data into database",
+            "description": "Load a CSV with test data into the database",
+            "submit_title": "Import CSV",
+            "script": "job_restart_acc.sh",
+            "fields": [
+                {
+                    "name": "csv_file",
+                    "title": "CSV file",
+                    "type": "file"
+                }
+            ]
+        },
+        "restart_services": {
+            "title": "Restart Acceptance services",
+            "description": "Restarts the acceptance services (web, db, cache). Consult with <a href='foo@example.com'>John Foo</a> first!",
+            "submit_title": "Restart",
+            "script": "job_restart_acc.sh",
+            "fields": [
+                {
+                    "name": "passwd",
+                    "title": "John Foo gave you a password. What is it?",
+                    "type": "password"
+                }
+            ]
+        }
+    }
+}
