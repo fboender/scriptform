@@ -201,20 +201,18 @@ class WebSrv:
     """
     Very basic web server.
     """
-    def __init__(self, app_class, listen_addr='', listen_port=80):
-        WebAppHandler.app_class = app_class
+    def __init__(self, request_handler, listen_addr='', listen_port=80):
         httpd = BaseHTTPServer.HTTPServer((listen_addr, listen_port),
-                                          WebAppHandler)
+                                          request_handler)
         httpd.serve_forever()
 
 
 class WebAppHandler(BaseHTTPRequestHandler):
     """
-    Basic web server request handler. Handles GET and POST requests. Uses
-    self.app_class (set by WebSrv) to dispatch GET and POST requests to a
-    custom class. It looks for a method with the name of the request path in
-    self.app_class and then dispatches the request to that method. If no path
-    is set, it dispatches to the 'index' or 'default' method.
+    Basic web server request handler. Handles GET and POST requests. This class
+    should be extended with methods (starting with 'h_') to handle the actual
+    requests. If no path is set, it dispatches to the 'index' or 'default'
+    method.
     """
     def do_GET(self):
         self.call(*self.parse(self.path))
@@ -241,14 +239,15 @@ class WebAppHandler(BaseHTTPRequestHandler):
         Find a method to call on self.app_class based on `path` and call it.
         """
         response_code = 200
+        method_name = 'h_{}'.format(path)
         try:
-            if hasattr(self.app_class, path) and \
-               callable(getattr(self.app_class, path)):
-                out = getattr(self.app_class, path)(**params)
-            elif path == '' and hasattr(self.app_class, 'index'):
-                out = self.app_class.index(**params)
-            elif hasattr(self.app_class, 'default'):
-                out = self.app_class.default(**params)
+            if hasattr(self, method_name) and \
+               callable(getattr(self, method_name)):
+                out = getattr(self, method_name)(**params)
+            elif path == '' and hasattr(self, 'index'):
+                out = self.index(**params)
+            elif hasattr(self, 'default'):
+                out = self.default(**params)
             else:
                 response_code = 404
                 out = 'Not Found'
@@ -261,18 +260,14 @@ class WebAppHandler(BaseHTTPRequestHandler):
         self.wfile.write(out)
 
 
-class ScriptFormWebApp:
+class ScriptFormWebApp(WebAppHandler):
     """
     This class is a request handler for WebSrv.
     """
-    def __init__(self, vitaform, callbacks):
-        self.vitaform = vitaform
-        self.callbacks = callbacks
-
     def index(self):
-        return self.list()
+        return self.h_list()
 
-    def list(self):
+    def h_list(self):
         h_form_list = []
         for form_name, form_def in self.vitaform.forms.items():
             h_form_list.append('''
@@ -298,7 +293,7 @@ class ScriptFormWebApp:
                    footer=html_footer,
                    form_list=''.join(h_form_list))
 
-    def form(self, form_name):
+    def h_form(self, form_name):
         field_tpl = {
             "string": '<input {} type="text" name="{}" />',
             "number": '<input {} type="number" min="{}" max="{}" name="{}" />',
@@ -387,7 +382,7 @@ class ScriptFormWebApp:
             submit_title=form.submit_title
         )
 
-    def submit(self, form_values):
+    def h_submit(self, form_values):
         form_name = form_values.getfirst('form_name', None)
 
         # Validate the form values
@@ -481,9 +476,10 @@ class ScriptForm:
         return self.forms[form_name]
 
     def run(self, listen_addr='0.0.0.0', listen_port=80):
-        vitaform = self
-        webapp = ScriptFormWebApp(vitaform, self.callbacks)
-        WebSrv(webapp, listen_addr=listen_addr, listen_port=listen_port)
+        ScriptFormWebApp.vitaform = self
+        ScriptFormWebApp.callbacks = self.callbacks
+        #webapp = ScriptFormWebApp(vitaform, self.callbacks)
+        WebSrv(ScriptFormWebApp, listen_addr=listen_addr, listen_port=listen_port)
 
 
 if __name__ == "__main__":
