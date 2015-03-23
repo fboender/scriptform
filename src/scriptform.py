@@ -7,6 +7,7 @@ import stat
 import json
 import BaseHTTPServer
 from BaseHTTPServer import BaseHTTPRequestHandler
+from SocketServer import ThreadingMixIn
 import cgi
 import re
 import datetime
@@ -197,13 +198,15 @@ class FormDefinition:
         return value
 
 
+class ThreadedHTTPServer(ThreadingMixIn, BaseHTTPServer.HTTPServer):
+    pass
+
 class WebSrv:
     """
     Very basic web server.
     """
     def __init__(self, request_handler, listen_addr='', listen_port=80):
-        httpd = BaseHTTPServer.HTTPServer((listen_addr, listen_port),
-                                          request_handler)
+        httpd = ThreadedHTTPServer((listen_addr, listen_port), request_handler)
         httpd.serve_forever()
 
 
