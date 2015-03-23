@@ -178,8 +178,6 @@ class FormDefinition:
         m = re.match('([0-9]{4})-([0-9]{2})-([0-9]{2})', value)
         if m:
             return value
-            #g = m.groups()
-            #return datetime.date(int(g[0]), int(g[1]), int(g[2]))
         elif field_def.get('required', False):
             raise ValueError(
                 "Invalid value for date field: {}".format(value))
@@ -200,6 +198,7 @@ class FormDefinition:
 
 class ThreadedHTTPServer(ThreadingMixIn, BaseHTTPServer.HTTPServer):
     pass
+
 
 class WebSrv:
     """
@@ -481,7 +480,6 @@ class ScriptForm:
     def run(self, listen_addr='0.0.0.0', listen_port=80):
         ScriptFormWebApp.vitaform = self
         ScriptFormWebApp.callbacks = self.callbacks
-        #webapp = ScriptFormWebApp(vitaform, self.callbacks)
         WebSrv(ScriptFormWebApp, listen_addr=listen_addr, listen_port=listen_port)
 
 
