@@ -23,6 +23,7 @@ import datetime
 import subprocess
 import base64
 import tempfile
+import hashlib
 
 
 html_header = '''<html>
@@ -287,9 +288,10 @@ class ScriptFormWebApp(WebAppHandler):
             if auth_header is not None:
                 auth_realm, auth_unpw = auth_header.split(' ', 1)
                 username, password = base64.decodestring(auth_unpw).split(":")
+                pw_hash = hashlib.sha256(password).hexdigest()
                 # Validate the username and password
                 if username in self.scriptform.users and \
-                   password == self.scriptform.users[username]:
+                   pw_hash == self.scriptform.users[username]:
                     self.username = username
                     authorized = True
 
@@ -603,15 +605,35 @@ class ScriptForm:
         WebSrv(ScriptFormWebApp, listen_addr=listen_addr, listen_port=listen_port)
 
 
-if __name__ == "__main__":
-    parser = optparse.OptionParser()
-    parser.set_usage(sys.argv[0] + " [option] <form_definition.json>")
+def main_generate_pw(parser, options, args):
+    import getpass
+    plain_pw = getpass.getpass()
+    if not plain_pw == getpass.getpass('Repeat password: '):
+        sys.stderr.write("Passwords do not match.\n")
+        sys.exit(1)
+    print hashlib.sha256(plain_pw).hexdigest()
+    sys.exit(0)
 
-    parser.add_option("-p", "--port", dest="port", action="store", type="int", default=80, help="Port to listen on.")
-
-    (options, args) = parser.parse_args()
+def main_serve(parser, options, args):
     if len(args) < 1:
         parser.error("Insufficient number of arguments")
 
     sf = ScriptForm(args[0])
     sf.run(listen_port=options.port)
+
+if __name__ == "__main__":
+    usage = [
+        sys.argv[0] + " [option] <form_definition.json>",
+        "       " + sys.argv[0] + " --generate-pw",
+    ]
+    parser = optparse.OptionParser()
+    parser.set_usage('\n'.join(usage))
+
+    parser.add_option("-g", "--generate-pw", dest="generate_pw", action="store_true", default=False, help="Generate password")
+    parser.add_option("-p", "--port", dest="port", action="store", type="int", default=80, help="Port to listen on")
+
+    (options, args) = parser.parse_args()
+    if options.generate_pw:
+        main_generate_pw(parser, options, args)
+    else:
+        main_serve(parser, options, args)
