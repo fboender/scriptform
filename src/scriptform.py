@@ -1,5 +1,14 @@
 #!/usr/bin/env python
 
+# Todo:
+#
+#  - file uploads should be saved to temp files and passed to the callback.
+#  - Ignore non-existing temp files in upload cleanup.
+#  - How does script_raw check the exitcode? Document this.
+#  - Validate field values properly.
+#     * Integer/float min, max
+#     * Uploaded files mime-types/extensions
+
 import sys
 import optparse
 import os
