@@ -314,7 +314,7 @@ class ScriptFormWebApp(WebAppHandler):
               <li>
                 <h2 class="form-title">{title}</h2>
                 <p class="form-description">{description}</p>
-                <a class="form-link btn" href="/form?form_name={name}">
+                <a class="form-link btn" href="./form?form_name={name}">
                   {title}
                 </a>
               </li>
