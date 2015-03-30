@@ -2,8 +2,6 @@
 
 # Todo:
 #
-#  - file uploads should be saved to temp files and passed to the callback.
-#  - Ignore non-existing temp files in upload cleanup.
 #  - How does script_raw check the exitcode? Document this.
 #  - Validate field values properly.
 #     * Integer/float min, max
@@ -516,9 +514,9 @@ class ScriptFormWebApp(WebAppHandler):
                 self.wfile.write(output)
         finally:
             # Clean up uploaded files
-            # FIXME: Catch exceptions and such)
             for file_name in file_fields.values():
-                os.unlink(file_name)
+                if os.path.exists(file_name):
+                    os.unlink(file_name)
 
 class ScriptForm:
     """
