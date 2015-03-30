@@ -21,6 +21,8 @@ import cgi
 import re
 import datetime
 import subprocess
+import base64
+import tempfile
 
 
 html_header = '''<html>
@@ -89,38 +91,22 @@ html_footer = '''
 '''
 
 
-def cmd(cmd, input=None, env=None):
-    """
-    Run command `cmd` in a shell. `input` (string) is passed in the
-    process' STDIN.
-
-    Returns a dictionary: `{'stdout': <string>, 'stderr': <string>, 'exitcode':
-    <int>}`.
-    """
-    p = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE,
-                         stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                         env=env)
-    stdout, stderr = p.communicate(input)
-    return {
-        'stdout': stdout,
-        'stderr': stderr,
-        'exitcode': p.returncode
-    }
-
-
 class FormDefinition:
     """
     FormDefinition holds information about a single form and provides methods
     for validation of the form values.
     """
     def __init__(self, name, title, description, fields, script=None,
-                 submit_title="Submit"):
+                 script_raw=False, submit_title="Submit",
+                 allowed_users=None):
         self.name = name
         self.title = title
         self.description = description
         self.fields = fields
         self.script = script
+        self.script_raw = script_raw
         self.submit_title = submit_title
+        self.allowed_users = allowed_users
 
     def get_field(self, field_name):
         for field in self.fields:
@@ -133,7 +119,8 @@ class FormDefinition:
         """
         values = {}
         for field_name in form_values:
-            if field_name == 'form_name':
+            if field_name == 'form_name' or \
+               form_values[field_name].filename:
                 continue
             v = self.validate_field(field_name,
                                     form_values.getfirst(field_name))
@@ -248,27 +235,32 @@ class WebAppHandler(BaseHTTPRequestHandler):
     def call(self, path, params):
         """
         Find a method to call on self.app_class based on `path` and call it.
+        The method that's called is in the form 'h_<PATH>'. If no path was
+        given, it will try to call the 'index' method. If no method could be
+        found but a `default` method exists, it is called. Otherwise 404 is
+        sent.
+
+        Methods should take care of sending proper headers and content
+        themselves using self.send_response(), self.send_header(),
+        self.end_header() and by writing to self.wfile.
         """
-        response_code = 200
-        method_name = 'h_{}'.format(path)
+        method_name = 'h_{0}'.format(path)
+        method_cb = None
         try:
             if hasattr(self, method_name) and \
                callable(getattr(self, method_name)):
-                out = getattr(self, method_name)(**params)
+                method_cb = getattr(self, method_name)
             elif path == '' and hasattr(self, 'index'):
-                out = self.index(**params)
+                method_cb = self.index
             elif hasattr(self, 'default'):
-                out = self.default(**params)
+                method_cb = self.default
             else:
-                response_code = 404
-                out = 'Not Found'
+                self.send_error(404, "Not found")
+                return
+            method_cb(**params)
         except Exception, e:
-            self.wfile.write(e)
+            self.send_error(500, "Internal server error")
             raise
-        self.send_response(response_code)
-        self.send_header('Content-type', 'text/html')
-        self.end_headers()
-        self.wfile.write(out)
 
 
 class ScriptFormWebApp(WebAppHandler):
@@ -278,9 +270,45 @@ class ScriptFormWebApp(WebAppHandler):
     def index(self):
         return self.h_list()
 
+    def auth(self):
+        """
+        Verify that the user is authenticated. This is required if the form
+        definition contains a 'users' field. Returns True if the user is
+        validated. Otherwise, returns False and sends 401 HTTP back to the
+        client.
+        """
+        self.username = None
+
+        # If a 'users' element was present in the form configuration file, the
+        # user must be authenticated.
+        if self.scriptform.users:
+            authorized = False
+            auth_header = self.headers.getheader("Authorization")
+            if auth_header is not None:
+                auth_realm, auth_unpw = auth_header.split(' ', 1)
+                username, password = base64.decodestring(auth_unpw).split(":")
+                # Validate the username and password
+                if username in self.scriptform.users and \
+                   password == self.scriptform.users[username]:
+                    self.username = username
+                    authorized = True
+
+            if not authorized:
+                # User is not authenticated. Send authentication request.
+                self.send_response(401)
+                self.send_header("WWW-Authenticate", 'Basic realm="Private Area"')
+                self.end_headers()
+                return False
+        return True
     def h_list(self):
+        if not self.auth():
+            return
+
         h_form_list = []
-        for form_name, form_def in self.vitaform.forms.items():
+        for form_name, form_def in self.scriptform.forms.items():
+            if form_def.allowed_users is not None and \
+               self.username not in form_def.allowed_users:
+                continue # User is not allowed to run this form
             h_form_list.append('''
               <li>
                 <h2 class="form-title">{title}</h2>
@@ -294,17 +322,25 @@ class ScriptFormWebApp(WebAppHandler):
                        name=form_name)
             )
 
-        return '''
+        output = '''
           {header}
           <div class="list">
             {form_list}
           </div>
           {footer}
-        '''.format(header=html_header.format(title=self.vitaform.title),
+        '''.format(header=html_header.format(title=self.scriptform.title),
                    footer=html_footer,
                    form_list=''.join(h_form_list))
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        #self.send_header('Expires', 'Mon, 30 Mar 2015 16:00:00 GMT')
+        self.end_headers()
+        self.wfile.write(output)
 
     def h_form(self, form_name):
+        if not self.auth():
+            return
+
         field_tpl = {
             "string": '<input {} type="text" name="{}" />',
             "number": '<input {} type="number" min="{}" max="{}" name="{}" />',
@@ -367,9 +403,12 @@ class ScriptFormWebApp(WebAppHandler):
             '''.format(title=field['title'],
                        input=input))
 
-        form = self.vitaform.get_form(form_name)
+        form_def = self.scriptform.get_form(form_name)
+        if form_def.allowed_users is not None and \
+           self.username not in form_def.allowed_users:
+            raise Exception("Not authorized")
 
-        return '''
+        output = '''
           {header}
           <div class="form">
             <h2 class="form-title">{title}</h2>
@@ -384,63 +423,99 @@ class ScriptFormWebApp(WebAppHandler):
           </div>
           {footer}
         '''.format(
-            header=html_header.format(title=self.vitaform.title),
+            header=html_header.format(title=self.scriptform.title),
             footer=html_footer,
-            title=form.title,
-            description=form.description,
-            name=form.name,
-            fields=''.join([render_field(f) for f in form.fields]),
-            submit_title=form.submit_title
+            title=form_def.title,
+            description=form_def.description,
+            name=form_def.name,
+            fields=''.join([render_field(f) for f in form_def.fields]),
+            submit_title=form_def.submit_title
         )
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        #self.send_header('Expires', 'Mon, 30 Mar 2015 16:00:00 GMT')
+        self.end_headers()
+        self.wfile.write(output)
 
     def h_submit(self, form_values):
+        if not self.auth():
+            return
+
         form_name = form_values.getfirst('form_name', None)
+        form_def = self.scriptform.get_form(form_name)
+        if form_def.allowed_users is not None and \
+           self.username not in form_def.allowed_users:
+            raise Exception("Not authorized")
+
+        # Write contents of all uploaded files to temp files. These temp
+        # filenames are passed to the callbacks instead of the actual contents.
+        file_fields = {}
+        for field_name in form_values:
+            field = form_values[field_name]
+            if field.filename:
+                tmpfile = tempfile.mktemp(prefix="scriptform_")
+                f = file(tmpfile, 'w')
+                while True:
+                    buf = field.file.read(1024 * 16)
+                    if not buf:
+                        break
+                    f.write(buf)
+                f.close()
+                field.file.close()
+                file_fields[field_name] = tmpfile
 
         # Validate the form values
-        form = self.vitaform.get_form(form_name)
-        values = form.validate(form_values)
+        form_values = form_def.validate(form_values)
 
-        # Call user's callback
-        if form.script:
-            # Run an external script
-            env = os.environ.copy()
-            env.update(values)
-            res = cmd(form.script, env=env)
-            if res['exitcode'] != 0:
-                result = '<span class="error">{}</span>'.format(res['stderr'])
-            else:
-                result = '<pre>{}</pre>'.format(res['stdout'])
-        else:
-            # Run a python callback
-            callback = self.callbacks[form_name]
-            result = callback(values)
+        # Repopulate form values with uploaded tmp filenames
+        form_values.update(file_fields)
 
-        return '''
-            {header}
-            <div class="result">
-              <h2 class="result-title">{title}</h2>
-              <h3 class="result-subtitle">Result</h3>
-              <div class="result-result">{result}</div>
-              <ul class="nav">
-                <li>
-                  <a class="back-list btn" href="/">Back to the list</a>
-                </li>
-                <li>
-                  <a class="back-form btn" href="/form?form_name={form_name}">
-                    Back to the form
-                  </a>
-                </li>
-              </ul>
-            </div>
-            {footer}
-        '''.format(
-            header=html_header.format(title=self.vitaform.title),
-            footer=html_footer,
-            title=form.title,
-            form_name=form.name,
-            result=result,
-        )
-
+        # Call user's callback. If a result is returned, we assume the callback
+        # was not a raw script, so we wrap its output in some nice HTML.
+        # Otherwise the callback should have written its own response to the
+        # self.wfile filehandle.
+        try:
+            result = self.scriptform.callback(form_name, form_values, self.wfile)
+            if result:
+                if result['exitcode'] != 0:
+                    msg = '<span class="error">{0}</span>'.format(result['stderr'])
+                else:
+                    msg = '<pre>{0}</pre>'.format(result['stdout'])
+                output = '''
+                    {header}
+                    <div class="result">
+                      <h2 class="result-title">{title}</h2>
+                      <h3 class="result-subtitle">Result</h3>
+                      <div class="result-result">{msg}</div>
+                      <ul class="nav">
+                        <li>
+                          <a class="back-list btn" href=".">Back to the list</a>
+                        </li>
+                        <li>
+                          <a class="back-form btn" href="form?form_name={form_name}">
+                            Back to the form
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                    {footer}
+                '''.format(
+                    header=html_header.format(title=self.scriptform.title),
+                    footer=html_footer,
+                    title=form_def.title,
+                    form_name=form_def.name,
+                    msg=msg,
+                )
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                #self.send_header('Expires', 'Mon, 30 Mar 2015 16:00:00 GMT')
+                self.end_headers()
+                self.wfile.write(output)
+        finally:
+            # Clean up uploaded files
+            # FIXME: Catch exceptions and such)
+            for file_name in file_fields.values():
+                os.unlink(file_name)
 
 class ScriptForm:
     """
@@ -451,6 +526,7 @@ class ScriptForm:
         self.forms = {}
         self.callbacks = {}
         self.title = 'ScriptForm Actions'
+        self.users = None
         self.basepath = os.path.realpath(os.path.dirname(config_file))
 
         self._load_config(config_file)
@@ -470,6 +546,8 @@ class ScriptForm:
         config = json.load(file(path, 'r'))
         if 'title' in config:
             self.title = config['title']
+        if 'users' in config:
+            self.users = config['users']
         for form_name, form in config['forms'].items():
             if 'script' in form:
                 script = os.path.join(self.basepath, form['script'])
@@ -481,13 +559,45 @@ class ScriptForm:
                                form['description'],
                                form['fields'],
                                script,
-                               submit_title=form.get('submit_title', None))
+                               script_raw=form.get('script_raw', False),
+                               submit_title=form.get('submit_title', None),
+                               allowed_users=form.get('allowed_users', None))
 
     def get_form(self, form_name):
         return self.forms[form_name]
 
+    def callback(self, form_name, form_values, output_fh=None):
+        form = self.get_form(form_name)
+        if form.script:
+            return self.callback_script(form, form_values, output_fh)
+        else:
+            return self.callback_python(form, form_values, output_fh)
+
+    def callback_script(self, form, form_values, output_fh=None):
+        env = os.environ.copy()
+        env.update(form_values)
+
+        if form.script_raw:
+            p = subprocess.Popen(form.script, shell=True, stdout=output_fh,
+                                 stderr=output_fh, env=env)
+            stdout, stderr = p.communicate(input)
+            return None
+        else:
+            p = subprocess.Popen(form.script, shell=True, stdin=subprocess.PIPE,
+                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                 env=env)
+            stdout, stderr = p.communicate()
+            return {
+                'stdout': stdout,
+                'stderr': stderr,
+                'exitcode': p.returncode
+            }
+
+    def callback_python(self, form, form_values, output_fh=None):
+        pass
+
     def run(self, listen_addr='0.0.0.0', listen_port=80):
-        ScriptFormWebApp.vitaform = self
+        ScriptFormWebApp.scriptform = self
         ScriptFormWebApp.callbacks = self.callbacks
         WebSrv(ScriptFormWebApp, listen_addr=listen_addr, listen_port=listen_port)
 
