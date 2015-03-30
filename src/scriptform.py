@@ -300,6 +300,7 @@ class ScriptFormWebApp(WebAppHandler):
                 self.end_headers()
                 return False
         return True
+
     def h_list(self):
         if not self.auth():
             return
