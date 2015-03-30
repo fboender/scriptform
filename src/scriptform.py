@@ -133,7 +133,7 @@ class FormDefinition:
                field['required'] is True and \
                field['name'] not in values:
                 raise ValueError(
-                    "Required field {} not present".format(field['name']))
+                    "Required field {0} not present".format(field['name']))
 
         return values
 
@@ -144,10 +144,10 @@ class FormDefinition:
         # Find field definition by iterating through all the fields.
         field_def = self.get_field(field_name)
         if not field_def:
-            raise KeyError("Unknown field: {}".format(field_name))
+            raise KeyError("Unknown field: {0}".format(field_name))
 
         field_type = field_def['type']
-        validate_cb = getattr(self, 'validate_{}'.format(field_type), None)
+        validate_cb = getattr(self, 'validate_{0}'.format(field_type), None)
         if not validate_cb:
             return value
         else:
@@ -176,19 +176,19 @@ class FormDefinition:
             return value
         elif field_def.get('required', False):
             raise ValueError(
-                "Invalid value for date field: {}".format(value))
+                "Invalid value for date field: {0}".format(value))
         return None
 
     def validate_radio(self, field_def, value):
         if not value in [o[0] for o in field_def['options']]:
             raise ValueError(
-                "Invalid value for radio button: {}".format(value))
+                "Invalid value for radio button: {0}".format(value))
         return value
 
     def validate_select(self, field_def, value):
         if not value in [o[0] for o in field_def['options']]:
             raise ValueError(
-                "Invalid value for dropdown: {}".format(value))
+                "Invalid value for dropdown: {0}".format(value))
         return value
 
 
@@ -342,16 +342,16 @@ class ScriptFormWebApp(WebAppHandler):
             return
 
         field_tpl = {
-            "string": '<input {} type="text" name="{}" />',
-            "number": '<input {} type="number" min="{}" max="{}" name="{}" />',
-            "integer": '<input {} type="number" min="{}" max="{}" name="{}" />',
-            "float": '<input {} type="number" min="{}" max="{}" name="{}" />',
-            "date": '<input {} type="date" name="{}" />',
-            "file": '<input {} type="file" name="{}" />',
-            "password": '<input {} type="password" name="{}" />',
-            "text": '<textarea {} name="{}"></textarea>',
-            "select": '<option value="{}">{}</option>',
-            "radio": '<input checked type="radio" name="{}" value="{}">{}<br/>',
+            "string": '<input {0} type="text" name="{1}" />',
+            "number": '<input {0} type="number" min="{1}" max="{2}" name="{3}" />',
+            "integer": '<input {0} type="number" min="{1}" max="{2}" name="{3}" />',
+            "float": '<input {0} type="number" min="{1}" max="{2}" name="{3}" />',
+            "date": '<input {0} type="date" name="{1}" />',
+            "file": '<input {0} type="file" name="{1}" />',
+            "password": '<input {0} type="password" name="{1}" />',
+            "text": '<textarea {0} name="{1}"></textarea>',
+            "select": '<option value="{0}">{1}</option>',
+            "radio": '<input checked type="radio" name="{0}" value="{1}">{2}<br/>',
         }
 
         def render_field(field):
@@ -389,9 +389,9 @@ class ScriptFormWebApp(WebAppHandler):
                         tpl.format(o[0], o[1]) for o in field['options']
                     ]
                 )
-                input = '<select {} name="{}">{}</select>'.format(required, field['name'], options)
+                input = '<select {0} name="{1}">{2}</select>'.format(required, field['name'], options)
             else:
-                raise ValueError("Unsupported field type: {}".format(
+                raise ValueError("Unsupported field type: {0}".format(
                     field['type'])
                 )
 
@@ -537,10 +537,10 @@ class ScriptForm:
         for form_name, form_def in self.forms.items():
             if form_def.script:
                 if not stat.S_IXUSR & os.stat(form_def.script)[stat.ST_MODE]:
-                    raise Exception("{} is not executable".format(form_def.script))
+                    raise Exception("{0} is not executable".format(form_def.script))
             else:
                 if not form_name in self.callbacks:
-                    raise Exception("No script or callback registered for '{}'".format(form_name))
+                    raise Exception("No script or callback registered for '{0}'".format(form_name))
 
     def _load_config(self, path):
         config = json.load(file(path, 'r'))
