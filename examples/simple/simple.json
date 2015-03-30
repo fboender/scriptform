@@ -3,7 +3,7 @@
     "forms": {
         "import": {
             "title": "Import data",
-            "description": "Import CSV data into a database",
+            "description": "Import SQL into a database",
             "submit_title": "Import",
             "script": "job_import.sh",
             "fields": [
@@ -17,8 +17,8 @@
                     ]
                 },
                 {
-                    "name": "csv_file",
-                    "title": "CSV file",
+                    "name": "sql_file",
+                    "title": "SQL file",
                     "type": "file"
                 }
             ]
