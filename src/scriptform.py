@@ -374,7 +374,6 @@ class ScriptFormWebApp(WebAppHandler):
         )
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
-        #self.send_header('Expires', 'Mon, 30 Mar 2015 16:00:00 GMT')
         self.end_headers()
         self.wfile.write(output)
 
@@ -460,7 +459,6 @@ class ScriptFormWebApp(WebAppHandler):
         )
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
-        #self.send_header('Expires', 'Mon, 30 Mar 2015 16:00:00 GMT')
         self.end_headers()
         self.wfile.write(output)
 
@@ -535,7 +533,6 @@ class ScriptFormWebApp(WebAppHandler):
                 )
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
-                #self.send_header('Expires', 'Mon, 30 Mar 2015 16:00:00 GMT')
                 self.end_headers()
                 self.wfile.write(output)
         finally:
