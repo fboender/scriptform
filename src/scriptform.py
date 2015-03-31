@@ -160,25 +160,32 @@ class FormDefinition:
         """
         Validate all relevant fields for this form against form_values.
         """
+        errors = {}
         values = {}
+
+        # First make sure all required fields are there
+        for field in self.fields:
+            if 'required' in field and \
+               field['required'] is True and \
+               field['name'] not in form_values:
+                errors.setdefault(field['name'], []).append(
+                    "This field is required"
+                )
+
+        # Now validate their actual values.
         for field_name in form_values:
             if field_name == 'form_name' or \
                form_values[field_name].filename:
                 continue
-            v = self.validate_field(field_name,
-                                    form_values.getfirst(field_name))
-            if v is not None:
-                values[field_name] = v
+            try:
+                v = self.validate_field(field_name,
+                                        form_values.getfirst(field_name))
+                if v is not None:
+                    values[field_name] = v
+            except Exception, e:
+                errors.setdefault(field_name, []).append(str(e))
 
-        # Make sure all required fields are there
-        for field in self.fields:
-            if 'required' in field and \
-               field['required'] is True and \
-               field['name'] not in values:
-                raise ValueError(
-                    "Required field {0} not present".format(field['name']))
-
-        return values
+        return (errors, values)
 
     def validate_field(self, field_name, value):
         """
@@ -191,36 +198,68 @@ class FormDefinition:
 
         field_type = field_def['type']
         validate_cb = getattr(self, 'validate_{0}'.format(field_type), None)
-        if not validate_cb:
-            return value
-        else:
-            return validate_cb(field_def, value)
+        return validate_cb(field_def, value)
+
+    def validate_string(self, field_def, value):
+        maxlen = field_def.get('maxlen', None)
+        minlen = field_def.get('minlen', None)
+
+        if minlen is not None and len(value) < minlen:
+            raise Exception("Minimum length is {0}".format(minlen))
+        if maxlen is not None and len(value) > maxlen:
+            raise Exception("Maximum length is {0}".format(maxlen))
+
+        return value
 
     def validate_integer(self, field_def, value):
+        max = field_def.get('max', None)
+        min = field_def.get('min', None)
+
         try:
-            int(value)
-            return value
+            value = int(value)
         except ValueError:
-            if field_def.get('required', False):
-                raise
-        return None
+            raise Exception("Must be an integer number")
+
+        if min is not None and value < min:
+            raise Exception("Minimum value is {0}".format(min))
+        if max is not None and value > max:
+            raise Exception("Maximum value is {0}".format(max))
+
+        return int(value)
 
     def validate_float(self, field_def, value):
+        max = field_def.get('max', None)
+        min = field_def.get('min', None)
+
         try:
-            return float(value)
+            value = float(value)
         except ValueError:
-            if field_def.get('required', False):
-                raise
-        return None
+            raise Exception("Must be an real (float) number")
+
+        if min is not None and value < min:
+            raise Exception("Minimum value is {0}".format(min))
+        if max is not None and value > max:
+            raise Exception("Maximum value is {0}".format(max))
+
+        return float(value)
 
     def validate_date(self, field_def, value):
-        m = re.match('([0-9]{4})-([0-9]{2})-([0-9]{2})', value)
-        if m:
-            return value
-        elif field_def.get('required', False):
-            raise ValueError(
-                "Invalid value for date field: {0}".format(value))
-        return None
+        max = field_def.get('max', None)
+        min = field_def.get('min', None)
+
+        try:
+            value = datetime.datetime.strptime(value, '%Y-%m-%d').date()
+        except ValueError:
+            raise Exception("Invalid date, must be in form YYYY-MM-DD")
+
+        if min is not None:
+            if value < datetime.datetime.strptime(min, '%Y-%m-%d').date():
+                raise Exception("Minimum value is {0}".format(min))
+        if max is not None:
+            if value > datetime.datetime.strptime(max, '%Y-%m-%d').date():
+                raise Exception("maximum value is {0}".format(max))
+
+        return value
 
     def validate_radio(self, field_def, value):
         if not value in [o[0] for o in field_def['options']]:
@@ -377,7 +416,7 @@ class ScriptFormWebApp(WebAppHandler):
         self.end_headers()
         self.wfile.write(output)
 
-    def h_form(self, form_name):
+    def h_form(self, form_name, errors={}):
         if not self.auth():
             return
 
@@ -394,7 +433,7 @@ class ScriptFormWebApp(WebAppHandler):
             "radio": '<input checked type="radio" name="{0}" value="{1}">{2}<br/>',
         }
 
-        def render_field(field):
+        def render_field(field, errors):
             tpl = field_tpl[field['type']]
 
             required = ''
@@ -438,23 +477,35 @@ class ScriptFormWebApp(WebAppHandler):
             return ('''
               <li>
                 <p class="form-field-title">{title}</p>
-                <p class="form-field-input">{input}</p>
+                <p class="form-field-input">{input} <span class="error">{errors}</span></p>
               </li>
-            '''.format(title=field['title'],
-                       input=input))
+            '''.format(
+                    title=field['title'],
+                    input=input,
+                    errors=', '.join(errors)
+                )
+            )
 
         form_def = self.scriptform.get_form(form_name)
         if form_def.allowed_users is not None and \
            self.username not in form_def.allowed_users:
             raise Exception("Not authorized")
 
+        html_errors = ''
+        if errors:
+            html_errors = '<ul>'
+            for error in errors:
+                html_errors += '<li class="error">{0}</li>'.format(error)
+            html_errors += '</ul>'
+
         output = html_form.format(
             header=html_header.format(title=self.scriptform.title),
             footer=html_footer,
             title=form_def.title,
             description=form_def.description,
+            errors=html_errors,
             name=form_def.name,
-            fields=''.join([render_field(f) for f in form_def.fields]),
+            fields=''.join([render_field(f, errors.get(f['name'], [])) for f in form_def.fields]),
             submit_title=form_def.submit_title
         )
         self.send_response(200)
@@ -490,41 +541,23 @@ class ScriptFormWebApp(WebAppHandler):
                 file_fields[field_name] = tmpfile
 
         # Validate the form values
-        form_values = form_def.validate(form_values)
+        form_errors, form_values = form_def.validate(form_values)
 
-        # Repopulate form values with uploaded tmp filenames
-        form_values.update(file_fields)
+        if not form_errors:
+            # Repopulate form values with uploaded tmp filenames
+            form_values.update(file_fields)
 
-        # Call user's callback. If a result is returned, we assume the callback
-        # was not a raw script, so we wrap its output in some nice HTML.
-        # Otherwise the callback should have written its own response to the
-        # self.wfile filehandle.
-        try:
+            # Call user's callback. If a result is returned, we assume the callback
+            # was not a raw script, so we wrap its output in some nice HTML.
+            # Otherwise the callback should have written its own response to the
+            # self.wfile filehandle.
             result = self.scriptform.callback(form_name, form_values, self.wfile)
             if result:
                 if result['exitcode'] != 0:
                     msg = '<span class="error">{0}</span>'.format(result['stderr'])
                 else:
                     msg = '<pre>{0}</pre>'.format(result['stdout'])
-                output = '''
-                    {header}
-                    <div class="result">
-                      <h2 class="result-title">{title}</h2>
-                      <h3 class="result-subtitle">Result</h3>
-                      <div class="result-result">{msg}</div>
-                      <ul class="nav">
-                        <li>
-                          <a class="back-list btn" href=".">Back to the list</a>
-                        </li>
-                        <li>
-                          <a class="back-form btn" href="form?form_name={form_name}">
-                            Back to the form
-                          </a>
-                        </li>
-                      </ul>
-                    </div>
-                    {footer}
-                '''.format(
+                output = html_submit_response.format(
                     header=html_header.format(title=self.scriptform.title),
                     footer=html_footer,
                     title=form_def.title,
@@ -535,11 +568,14 @@ class ScriptFormWebApp(WebAppHandler):
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
                 self.wfile.write(output)
-        finally:
-            # Clean up uploaded files
-            for file_name in file_fields.values():
-                if os.path.exists(file_name):
-                    os.unlink(file_name)
+        else:
+            # Form had errors
+            self.h_form(form_name, form_errors)
+
+        # Clean up uploaded files
+        for file_name in file_fields.values():
+            if os.path.exists(file_name):
+                os.unlink(file_name)
 
 class ScriptForm:
     """
