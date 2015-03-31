@@ -139,6 +139,11 @@ For example, here's a form definition file that contains two forms:
 
 The `string` field type presents the user with a single line input field.
 
+The `string` field type supports the following additional options:
+
+- **`minlen`**: The minimum allowed length for the field.
+- **`maxlen`**: The maximum allowed length for the field.
+
 ### Integer
 
 The `integer` field type presents the user with an input box in wich they may
@@ -147,8 +152,8 @@ the input field may have spin-buttons to increase and decrease the value.
 
 The `integer` field type supports the following additional options:
 
-- **`max`**: The maximum allowed value for the field.
 - **`min`**: The minimum allowed value for the field.
+- **`max`**: The maximum allowed value for the field.
 
 ### Float
 
@@ -157,9 +162,26 @@ a Real number (fractions).
 
 The `float` field type supports the following additional options:
 
-- ...
+- **`min`**: The minimum allowed value for the field.
+- **`max`**: The maximum allowed value for the field.
+
+Please note that some real numbers cannot be represented exactly by a computer
+and validation may thus be approximate. E.g. 0.499999999999999 will pass the
+test for a maximum value of 0.5.
 
 ### Date
+
+The `date` field type presents the user with an input box in which they can
+enter a date. Depending on the browser's support for HTML5 forms, the input
+field may have a pop-out calendar from which the user can select a date. 
+
+The date must be entered, and will be passed to the callback, in the form
+YYYY-MM-DD.
+
+The `date` field type supports the following additional options:
+
+- **`min`**: The minimum allowed date (format: a string YYYY-MM-DD)
+- **`max`**: The maximum allowed date (format: a string YYYY-MM-DD)
 
 ### Radio
 
