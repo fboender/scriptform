@@ -598,8 +598,10 @@ class ScriptForm:
             return self.callback_python(form, form_values, output_fh)
 
     def callback_script(self, form, form_values, output_fh=None):
+        # Pass form values to the script through the environment as strings.
         env = os.environ.copy()
-        env.update(form_values)
+        for k, v in form_values.items():
+            env[k] = str(v)
 
         if form.script_raw:
             p = subprocess.Popen(form.script, shell=True, stdout=output_fh,
