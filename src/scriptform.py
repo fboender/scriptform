@@ -386,7 +386,7 @@ class ScriptFormWebApp(WebAppHandler):
             "string": '<input {0} type="text" name="{1}" />',
             "number": '<input {0} type="number" min="{1}" max="{2}" name="{3}" />',
             "integer": '<input {0} type="number" min="{1}" max="{2}" name="{3}" />',
-            "float": '<input {0} type="number" min="{1}" max="{2}" name="{3}" />',
+            "float": '<input {0} type="number" min="{1}" max="{2}" step="any" name="{3}" />',
             "date": '<input {0} type="date" name="{1}" />',
             "file": '<input {0} type="file" name="{1}" />',
             "password": '<input {0} type="password" name="{1}" />',
