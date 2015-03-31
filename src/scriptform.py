@@ -89,6 +89,50 @@ html_footer = '''
 </html>
 '''
 
+html_list = '''
+{header}
+<div class="list">
+  {form_list}
+</div>
+{footer}
+'''
+
+html_form = '''
+{header}
+<div class="form">
+  <h2 class="form-title">{title}</h2>
+  <p class="form-description">{description}</p>
+  <form action="submit" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="form_name" value="{name}" />
+    <ul>
+        {fields}
+        <li><input type="submit" value="{submit_title}" /></li>
+    </ul>
+  </form>
+</div>
+{footer}
+'''
+
+html_submit_response = '''
+{header}
+<div class="result">
+  <h2 class="result-title">{title}</h2>
+  <h3 class="result-subtitle">Result</h3>
+  <div class="result-result">{msg}</div>
+  <ul class="nav">
+    <li>
+      <a class="back-list btn" href=".">Back to the list</a>
+    </li>
+    <li>
+      <a class="back-form btn" href="form?form_name={form_name}">
+        Back to the form
+      </a>
+    </li>
+  </ul>
+</div>
+{footer}
+'''
+
 
 class FormDefinition:
     """
@@ -323,15 +367,11 @@ class ScriptFormWebApp(WebAppHandler):
                        name=form_name)
             )
 
-        output = '''
-          {header}
-          <div class="list">
-            {form_list}
-          </div>
-          {footer}
-        '''.format(header=html_header.format(title=self.scriptform.title),
-                   footer=html_footer,
-                   form_list=''.join(h_form_list))
+        output = html_list.format(
+            header=html_header.format(title=self.scriptform.title),
+            footer=html_footer,
+            form_list=''.join(h_form_list)
+        )
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         #self.send_header('Expires', 'Mon, 30 Mar 2015 16:00:00 GMT')
@@ -409,21 +449,7 @@ class ScriptFormWebApp(WebAppHandler):
            self.username not in form_def.allowed_users:
             raise Exception("Not authorized")
 
-        output = '''
-          {header}
-          <div class="form">
-            <h2 class="form-title">{title}</h2>
-            <p class="form-description">{description}</p>
-            <form action="submit" method="post" enctype="multipart/form-data">
-              <input type="hidden" name="form_name" value="{name}" />
-              <ul>
-                  {fields}
-                  <li><input type="submit" value="{submit_title}" /></li>
-              </ul>
-            </form>
-          </div>
-          {footer}
-        '''.format(
+        output = html_form.format(
             header=html_header.format(title=self.scriptform.title),
             footer=html_footer,
             title=form_def.title,
