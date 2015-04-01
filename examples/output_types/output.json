@@ -1,0 +1,38 @@
+{
+    "title": "Output type callback examples",
+    "forms": {
+        "show_image": {
+            "title": "Show an image",
+            "description": "Shows you an image. This is a 'raw' output type where the script writes a complete HTTP response to stdout, which is directly streamed to the browser by scriptform.",
+            "submit_title": "Show",
+            "script": "job_show_image.sh",
+            "output": "raw",
+            "fields": {}
+        },
+        "large_bin": {
+            "title": "Download large binary file",
+            "description": "Download a large (100mb) binary file. This demonstrated streaming directly to the client of large files.",
+            "submit_title": "Download",
+            "script": "job_large_bin.sh",
+            "output": "raw",
+            "fields": {}
+        },
+        "some_html": {
+            "title": "Show some HTML",
+            "description": "This is the 'html' output type, which allows HTML in the output of scripts. This can be useful to refer to another form after this form is completed, for instance.",
+            "submit_title": "Show HTML",
+            "script": "job_show_html.sh",
+            "output": "html",
+            "fields": {}
+        },
+        "escaped": {
+            "title": "Escaped contents (default)",
+            "description": "This is the 'escaped' output type. It is the default. The HTML entities in the output are escaped properly, and is wrapped in PRE elements.",
+            "submit_title": "Show HTML",
+            "script": "job_show_html.sh",
+            "output": "escaped",
+            "fields": {}
+        }
+
+    }
+}

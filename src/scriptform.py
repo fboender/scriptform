@@ -142,14 +142,14 @@ class FormDefinition:
     for validation of the form values.
     """
     def __init__(self, name, title, description, fields, script=None,
-                 script_raw=False, submit_title="Submit",
+                 output='escaped', submit_title="Submit",
                  allowed_users=None):
         self.name = name
         self.title = title
         self.description = description
         self.fields = fields
         self.script = script
-        self.script_raw = script_raw
+        self.output = output
         self.submit_title = submit_title
         self.allowed_users = allowed_users
 
@@ -581,16 +581,20 @@ class ScriptFormWebApp(WebAppHandler):
             # Repopulate form values with uploaded tmp filenames
             form_values.update(file_fields)
 
-            # Call user's callback. If a result is returned, we assume the callback
-            # was not a raw script, so we wrap its output in some nice HTML.
-            # Otherwise the callback should have written its own response to the
+            # Call user's callback. If a result is returned, we wrap its output
+            # in some nice HTML. If no result is returned, the output was raw
+            # and the callback should have written its own response to the
             # self.wfile filehandle.
             result = self.scriptform.callback(form_name, form_values, self.wfile)
             if result:
                 if result['exitcode'] != 0:
-                    msg = '<span class="error">{0}</span>'.format(result['stderr'])
+                    msg = '<span class="error">{0}</span>'.format(cgi.escape(result['stderr']))
                 else:
-                    msg = '<pre>{0}</pre>'.format(result['stdout'])
+                    if form_def.output == 'escaped':
+                        msg = '<pre>{0}</pre>'.format(cgi.escape(result['stdout']))
+                    else:
+                        msg = result['stdout']
+
                 output = html_submit_response.format(
                     header=html_header.format(title=self.scriptform.title),
                     footer=html_footer,
@@ -653,7 +657,7 @@ class ScriptForm:
                                form['description'],
                                form['fields'],
                                script,
-                               script_raw=form.get('script_raw', False),
+                               output=form.get('output', 'escaped'),
                                submit_title=form.get('submit_title', None),
                                allowed_users=form.get('allowed_users', None))
 
@@ -673,7 +677,7 @@ class ScriptForm:
         for k, v in form_values.items():
             env[k] = str(v)
 
-        if form.script_raw:
+        if form.output == 'raw':
             p = subprocess.Popen(form.script, shell=True, stdout=output_fh,
                                  stderr=output_fh, env=env)
             stdout, stderr = p.communicate(input)

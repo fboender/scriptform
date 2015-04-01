@@ -14,11 +14,11 @@
     - [Text](#form_def)
     - [Password](#form_def)
     - [File](#form_def)
+1. [Output](#output)
 1. [Callbacks](#form_def)
     - [Script callbacks]()
         - [Validation]()
         - [Field Values]()
-        - [Output]()
     - [Python callbacks]()
 1. [Users](#users)
 
@@ -60,9 +60,8 @@ Structurally, they are made up of the following elements:
       script isn't found, if the script isn't executable or (if the `script`
       tag is omitted) if no Python callback is registered to handle this form.
       **String**.
-    - **`script_raw`**: If present and `true`, the output of the script is sent
-      to the browser as-is. The script must include the proper headers and body
-      itself. This allows you to output images, stream files, etc.
+    - **`output`**: Determines how the output of the callback is handled. See
+      the *Output types* seciton.
     - **`fields`**: List of fields in the form. Each field is a dictionary.
       **Required**, **List of dictionaries**.
         - **`name`**: The name of the field. This is what is passed as an
@@ -215,6 +214,33 @@ The original file name of the uploaded file is stored in a new variable
 
 No additional validation is done on the file contents, or the file name.
 
+
+## <a name="output">Output</a>
+
+FIXME
+
+      If
+      its value is `escaped`, the output of the callback will have its HTML
+      entities escaped and will be wrapped in PRE elements. This is the
+      **default** option. If the value is `html`, the output will not be
+      escaped or wrapped in PRE tags, and can thus include HTML markup. If the
+      output is `raw`, the output of the script is streamed directly to the
+      client's browser. This allows you to output images, binary files, etc to
+      the client. The script must include the proper headers and body itself. 
+
+If the script's exit code is 0, the output of the script (stdout) is captured
+and shown to the user in the browser.
+
+If a script's exit code is not 0, it is assumed an error occured. Scriptform
+will show the script's stderr output (in red) to the user instead of stdin.
+
+If the form definition has a `script_raw` field, and its value is `true`,
+Scriptform will pass the output of the script to the browser as-is. This allows
+scripts to show images, stream a file download to the browser or even show
+completely custom HTML output. The script's output must be a valid HTTP
+response, including headers and a body. Examples of raw script output can be
+found in the `examples/raw` directory.
+
 ## Callbacks
 
 Callbacks are called after the form has been submitted and its values have been
@@ -281,20 +307,6 @@ ends.
 Examples of file uploads can be found in the `examples/simple` and
 `examples/megacorp` directories.
 
-#### Output
-
-If the script's exit code is 0, the output of the script (stdout) is captured
-and shown to the user in the browser.
-
-If a script's exit code is not 0, it is assumed an error occured. Scriptform
-will show the script's stderr output (in red) to the user instead of stdin.
-
-If the form definition has a `script_raw` field, and its value is `true`,
-Scriptform will pass the output of the script to the browser as-is. This allows
-scripts to show images, stream a file download to the browser or even show
-completely custom HTML output. The script's output must be a valid HTTP
-response, including headers and a body. Examples of raw script output can be
-found in the `examples/raw` directory.
 
 ### Python callbacks
 
