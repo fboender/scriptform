@@ -212,8 +212,12 @@ This allows users to upload large files.
 The original file name of the uploaded file is stored in a new variable
 '&lt;field_name&gt;__name'.
 
-No additional validation is done on the file contents, or the file name.
+The `file` field type supports the following additional options:
 
+- **`extensions`**: A list of extensions (minus leading dot) that are accepted
+  for file uploads. For example: `"extensions": ["csv", "tsv"]`
+
+No additional validatikon is done on the file contents.
 
 ## <a name="output">Output</a>
 

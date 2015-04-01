@@ -8,6 +8,7 @@
 #     * Uploaded files mime-types/extensions
 #  - Radio field type has no correct default value.
 #  - Default values for input fields.
+#  - If there are errors in the form, its values are empties.
 
 import sys
 import optparse
@@ -163,7 +164,7 @@ class FormDefinition:
         Validate all relevant fields for this form against form_values.
         """
         errors = {}
-        values = {}
+        values = form_values.copy()
 
         # First make sure all required fields are there
         for field in self.fields:
@@ -174,14 +175,13 @@ class FormDefinition:
                     "This field is required"
                 )
 
-        # Now validate their actual values.
-        for field_name in form_values:
-            if field_name == 'form_name' or \
-               form_values[field_name].filename:
+        # Validate the field values, possible casting them to the correct type.
+        for field in self.fields:
+            field_name = field['name']
+            if field_name == 'form_name':
                 continue
             try:
-                v = self.validate_field(field_name,
-                                        form_values.getfirst(field_name))
+                v = self.validate_field(field_name, form_values)
                 if v is not None:
                     values[field_name] = v
             except Exception, e:
@@ -189,7 +189,7 @@ class FormDefinition:
 
         return (errors, values)
 
-    def validate_field(self, field_name, value):
+    def validate_field(self, field_name, form_values):
         """
         Validate a field in this form.
         """
@@ -200,9 +200,10 @@ class FormDefinition:
 
         field_type = field_def['type']
         validate_cb = getattr(self, 'validate_{0}'.format(field_type), None)
-        return validate_cb(field_def, value)
+        return validate_cb(field_def, form_values)
 
-    def validate_string(self, field_def, value):
+    def validate_string(self, field_def, form_values):
+        value = form_values[field_def['name']]
         maxlen = field_def.get('maxlen', None)
         minlen = field_def.get('minlen', None)
 
@@ -213,7 +214,8 @@ class FormDefinition:
 
         return value
 
-    def validate_integer(self, field_def, value):
+    def validate_integer(self, field_def, form_values):
+        value = form_values[field_def['name']]
         max = field_def.get('max', None)
         min = field_def.get('min', None)
 
@@ -229,7 +231,8 @@ class FormDefinition:
 
         return int(value)
 
-    def validate_float(self, field_def, value):
+    def validate_float(self, field_def, form_values):
+        value = form_values[field_def['name']]
         max = field_def.get('max', None)
         min = field_def.get('min', None)
 
@@ -245,7 +248,8 @@ class FormDefinition:
 
         return float(value)
 
-    def validate_date(self, field_def, value):
+    def validate_date(self, field_def, form_values):
+        value = form_values[field_def['name']]
         max = field_def.get('max', None)
         min = field_def.get('min', None)
 
@@ -263,19 +267,22 @@ class FormDefinition:
 
         return value
 
-    def validate_radio(self, field_def, value):
+    def validate_radio(self, field_def, form_values):
+        value = form_values[field_def['name']]
         if not value in [o[0] for o in field_def['options']]:
             raise ValueError(
                 "Invalid value for radio button: {0}".format(value))
         return value
 
-    def validate_select(self, field_def, value):
+    def validate_select(self, field_def, form_values):
+        value = form_values[field_def['name']]
         if not value in [o[0] for o in field_def['options']]:
             raise ValueError(
                 "Invalid value for dropdown: {0}".format(value))
         return value
 
-    def validate_text(self, field_def, value):
+    def validate_text(self, field_def, form_values):
+        value = form_values[field_def['name']]
         minlen = field_def.get('minlen', None)
         maxlen = field_def.get('maxlen', None)
 
@@ -289,12 +296,25 @@ class FormDefinition:
 
         return value
 
-    def validate_password(self, field_def, value):
+    def validate_password(self, field_def, form_values):
+        value = form_values[field_def['name']]
         minlen = field_def.get('minlen', None)
 
         if minlen is not None:
             if len(value) < minlen:
                 raise Exception("minimum length is {0}".format(minlen))
+
+        return value
+
+    def validate_file(self, field_def, form_values):
+        value = form_values[field_def['name']]
+        field_name = field_def['name']
+        upload_fname = form_values['{0}__name'.format(field_name)]
+        upload_fname_ext = os.path.splitext(upload_fname)[-1].lstrip('.')
+        extensions = field_def.get('extensions', None)
+
+        if extensions is not None and upload_fname_ext not in extensions:
+            raise Exception("Only file types allowed: {0}".format(','.join(extensions)))
 
         return value
 
@@ -555,12 +575,18 @@ class ScriptFormWebApp(WebAppHandler):
            self.username not in form_def.allowed_users:
             raise Exception("Not authorized")
 
-        # Write contents of all uploaded files to temp files. These temp
-        # filenames are passed to the callbacks instead of the actual contents.
-        file_fields = {}
+        # Convert FieldStorage to a simple dict, because we're not allowd to
+        # add items to it. For normal fields, the form field name becomes the
+        # key and the value becomes the field value. For file upload fields, we
+        # stream the uploaded file to a temp file and then put the temp file in
+        # the destination dict. We also add an extra field with the originally
+        # uploaded file's name.
+        values = {}
+        tmp_files = []
         for field_name in form_values:
             field = form_values[field_name]
             if field.filename:
+                # Field is an uploaded file. Stream it to a temp file
                 tmpfile = tempfile.mktemp(prefix="scriptform_")
                 f = file(tmpfile, 'w')
                 while True:
@@ -571,16 +597,17 @@ class ScriptFormWebApp(WebAppHandler):
                 f.close()
                 field.file.close()
 
-                file_fields[field_name] = tmpfile
-                file_fields['{0}__name'.format(field_name)] = field.filename
+                tmp_files.append(tmpfile) # For later cleanup
+                values[field_name] = tmpfile
+                values['{0}__name'.format(field_name)] = field.filename
+            else:
+                # Field is a normal form field. Store its value.
+                values[field_name] = form_values.getfirst(field_name, None)
 
         # Validate the form values
-        form_errors, form_values = form_def.validate(form_values)
+        form_errors, form_values = form_def.validate(values)
 
         if not form_errors:
-            # Repopulate form values with uploaded tmp filenames
-            form_values.update(file_fields)
-
             # Call user's callback. If a result is returned, we wrap its output
             # in some nice HTML. If no result is returned, the output was raw
             # and the callback should have written its own response to the
@@ -611,7 +638,7 @@ class ScriptFormWebApp(WebAppHandler):
             self.h_form(form_name, form_errors)
 
         # Clean up uploaded files
-        for file_name in file_fields.values():
+        for file_name in tmp_files:
             if os.path.exists(file_name):
                 os.unlink(file_name)
 

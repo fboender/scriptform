@@ -66,6 +66,13 @@
                     "type": "password",
                     "required": true,
                     "minlen": 5
+                },
+                {
+                    "name": "file",
+                    "title": "A file upload field",
+                    "type": "file",
+                    "required": true,
+                    "extensions": ["csv"]
                 }
             ]
         }
