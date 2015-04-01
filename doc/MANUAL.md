@@ -189,9 +189,31 @@ The `date` field type supports the following additional options:
 
 ### Text
 
+The `text` field presents the user with a field in which they can enter
+multi-lined text.
+
+The `text` field type supports the following additional options:
+
+- **`rows`**: The number of rows to make the input field
+- **`cols`**: The number of cols to make the input filed.
+- **`minlen`**: The minimum allowed length for the field.
+- **`maxlen`**: The maximum allowed length for the field.
+
 ### Password
 
+- **`minlen`**: The minimum allowed length for the field.
+
 ### File
+
+The `file` field type presents the user with a field through which they can
+upload a file. Uploaded files are streamed to temporary files by Scriptform,
+after which the original field value is replaced with this temporary file name.
+This allows users to upload large files.
+
+The original file name of the uploaded file is stored in a new variable
+'&lt;field_name&gt;__name'.
+
+No additional validation is done on the file contents, or the file name.
 
 ## Callbacks
 
