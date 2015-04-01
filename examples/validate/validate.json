@@ -38,6 +38,34 @@
                     "required": true,
                     "min": "2015-01-01",
                     "max": "2015-02-01"
+                },
+                {
+                    "name": "radio",
+                    "title": "A radio",
+                    "type": "radio",
+                    "required": true,
+                    "options": [
+                        ["One", "one"],
+                        ["Two", "two"],
+                        ["Three", "three"]
+                    ]
+                },
+                {
+                    "name": "text",
+                    "title": "A text input field",
+                    "type": "text",
+                    "required": true,
+                    "rows": 2,
+                    "cols": 50,
+                    "maxlen": 100,
+                    "minlen": 10
+                },
+                {
+                    "name": "password",
+                    "title": "A password input field",
+                    "type": "password",
+                    "required": true,
+                    "minlen": 5
                 }
             ]
         }
