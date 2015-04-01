@@ -6,6 +6,8 @@
 #  - Validate field values properly.
 #     * Integer/float min, max
 #     * Uploaded files mime-types/extensions
+#  - Radio field type has no correct default value.
+#  - Default values for input fields.
 
 import sys
 import optparse
@@ -66,7 +68,7 @@ html_header = '''<html>
                          background-color: #F9F9F9;}}
     input[type=submit] {{ color: #FFFFFF; font-weight: bold;
                          background-color: #1D98E4; border-color: #1D98E4}}
-    textarea {{ width: 80%; height: 120px; }}
+    textarea {{ font-family: monospace; }}
     /* Result display */
     div.result {{ width: 50%; margin: 40px auto 0px auto; }}
     div.result h2 {{ background-color: #E0E5E5; border-radius: 3px;
@@ -273,6 +275,29 @@ class FormDefinition:
                 "Invalid value for dropdown: {0}".format(value))
         return value
 
+    def validate_text(self, field_def, value):
+        minlen = field_def.get('minlen', None)
+        maxlen = field_def.get('maxlen', None)
+
+        if minlen is not None:
+            if len(value) < minlen:
+                raise Exception("minimum length is {0}".format(minlen))
+
+        if maxlen is not None:
+            if len(value) > maxlen:
+                raise Exception("maximum length is {0}".format(maxlen))
+
+        return value
+
+    def validate_password(self, field_def, value):
+        minlen = field_def.get('minlen', None)
+
+        if minlen is not None:
+            if len(value) < minlen:
+                raise Exception("minimum length is {0}".format(minlen))
+
+        return value
+
 
 class ThreadedHTTPServer(ThreadingMixIn, BaseHTTPServer.HTTPServer):
     pass
@@ -427,8 +452,8 @@ class ScriptFormWebApp(WebAppHandler):
             "float": '<input {0} type="number" min="{1}" max="{2}" step="any" name="{3}" />',
             "date": '<input {0} type="date" name="{1}" />',
             "file": '<input {0} type="file" name="{1}" />',
-            "password": '<input {0} type="password" name="{1}" />',
-            "text": '<textarea {0} name="{1}"></textarea>',
+            "password": '<input {0} type="password" min="{1}" name="{2}" />',
+            "text": '<textarea {0} name="{1}" rows="{2}" cols="{3}"></textarea>',
             "select": '<option value="{0}">{1}</option>',
             "radio": '<input checked type="radio" name="{0}" value="{1}">{2}<br/>',
         }
@@ -453,7 +478,7 @@ class ScriptFormWebApp(WebAppHandler):
             elif field['type'] == 'file':
                 input = tpl.format(required, field['name'])
             elif field['type'] == 'password':
-                input = tpl.format(required, field['name'])
+                input = tpl.format(required, field.get('minlen', ''), field['name'])
             elif field['type'] == 'radio':
                 input = ''.join(
                     [
@@ -462,7 +487,14 @@ class ScriptFormWebApp(WebAppHandler):
                     ]
                 )
             elif field['type'] == 'text':
-                input = tpl.format(required, field['name'])
+                rows = field.get('rows', 5)
+                cols = field.get('cols', 80)
+                input = tpl.format(
+                    required,
+                    field['name'],
+                    rows,
+                    cols
+                )
             elif field['type'] == 'select':
                 options = ''.join([
                         tpl.format(o[0], o[1]) for o in field['options']
@@ -538,7 +570,9 @@ class ScriptFormWebApp(WebAppHandler):
                     f.write(buf)
                 f.close()
                 field.file.close()
+
                 file_fields[field_name] = tmpfile
+                file_fields['{0}__name'.format(field_name)] = field.filename
 
         # Validate the form values
         form_errors, form_values = form_def.validate(form_values)
