@@ -86,11 +86,11 @@ We can now start ScriptForm to start serving the form over HTTP:
 
 The user is presented with the following form:
 
-![Form](/home/fboender/form.png)
+![](https://raw.githubusercontent.com/fboender/scriptform/master/doc/screenshots/list.png)
 
 When submitting the form, the results are displayed.
 
-![Form](/home/fboender/result.png)
+![](https://raw.githubusercontent.com/fboender/scriptform/master/doc/screenshots/form.png)
 
 ## Installation
 
