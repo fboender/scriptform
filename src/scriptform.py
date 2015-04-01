@@ -3,9 +3,6 @@
 # Todo:
 #
 #  - How does script_raw check the exitcode? Document this.
-#  - Validate field values properly.
-#     * Integer/float min, max
-#     * Uploaded files mime-types/extensions
 #  - Radio field type has no correct default value.
 #  - Default values for input fields.
 #  - If there are errors in the form, its values are empties.
