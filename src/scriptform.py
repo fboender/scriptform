@@ -133,6 +133,65 @@ html_submit_response = '''
 '''
 
 
+class ScriptForm:
+    """
+    'Main' class that orchestrates parsing the Form configurations, hooking up
+    callbacks and running the webserver.
+    """
+    def __init__(self, config_file, callbacks=None):
+        self.config_file = config_file
+        if callbacks:
+            self.callbacks = callbacks
+        else:
+            self.callbacks = {}
+        self.basepath = os.path.realpath(os.path.dirname(config_file))
+
+    def get_form_config(self):
+        # Cache
+        if hasattr(self, 'form_config_singleton'):
+            return self.form_config_singleton
+
+        path = self.config_file
+        config = json.load(file(path, 'r'))
+
+        title = config['title']
+        forms = []
+        callbacks = self.callbacks
+        users = None
+
+        if 'users' in config:
+            users = config['users']
+        for form_name, form in config['forms'].items():
+            if 'script' in form:
+                script = os.path.join(self.basepath, form['script'])
+            else:
+                script = None
+            forms.append(
+                FormDefinition(form_name,
+                               form['title'],
+                               form['description'],
+                               form['fields'],
+                               script,
+                               output=form.get('output', 'escaped'),
+                               submit_title=form.get('submit_title', None),
+                               allowed_users=form.get('allowed_users', None))
+            )
+
+        form_config = FormConfig(
+            config['title'],
+            forms,
+            callbacks,
+            users
+        )
+        self.form_config_singleton = form_config
+        return form_config
+
+    def run(self, listen_addr='0.0.0.0', listen_port=80):
+        ScriptFormWebApp.scriptform = self
+        #ScriptFormWebApp.callbacks = self.callbacks
+        WebSrv(ScriptFormWebApp, listen_addr=listen_addr, listen_port=listen_port)
+
+
 class FormConfig:
     def __init__(self, title, forms, callbacks={}, users={}):
         self.title = title
@@ -459,7 +518,6 @@ class ScriptFormWebApp(WebAppHandler):
 
         # If a 'users' element was present in the form configuration file, the
         # user must be authenticated.
-        print form_config.users
         if form_config.users:
             authorized = False
             auth_header = self.headers.getheader("Authorization")
@@ -696,58 +754,6 @@ class ScriptFormWebApp(WebAppHandler):
         for file_name in tmp_files:
             if os.path.exists(file_name):
                 os.unlink(file_name)
-
-class ScriptForm:
-    """
-    'Main' class that orchestrates parsing the Form configurations, hooking up
-    callbacks and running the webserver.
-    """
-    def __init__(self, config_file, callbacks=None):
-        self.config_file = config_file
-        if callbacks:
-            self.callbacks = callbacks
-        else:
-            self.callbacks = {}
-        self.basepath = os.path.realpath(os.path.dirname(config_file))
-
-    def get_form_config(self):
-        path = self.config_file
-        config = json.load(file(path, 'r'))
-
-        title = config['title']
-        forms = []
-        callbacks = self.callbacks
-        users = None
-
-        if 'users' in config:
-            users = config['users']
-        for form_name, form in config['forms'].items():
-            if 'script' in form:
-                script = os.path.join(self.basepath, form['script'])
-            else:
-                script = None
-            forms.append(
-                FormDefinition(form_name,
-                               form['title'],
-                               form['description'],
-                               form['fields'],
-                               script,
-                               output=form.get('output', 'escaped'),
-                               submit_title=form.get('submit_title', None),
-                               allowed_users=form.get('allowed_users', None))
-            )
-
-        return FormConfig(
-            config['title'],
-            forms,
-            callbacks,
-            users
-        )
-
-    def run(self, listen_addr='0.0.0.0', listen_port=80):
-        ScriptFormWebApp.scriptform = self
-        #ScriptFormWebApp.callbacks = self.callbacks
-        WebSrv(ScriptFormWebApp, listen_addr=listen_addr, listen_port=listen_port)
 
 
 def main_generate_pw(parser, options, args):
