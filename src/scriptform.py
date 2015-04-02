@@ -133,6 +133,60 @@ html_submit_response = '''
 '''
 
 
+class FormConfig:
+    def __init__(self, title, forms, callbacks={}, users={}):
+        self.title = title
+        self.users = users
+        self.forms = forms
+        self.callbacks = callbacks
+
+        # Validate scripts
+        for form_def in self.forms:
+            if form_def.script:
+                if not stat.S_IXUSR & os.stat(form_def.script)[stat.ST_MODE]:
+                    raise Exception("{0} is not executable".format(form_def.script))
+            else:
+                if not form_name in self.callbacks:
+                    raise Exception("No script or callback registered for '{0}'".format(form_name))
+
+    def get_form(self, form_name):
+        for form_def in self.forms:
+            if form_def.name == form_name:
+                return form_def
+
+    def callback(self, form_name, form_values, output_fh=None):
+        form = self.get_form(form_name)
+        if form.script:
+            return self.callback_script(form, form_values, output_fh)
+        else:
+            return self.callback_python(form, form_values, output_fh)
+
+    def callback_script(self, form, form_values, output_fh=None):
+        # Pass form values to the script through the environment as strings.
+        env = os.environ.copy()
+        for k, v in form_values.items():
+            env[k] = str(v)
+
+        if form.output == 'raw':
+            p = subprocess.Popen(form.script, shell=True, stdout=output_fh,
+                                 stderr=output_fh, env=env)
+            stdout, stderr = p.communicate(input)
+            return None
+        else:
+            p = subprocess.Popen(form.script, shell=True, stdin=subprocess.PIPE,
+                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                 env=env)
+            stdout, stderr = p.communicate()
+            return {
+                'stdout': stdout,
+                'stderr': stderr,
+                'exitcode': p.returncode
+            }
+
+    def callback_python(self, form, form_values, output_fh=None):
+        pass
+
+
 class FormDefinition:
     """
     FormDefinition holds information about a single form and provides methods
@@ -400,11 +454,13 @@ class ScriptFormWebApp(WebAppHandler):
         validated. Otherwise, returns False and sends 401 HTTP back to the
         client.
         """
+        form_config = self.scriptform.get_form_config()
         self.username = None
 
         # If a 'users' element was present in the form configuration file, the
         # user must be authenticated.
-        if self.scriptform.users:
+        print form_config.users
+        if form_config.users:
             authorized = False
             auth_header = self.headers.getheader("Authorization")
             if auth_header is not None:
@@ -412,8 +468,8 @@ class ScriptFormWebApp(WebAppHandler):
                 username, password = base64.decodestring(auth_unpw).split(":")
                 pw_hash = hashlib.sha256(password).hexdigest()
                 # Validate the username and password
-                if username in self.scriptform.users and \
-                   pw_hash == self.scriptform.users[username]:
+                if username in form_config.users and \
+                   pw_hash == form_config.users[username]:
                     self.username = username
                     authorized = True
 
@@ -426,11 +482,12 @@ class ScriptFormWebApp(WebAppHandler):
         return True
 
     def h_list(self):
+        form_config = self.scriptform.get_form_config()
         if not self.auth():
             return
 
         h_form_list = []
-        for form_name, form_def in self.scriptform.forms.items():
+        for form_def in form_config.forms:
             if form_def.allowed_users is not None and \
                self.username not in form_def.allowed_users:
                 continue # User is not allowed to run this form
@@ -444,11 +501,11 @@ class ScriptFormWebApp(WebAppHandler):
               </li>
             '''.format(title=form_def.title,
                        description=form_def.description,
-                       name=form_name)
+                       name=form_def.name)
             )
 
         output = html_list.format(
-            header=html_header.format(title=self.scriptform.title),
+            header=html_header.format(title=form_config.title),
             footer=html_footer,
             form_list=''.join(h_form_list)
         )
@@ -458,6 +515,7 @@ class ScriptFormWebApp(WebAppHandler):
         self.wfile.write(output)
 
     def h_form(self, form_name, errors={}):
+        form_config = self.scriptform.get_form_config()
         if not self.auth():
             return
 
@@ -534,7 +592,7 @@ class ScriptFormWebApp(WebAppHandler):
                 )
             )
 
-        form_def = self.scriptform.get_form(form_name)
+        form_def = form_config.get_form(form_name)
         if form_def.allowed_users is not None and \
            self.username not in form_def.allowed_users:
             raise Exception("Not authorized")
@@ -547,7 +605,7 @@ class ScriptFormWebApp(WebAppHandler):
             html_errors += '</ul>'
 
         output = html_form.format(
-            header=html_header.format(title=self.scriptform.title),
+            header=html_header.format(title=form_config.title),
             footer=html_footer,
             title=form_def.title,
             description=form_def.description,
@@ -562,11 +620,12 @@ class ScriptFormWebApp(WebAppHandler):
         self.wfile.write(output)
 
     def h_submit(self, form_values):
+        form_config = self.scriptform.get_form_config()
         if not self.auth():
             return
 
         form_name = form_values.getfirst('form_name', None)
-        form_def = self.scriptform.get_form(form_name)
+        form_def = form_config.get_form(form_name)
         if form_def.allowed_users is not None and \
            self.username not in form_def.allowed_users:
             raise Exception("Not authorized")
@@ -608,7 +667,7 @@ class ScriptFormWebApp(WebAppHandler):
             # in some nice HTML. If no result is returned, the output was raw
             # and the callback should have written its own response to the
             # self.wfile filehandle.
-            result = self.scriptform.callback(form_name, form_values, self.wfile)
+            result = form_config.callback(form_name, form_values, self.wfile)
             if result:
                 if result['exitcode'] != 0:
                     msg = '<span class="error">{0}</span>'.format(cgi.escape(result['stderr']))
@@ -619,7 +678,7 @@ class ScriptFormWebApp(WebAppHandler):
                         msg = result['stdout']
 
                 output = html_submit_response.format(
-                    header=html_header.format(title=self.scriptform.title),
+                    header=html_header.format(title=form_config.title),
                     footer=html_footer,
                     title=form_def.title,
                     form_name=form_def.name,
@@ -640,41 +699,34 @@ class ScriptFormWebApp(WebAppHandler):
 
 class ScriptForm:
     """
-    'Main' class that orchestrates parsing the Form definition file
-    `config_file`, hooking up callbacks and running the webserver.
+    'Main' class that orchestrates parsing the Form configurations, hooking up
+    callbacks and running the webserver.
     """
-    def __init__(self, config_file, callbacks={}):
-        self.forms = {}
-        self.callbacks = {}
-        self.title = 'ScriptForm Actions'
-        self.users = None
+    def __init__(self, config_file, callbacks=None):
+        self.config_file = config_file
+        if callbacks:
+            self.callbacks = callbacks
+        else:
+            self.callbacks = {}
         self.basepath = os.path.realpath(os.path.dirname(config_file))
 
-        self._load_config(config_file)
-        for form_name, cb in callbacks.items():
-            self.callbacks[form_name] = cb
-
-        # Validate scripts
-        for form_name, form_def in self.forms.items():
-            if form_def.script:
-                if not stat.S_IXUSR & os.stat(form_def.script)[stat.ST_MODE]:
-                    raise Exception("{0} is not executable".format(form_def.script))
-            else:
-                if not form_name in self.callbacks:
-                    raise Exception("No script or callback registered for '{0}'".format(form_name))
-
-    def _load_config(self, path):
+    def get_form_config(self):
+        path = self.config_file
         config = json.load(file(path, 'r'))
-        if 'title' in config:
-            self.title = config['title']
+
+        title = config['title']
+        forms = []
+        callbacks = self.callbacks
+        users = None
+
         if 'users' in config:
-            self.users = config['users']
+            users = config['users']
         for form_name, form in config['forms'].items():
             if 'script' in form:
                 script = os.path.join(self.basepath, form['script'])
             else:
                 script = None
-            self.forms[form_name] = \
+            forms.append(
                 FormDefinition(form_name,
                                form['title'],
                                form['description'],
@@ -683,45 +735,18 @@ class ScriptForm:
                                output=form.get('output', 'escaped'),
                                submit_title=form.get('submit_title', None),
                                allowed_users=form.get('allowed_users', None))
+            )
 
-    def get_form(self, form_name):
-        return self.forms[form_name]
-
-    def callback(self, form_name, form_values, output_fh=None):
-        form = self.get_form(form_name)
-        if form.script:
-            return self.callback_script(form, form_values, output_fh)
-        else:
-            return self.callback_python(form, form_values, output_fh)
-
-    def callback_script(self, form, form_values, output_fh=None):
-        # Pass form values to the script through the environment as strings.
-        env = os.environ.copy()
-        for k, v in form_values.items():
-            env[k] = str(v)
-
-        if form.output == 'raw':
-            p = subprocess.Popen(form.script, shell=True, stdout=output_fh,
-                                 stderr=output_fh, env=env)
-            stdout, stderr = p.communicate(input)
-            return None
-        else:
-            p = subprocess.Popen(form.script, shell=True, stdin=subprocess.PIPE,
-                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                 env=env)
-            stdout, stderr = p.communicate()
-            return {
-                'stdout': stdout,
-                'stderr': stderr,
-                'exitcode': p.returncode
-            }
-
-    def callback_python(self, form, form_values, output_fh=None):
-        pass
+        return FormConfig(
+            config['title'],
+            forms,
+            callbacks,
+            users
+        )
 
     def run(self, listen_addr='0.0.0.0', listen_port=80):
         ScriptFormWebApp.scriptform = self
-        ScriptFormWebApp.callbacks = self.callbacks
+        #ScriptFormWebApp.callbacks = self.callbacks
         WebSrv(ScriptFormWebApp, listen_addr=listen_addr, listen_port=listen_port)
 
 

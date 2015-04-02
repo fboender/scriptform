@@ -39,9 +39,9 @@ Configure:
 
 Make sure the path ends in a slash! (That's what the redirect is for).
 
-## Form definition (JSON) files
+## Form config (JSON) files
 
-Forms are defined in JSON format. They are referred to as *Form Definition*
+Forms are defined in JSON format. They are referred to as *Form config*
 files. A single JSON file may contain multiple forms. Scriptform will show them
 on an overview page, and the user can select which form they want to fill out.
 
@@ -76,7 +76,7 @@ Structurally, they are made up of the following elements:
 - **`users`**: A dictionary of users where the key is the username and the
   value is the plaintext password. This field is not required. **Dictionary**.
 
-For example, here's a form definition file that contains two forms:
+For example, here's a form config file that contains two forms:
 
     {
       "title": "Test server",
@@ -128,8 +128,6 @@ For example, here's a form definition file that contains two forms:
         }
       }
     }
-
-
 
 
 ## Field types
@@ -238,6 +236,7 @@ and shown to the user in the browser.
 If a script's exit code is not 0, it is assumed an error occured. Scriptform
 will show the script's stderr output (in red) to the user instead of stdin.
 
+FIXME:
 If the form definition has a `script_raw` field, and its value is `true`,
 Scriptform will pass the output of the script to the browser as-is. This allows
 scripts to show images, stream a file download to the browser or even show
@@ -265,7 +264,7 @@ things to stdout, it can be used as a callback.
 
 Fields of the form are validated by Scriptform before the script is called.
 Exactly what is validated depends on the options specified in the Form
-Definition file. For more info on that, see the *Field Types* section of this
+Definition. For more info on that, see the *Field Types* section of this
 manual.
 
 #### Field values
