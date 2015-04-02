@@ -3,7 +3,6 @@
 # Todo:
 #
 #  - How does script_raw check the exitcode? Document this.
-#  - Radio field type has no correct default value.
 #  - Default values for input fields.
 #  - If there are errors in the form, its values are empties.
 
@@ -472,7 +471,7 @@ class ScriptFormWebApp(WebAppHandler):
             "password": '<input {0} type="password" min="{1}" name="{2}" />',
             "text": '<textarea {0} name="{1}" rows="{2}" cols="{3}"></textarea>',
             "select": '<option value="{0}">{1}</option>',
-            "radio": '<input checked type="radio" name="{0}" value="{1}">{2}<br/>',
+            "radio": '<input {0} type="radio" name="{1}" value="{2}">{3}<br/>',
         }
 
         def render_field(field, errors):
@@ -497,12 +496,12 @@ class ScriptFormWebApp(WebAppHandler):
             elif field['type'] == 'password':
                 input = tpl.format(required, field.get('minlen', ''), field['name'])
             elif field['type'] == 'radio':
-                input = ''.join(
-                    [
-                        tpl.format(field['name'], o[0], o[1])
-                        for o in field['options']
-                    ]
-                )
+                radio_elems = []
+                checked = 'checked'
+                for option in field['options']:
+                    radio_elems.append(tpl.format(checked, field['name'], option[0], option[1]))
+                    checked = '' # Check first radio option
+                input = ''.join(radio_elems)
             elif field['type'] == 'text':
                 rows = field.get('rows', 5)
                 cols = field.get('cols', 80)
