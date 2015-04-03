@@ -212,6 +212,8 @@ class FormConfig:
         for form_def in self.forms:
             if form_def.name == form_name:
                 return form_def
+        else:
+            raise ValueError("No such form: {0}".format(form_name))
 
     def callback(self, form_name, form_values, output_fh=None):
         form = self.get_form(form_name)
