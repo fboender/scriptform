@@ -506,7 +506,12 @@ class ScriptFormWebApp(WebAppHandler):
     This class is a request handler for WebSrv.
     """
     def index(self):
-        return self.h_list()
+        form_config = self.scriptform.get_form_config()
+        if len(form_config.forms) == 1:
+            first_form = form_config.forms[0]
+            return self.h_form(first_form.name)
+        else:
+            return self.h_list()
 
     def auth(self):
         """
