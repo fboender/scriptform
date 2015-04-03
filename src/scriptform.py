@@ -6,6 +6,7 @@
 #  - Default values for input fields.
 #  - If there are errors in the form, its values are empties.
 #  - Send responses using self.send_ if possible
+#  - Complain about no registered callback on startup instead of serving.
 
 import sys
 import optparse
@@ -214,8 +215,8 @@ class FormConfig:
                 if not stat.S_IXUSR & os.stat(form_def.script)[stat.ST_MODE]:
                     raise ScriptFormError("{0} is not executable".format(form_def.script))
             else:
-                if not form_name in self.callbacks:
-                    raise ScriptFormError("No script or callback registered for '{0}'".format(form_name))
+                if not form_def.name in self.callbacks:
+                    raise ScriptFormError("No script or callback registered for '{0}'".format(form_def.name))
 
     def get_form(self, form_name):
         for form_def in self.forms:
@@ -224,12 +225,12 @@ class FormConfig:
         else:
             raise ValueError("No such form: {0}".format(form_name))
 
-    def callback(self, form_name, form_values, output_fh=None):
+    def callback(self, form_name, form_values, request):
         form = self.get_form(form_name)
         if form.script:
-            return self.callback_script(form, form_values, output_fh)
+            return self.callback_script(form, form_values, request.wfile)
         else:
-            return self.callback_python(form, form_values, output_fh)
+            return self.callback_python(form, form_values, request)
 
     def callback_script(self, form, form_values, output_fh=None):
         # Pass form values to the script through the environment as strings.
@@ -253,8 +254,26 @@ class FormConfig:
                 'exitcode': p.returncode
             }
 
-    def callback_python(self, form, form_values, output_fh=None):
-        pass
+    def callback_python(self, form, form_values, request):
+        callback = self.callbacks[form.name]
+
+        try:
+            result = callback(form_values, request)
+            if result:
+                return {
+                    'stdout': result,
+                    'stderr': '',
+                    'exitcode': 0
+                }
+            else:
+                # Raw output
+                pass
+        except Exception,e :
+            return {
+                'stdout': '',
+                'stderr': str(e),
+                'exitcode': 1
+            }
 
 
 class FormDefinition:
@@ -744,7 +763,7 @@ class ScriptFormWebApp(WebAppHandler):
             # in some nice HTML. If no result is returned, the output was raw
             # and the callback should have written its own response to the
             # self.wfile filehandle.
-            result = form_config.callback(form_name, form_values, self.wfile)
+            result = form_config.callback(form_name, form_values, self)
             if result:
                 if result['exitcode'] != 0:
                     msg = '<span class="error">{0}</span>'.format(cgi.escape(result['stderr']))

@@ -9,8 +9,8 @@ as frontends to scripts.
 ScriptForm takes a JSON file which contains form definitions. It then
 constructs web forms from this JSON and serves these to users. The user can
 select a form and fill it out. When the user submits the form, it is validated
-and the associated script is called. Data entered in the form is passed to the
-script through the environment.
+and the associated script or Python callback is called. Data entered in the
+form is passed to the script through the environment.
 
 ### Features
 
@@ -22,6 +22,8 @@ script through the environment.
 - Uploaded files are automatically saved to temporary files, which are passed
   on to the callback.
 - Multiple forms in a single JSON definition file.
+- Handles script / exception errors, HTML output or lets scripts and Python
+  callbacks stream their own HTTP response to the browser.
 
 ### Use-cases
 
@@ -106,9 +108,7 @@ ScriptForm requires:
 
 ## Usage
 
-### Authentication
-
-Passwords are stored in plain text.
+FIXME
 
 ## License
 

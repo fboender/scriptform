@@ -22,6 +22,22 @@
                 }
             ]
         },
+        "export": {
+            "title": "Export data",
+            "description": "Export a dump of the database",
+            "submit_title": "Export",
+            "fields": [
+                {
+                    "name": "source_db",
+                    "title": "Database to export",
+                    "type": "select",
+                    "options": [
+                        ["devtest", "Dev Test db"],
+                        ["prodtest", "Prod Test db"]
+                    ]
+                }
+            ]
+        },
         "add_user": {
             "title": "Add user",
             "description": "Add a user to the htaccess file or change their password",
