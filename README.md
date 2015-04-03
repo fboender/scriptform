@@ -46,7 +46,7 @@ submitted, the `job_add_user.sh` script is called which adds the user to the
 htpasswd file.
 
 
-Form definition file: `test_server.json`
+Form configuration file: `test_server.json`
 
     {
       "title": "Test server",
@@ -91,6 +91,10 @@ The user is presented with the following form:
 When submitting the form, the results are displayed.
 
 ![](https://raw.githubusercontent.com/fboender/scriptform/master/doc/screenshots/result.png)
+
+For more examples, see the [examples directory](https://github.com/fboender/scriptform/tree/master/examples)
+
+For more screenshots, see the [screenshots page](https://raw.githubusercontent.com/fboender/scriptform/master/doc/screenshots/result.png)
 
 ## Installation
 
