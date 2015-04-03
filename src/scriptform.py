@@ -133,6 +133,14 @@ html_submit_response = '''
 '''
 
 
+class ValidationError(BaseException):
+    pass
+
+
+class ScriptFormError(BaseException):
+    pass
+
+
 class ScriptForm:
     """
     'Main' class that orchestrates parsing the Form configurations, hooking up
@@ -203,10 +211,10 @@ class FormConfig:
         for form_def in self.forms:
             if form_def.script:
                 if not stat.S_IXUSR & os.stat(form_def.script)[stat.ST_MODE]:
-                    raise Exception("{0} is not executable".format(form_def.script))
+                    raise ScriptFormError("{0} is not executable".format(form_def.script))
             else:
                 if not form_name in self.callbacks:
-                    raise Exception("No script or callback registered for '{0}'".format(form_name))
+                    raise ScriptFormError("No script or callback registered for '{0}'".format(form_name))
 
     def get_form(self, form_name):
         for form_def in self.forms:
@@ -295,7 +303,7 @@ class FormDefinition:
                 v = self.validate_field(field_name, form_values)
                 if v is not None:
                     values[field_name] = v
-            except Exception, e:
+            except ValidationError, e:
                 errors.setdefault(field_name, []).append(str(e))
 
         return (errors, values)
@@ -307,7 +315,7 @@ class FormDefinition:
         # Find field definition by iterating through all the fields.
         field_def = self.get_field(field_name)
         if not field_def:
-            raise KeyError("Unknown field: {0}".format(field_name))
+            raise ValidationError("Unknown field: {0}".format(field_name))
 
         field_type = field_def['type']
         validate_cb = getattr(self, 'validate_{0}'.format(field_type), None)
@@ -319,9 +327,9 @@ class FormDefinition:
         minlen = field_def.get('minlen', None)
 
         if minlen is not None and len(value) < minlen:
-            raise Exception("Minimum length is {0}".format(minlen))
+            raise ValidationError("Minimum length is {0}".format(minlen))
         if maxlen is not None and len(value) > maxlen:
-            raise Exception("Maximum length is {0}".format(maxlen))
+            raise ValidationError("Maximum length is {0}".format(maxlen))
 
         return value
 
@@ -333,12 +341,12 @@ class FormDefinition:
         try:
             value = int(value)
         except ValueError:
-            raise Exception("Must be an integer number")
+            raise ValidationError("Must be an integer number")
 
         if min is not None and value < min:
-            raise Exception("Minimum value is {0}".format(min))
+            raise ValidationError("Minimum value is {0}".format(min))
         if max is not None and value > max:
-            raise Exception("Maximum value is {0}".format(max))
+            raise ValidationError("Maximum value is {0}".format(max))
 
         return int(value)
 
@@ -350,12 +358,12 @@ class FormDefinition:
         try:
             value = float(value)
         except ValueError:
-            raise Exception("Must be an real (float) number")
+            raise ValidationError("Must be an real (float) number")
 
         if min is not None and value < min:
-            raise Exception("Minimum value is {0}".format(min))
+            raise ValidationError("Minimum value is {0}".format(min))
         if max is not None and value > max:
-            raise Exception("Maximum value is {0}".format(max))
+            raise ValidationError("Maximum value is {0}".format(max))
 
         return float(value)
 
@@ -367,28 +375,28 @@ class FormDefinition:
         try:
             value = datetime.datetime.strptime(value, '%Y-%m-%d').date()
         except ValueError:
-            raise Exception("Invalid date, must be in form YYYY-MM-DD")
+            raise ValidationError("Invalid date, must be in form YYYY-MM-DD")
 
         if min is not None:
             if value < datetime.datetime.strptime(min, '%Y-%m-%d').date():
-                raise Exception("Minimum value is {0}".format(min))
+                raise ValidationError("Minimum value is {0}".format(min))
         if max is not None:
             if value > datetime.datetime.strptime(max, '%Y-%m-%d').date():
-                raise Exception("maximum value is {0}".format(max))
+                raise ValidationError("maximum value is {0}".format(max))
 
         return value
 
     def validate_radio(self, field_def, form_values):
         value = form_values[field_def['name']]
         if not value in [o[0] for o in field_def['options']]:
-            raise ValueError(
+            raise ValidationError(
                 "Invalid value for radio button: {0}".format(value))
         return value
 
     def validate_select(self, field_def, form_values):
         value = form_values[field_def['name']]
         if not value in [o[0] for o in field_def['options']]:
-            raise ValueError(
+            raise ValidationError(
                 "Invalid value for dropdown: {0}".format(value))
         return value
 
@@ -399,11 +407,11 @@ class FormDefinition:
 
         if minlen is not None:
             if len(value) < minlen:
-                raise Exception("minimum length is {0}".format(minlen))
+                raise ValidationError("minimum length is {0}".format(minlen))
 
         if maxlen is not None:
             if len(value) > maxlen:
-                raise Exception("maximum length is {0}".format(maxlen))
+                raise ValidationError("maximum length is {0}".format(maxlen))
 
         return value
 
@@ -413,7 +421,7 @@ class FormDefinition:
 
         if minlen is not None:
             if len(value) < minlen:
-                raise Exception("minimum length is {0}".format(minlen))
+                raise ValidationError("minimum length is {0}".format(minlen))
 
         return value
 
@@ -425,7 +433,7 @@ class FormDefinition:
         extensions = field_def.get('extensions', None)
 
         if extensions is not None and upload_fname_ext not in extensions:
-            raise Exception("Only file types allowed: {0}".format(','.join(extensions)))
+            raise ValidationError("Only file types allowed: {0}".format(','.join(extensions)))
 
         return value
 
