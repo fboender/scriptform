@@ -94,7 +94,7 @@ When submitting the form, the results are displayed.
 
 For more examples, see the [examples directory](https://github.com/fboender/scriptform/tree/master/examples)
 
-For more screenshots, see the [screenshots page](https://raw.githubusercontent.com/fboender/scriptform/master/doc/screenshots/result.png)
+For more screenshots, see the [screenshots Wiki page](https://github.com/fboender/scriptform/wiki/Screenshots)
 
 ## Installation
 
