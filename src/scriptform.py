@@ -669,7 +669,8 @@ class ScriptFormWebApp(WebAppHandler):
         form_def = form_config.get_form(form_name)
         if form_def.allowed_users is not None and \
            self.username not in form_def.allowed_users:
-            raise Exception("Not authorized")
+            self.send_error(401, "You're not authorized to view this form")
+            return
 
         html_errors = ''
         if errors:
@@ -702,7 +703,8 @@ class ScriptFormWebApp(WebAppHandler):
         form_def = form_config.get_form(form_name)
         if form_def.allowed_users is not None and \
            self.username not in form_def.allowed_users:
-            raise Exception("Not authorized")
+            self.send_error(401, "You're not authorized to view this form")
+            return
 
         # Convert FieldStorage to a simple dict, because we're not allowd to
         # add items to it. For normal fields, the form field name becomes the
