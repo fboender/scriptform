@@ -657,6 +657,7 @@ class ScriptFormWebApp(WebAppHandler):
                 )
             )
 
+        # Make sure the user is allowed to access this form.
         form_def = form_config.get_form(form_name)
         if form_def.allowed_users is not None and \
            self.username not in form_def.allowed_users:
