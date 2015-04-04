@@ -114,6 +114,13 @@ certainly available.
 
 FIXME
 
+## Security
+
+ScriptForm is only as secure as you write your scripts. Although form values
+are validated before calling scripts, many possible security problems should be
+taken into consideration. As such, you should *never* expose ScriptForm to the
+public internet. Its intended end users should be people you trust at least to
+a certain degree.
 ## License
 
 ScriptForm is released under the MIT license.
