@@ -29,11 +29,15 @@ import urlparse
 html_header = '''<html>
 <head>
   <style>
-    .btn {{ color: #FFFFFF; font-weight: bold; font-size: 0.90em;
-           background-color: #1D98E4; border-color: #1D98E4; padding: 9px;
-           border-radius: 4px; border-width: 0px; text-decoration: none;
-           }}
+    /* Default classes */
+    .btn {{ color: #FFFFFF; font-weight: bold; font-size: 0.9em;
+            background-color: #1D98E4; padding: 9px; border-radius: 4px;
+            border-width: 0px; text-decoration: none; }}
+    .btn-act {{ background-color: #1D98E4; }}
+    .btn-lnk {{ background-color: #D0D0D0; }}
     .error {{ color: #FF0000; }}
+
+    /* Main element markup */
     *,body {{ font-family: sans-serif; }}
     h1 {{ color: #555555; text-align: center; margin: 32px auto 32px auto; }}
     pre {{ font-family: monospace; }}
@@ -62,13 +66,11 @@ html_header = '''<html>
     input[type=text],
     input[type=number],
     input[type=date],
-    input[type=password],
-    input[type=submit] {{ color: #606060; padding: 9px; border-radius: 4px;
-                         border: 1px solid #D0D0D0;
-                         background-color: #F9F9F9;}}
-    input[type=submit] {{ color: #FFFFFF; font-weight: bold;
-                         background-color: #1D98E4; border-color: #1D98E4}}
+    input[type=password] {{ color: #606060; padding: 9px; border-radius: 4px;
+                            border: 1px solid #D0D0D0;
+                            background-color: #F9F9F9; }}
     textarea {{ font-family: monospace; }}
+
     /* Result display */
     div.result {{ width: 50%; margin: 40px auto 0px auto; }}
     div.result h2 {{ background-color: #E0E5E5; border-radius: 3px;
@@ -108,7 +110,10 @@ html_form = '''
     <input type="hidden" name="form_name" value="{name}" />
     <ul>
         {fields}
-        <li><input type="submit" value="{submit_title}" /></li>
+        <li>
+          <input type="submit" class="btn btn-act" value="{submit_title}" />
+          <a href="."><button type="button" class="btn btn-lnk" value="Back">Back to the list</button></a>
+        </li>
     </ul>
   </form>
 </div>
@@ -123,13 +128,11 @@ html_submit_response = '''
   <div class="result-result">{msg}</div>
   <ul class="nav">
     <li>
-      <a class="back-list btn" href=".">Back to the list</a>
-    </li>
-    <li>
-      <a class="back-form btn" href="form?form_name={form_name}">
+      <a class="back-form btn btn-lnk" href="form?form_name={form_name}">
         Back to the form
       </a>
     </li>
+    <li><a class="btn btn-lnk" href=".">Back to the list</a></li>
   </ul>
 </div>
 {footer}
@@ -622,7 +625,7 @@ class ScriptFormWebApp(WebAppHandler):
               <li>
                 <h2 class="form-title">{title}</h2>
                 <p class="form-description">{description}</p>
-                <a class="form-link btn" href="./form?form_name={name}">
+                <a class="form-link btn btn-act" href="./form?form_name={name}">
                   {title}
                 </a>
               </li>
