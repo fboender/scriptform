@@ -23,6 +23,7 @@ import subprocess
 import base64
 import tempfile
 import hashlib
+import urlparse
 
 
 html_header = '''<html>
@@ -516,14 +517,13 @@ class WebAppHandler(BaseHTTPRequestHandler):
         self.call(self.path.strip('/'), params={'form_values': form_values})
 
     def parse(self, reqinfo):
-        if '?' in reqinfo:
-            path, params = reqinfo.split('?', 1)
-            params = dict(
-                [p.split('=', 1) for p in params.split('&') if '=' in p]
-            )
-            return (path.strip('/'), params)
-        else:
-            return (self.path.strip('/'), {})
+        url_comp = urlparse.urlsplit(reqinfo)
+        path = url_comp.path
+        qs = urlparse.parse_qs(url_comp.query)
+        # Only return the first value of each query var. E.g. for
+        # "?foo=1&foo=2" return '1'.
+        vars = dict( [(k, v[0]) for k, v in qs.items()] )
+        return (path.strip('/'), vars)
 
     def call(self, path, params):
         """
