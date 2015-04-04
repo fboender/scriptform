@@ -157,6 +157,10 @@ class ScriptForm:
         self.basepath = os.path.realpath(os.path.dirname(config_file))
 
     def get_form_config(self):
+        """
+        Read and return the form configuration in the form of a FormConfig
+        instance. If it has already been read, a cached version is returned.
+        """
         # Cache
         if hasattr(self, 'form_config_singleton'):
             return self.form_config_singleton
@@ -197,12 +201,21 @@ class ScriptForm:
         return form_config
 
     def run(self, listen_addr='0.0.0.0', listen_port=80):
+        """
+        Start the webserver on address `listen_addr` and port `listen_port`.
+        This call is blocking and will never return unless the user hits
+        Ctrl-c.
+        """
         ScriptFormWebApp.scriptform = self
-        #ScriptFormWebApp.callbacks = self.callbacks
         WebSrv(ScriptFormWebApp, listen_addr=listen_addr, listen_port=listen_port)
 
 
 class FormConfig:
+    """
+    FormConfig is the in-memory representation of a form configuration JSON
+    file. It holds information (title, users, the form definitions) on the
+    form configuration being served by this instance of ScriptForm.
+    """
     def __init__(self, title, forms, callbacks={}, users={}):
         self.title = title
         self.users = users
@@ -218,7 +231,12 @@ class FormConfig:
                 if not form_def.name in self.callbacks:
                     raise ScriptFormError("No script or callback registered for '{0}'".format(form_def.name))
 
-    def get_form(self, form_name):
+    def get_form_def(self, form_name):
+        """
+        Return the form definition for the form with name `form_name`. Returns
+        an instance of FormDefinition class or raises ValueError if the form
+        was not found.
+        """
         for form_def in self.forms:
             if form_def.name == form_name:
                 return form_def
@@ -226,7 +244,15 @@ class FormConfig:
             raise ValueError("No such form: {0}".format(form_name))
 
     def callback(self, form_name, form_values, request):
-        form = self.get_form(form_name)
+        """
+        Perform a callback for the form `form_name`. This either calls a script
+        or a Python callable, depending on how the callback is registered.
+        `form_values` is a dictionary of validated values as returned by
+        FormDefinition.validate(). `request` is the request handler context
+        (ScriptFormWebApp). Scripts and Python callables can use it to send
+        their responses.
+        """
+        form = self.get_form_def(form_name)
         if form.script:
             return self.callback_script(form, form_values, request.wfile)
         else:
@@ -320,7 +346,7 @@ class FormDefinition:
             if field_name == 'form_name':
                 continue
             try:
-                v = self.validate_field(field_name, form_values)
+                v = self.field_validate(field_name, form_values)
                 if v is not None:
                     values[field_name] = v
             except ValidationError, e:
@@ -328,9 +354,10 @@ class FormDefinition:
 
         return (errors, values)
 
-    def validate_field(self, field_name, form_values):
+    def field_validate(self, field_name, form_values):
         """
-        Validate a field in this form.
+        Validate a field in this form. This does a dynamic call to a method on
+        this class in the form 'validate_<field_type>'.
         """
         # Find field definition by iterating through all the fields.
         field_def = self.get_field(field_name)
@@ -534,6 +561,10 @@ class ScriptFormWebApp(WebAppHandler):
     This class is a request handler for WebSrv.
     """
     def index(self):
+        """
+        Index handler. If there's only one form defined, render that form.
+        Otherwise render a list of available forms.
+        """
         form_config = self.scriptform.get_form_config()
         if len(form_config.forms) == 1:
             first_form = form_config.forms[0]
@@ -575,6 +606,9 @@ class ScriptFormWebApp(WebAppHandler):
         return True
 
     def h_list(self):
+        """
+        Render a list of available forms.
+        """
         form_config = self.scriptform.get_form_config()
         if not self.auth():
             return
@@ -608,6 +642,9 @@ class ScriptFormWebApp(WebAppHandler):
         self.wfile.write(output)
 
     def h_form(self, form_name, errors={}):
+        """
+        Render a form.
+        """
         form_config = self.scriptform.get_form_config()
         if not self.auth():
             return
@@ -686,7 +723,7 @@ class ScriptFormWebApp(WebAppHandler):
             )
 
         # Make sure the user is allowed to access this form.
-        form_def = form_config.get_form(form_name)
+        form_def = form_config.get_form_def(form_name)
         if form_def.allowed_users is not None and \
            self.username not in form_def.allowed_users:
             self.send_error(401, "You're not authorized to view this form")
@@ -715,12 +752,17 @@ class ScriptFormWebApp(WebAppHandler):
         self.wfile.write(output)
 
     def h_submit(self, form_values):
+        """
+        Handle the submitting of a form by validating the values and then doing
+        a callback to either a script or a Python function. How the output is
+        handled depends on settings in the form definition.
+        """
         form_config = self.scriptform.get_form_config()
         if not self.auth():
             return
 
         form_name = form_values.getfirst('form_name', None)
-        form_def = form_config.get_form(form_name)
+        form_def = form_config.get_form_def(form_name)
         if form_def.allowed_users is not None and \
            self.username not in form_def.allowed_users:
             self.send_error(401, "You're not authorized to view this form")
