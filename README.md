@@ -104,7 +104,11 @@ For more screenshots, see the [screenshots Wiki page](https://github.com/fboende
 
 ScriptForm requires:
 
-* Python 2.6+ # FIXME
+* Python 2.6+
+
+No other libraries are required. Python v2.6+ is generally available by default
+on almost every major linux distribution. For other platforms Python is almost
+certainly available.
 
 ## Usage
 
