@@ -320,7 +320,7 @@ class FormDefinition:
         self.submit_title = submit_title
         self.allowed_users = allowed_users
 
-    def get_field(self, field_name):
+    def _get_field(self, field_name):
         for field in self.fields:
             if field['name'] == field_name:
                 return field
@@ -347,7 +347,7 @@ class FormDefinition:
             if field_name == 'form_name':
                 continue
             try:
-                v = self.field_validate(field_name, form_values)
+                v = self._field_validate(field_name, form_values)
                 if v is not None:
                     values[field_name] = v
             except ValidationError, e:
@@ -355,13 +355,13 @@ class FormDefinition:
 
         return (errors, values)
 
-    def field_validate(self, field_name, form_values):
+    def _field_validate(self, field_name, form_values):
         """
         Validate a field in this form. This does a dynamic call to a method on
         this class in the form 'validate_<field_type>'.
         """
         # Find field definition by iterating through all the fields.
-        field_def = self.get_field(field_name)
+        field_def = self._get_field(field_name)
         if not field_def:
             raise ValidationError("Unknown field: {0}".format(field_name))
 
@@ -507,16 +507,16 @@ class WebAppHandler(BaseHTTPRequestHandler):
     method.
     """
     def do_GET(self):
-        self.call(*self.parse(self.path))
+        self._call(*self._parse(self.path))
 
     def do_POST(self):
         form_values = cgi.FieldStorage(
             fp=self.rfile,
             headers=self.headers,
             environ={'REQUEST_METHOD': 'POST'})
-        self.call(self.path.strip('/'), params={'form_values': form_values})
+        self._call(self.path.strip('/'), params={'form_values': form_values})
 
-    def parse(self, reqinfo):
+    def _parse(self, reqinfo):
         url_comp = urlparse.urlsplit(reqinfo)
         path = url_comp.path
         qs = urlparse.parse_qs(url_comp.query)
@@ -525,7 +525,7 @@ class WebAppHandler(BaseHTTPRequestHandler):
         vars = dict( [(k, v[0]) for k, v in qs.items()] )
         return (path.strip('/'), vars)
 
-    def call(self, path, params):
+    def _call(self, path, params):
         """
         Find a method to call on self.app_class based on `path` and call it.
         The method that's called is in the form 'h_<PATH>'. If no path was
