@@ -15,7 +15,7 @@ form is passed to the script through the environment.
 ### Features
 
 - Very rapidly construct forms with backends.
-- Completely standalone HTTP server; only required Python.
+- Completely standalone HTTP server; only requires Python.
 - Callbacks to any kind of script / program or to Python functions.
 - User authentication support through Basic HTAuth.
 - Validates form values before calling scripts.
