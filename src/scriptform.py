@@ -222,6 +222,10 @@ class ScriptForm:
         self.log.info("Listening on {0}:{1}".format(listen_addr, listen_port))
         self.httpd.serve_forever()
 
+    def shutdown(self):
+        self.log.info("Attempting server shutdown")
+        self.log.info(self.websrv)
+        raise SystemExit()
 
 class FormConfig:
     """
@@ -863,6 +867,10 @@ class Daemon:
                             filename=self.log_file,
                             filemode='a')
         self.log = logging.getLogger('DAEMON')
+        self.shutdown_cb = None
+
+    def register_shutdown_cb(self, cb):
+        self.shutdown_cb = cb
 
     def start(self):
         self.log.info("Starting")
@@ -969,6 +977,7 @@ class Daemon:
         self.log.info("Received signal {0}".format(signal))
         if os.path.exists(self.pid_file):
             os.unlink(self.pid_file)
+        self.shutdown_cb()
 
 
 if __name__ == "__main__":
@@ -1008,9 +1017,9 @@ if __name__ == "__main__":
         try:
             if options.action_start:
                 sf = ScriptForm(args[0])
+                daemon.register_shutdown_cb(sf.shutdown)
                 daemon.start()
-                #sf.run(listen_port=options.port)
-                time.sleep(10000)
+                sf.run(listen_port=options.port)
             elif options.action_stop:
                 daemon.stop()
                 sys.exit(0)
