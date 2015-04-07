@@ -225,6 +225,10 @@ class ScriptForm:
     def shutdown(self):
         self.log.info("Attempting server shutdown")
         self.log.info(self.websrv)
+        # FIXME: This is not the cleanest way to exit. shutdown() is called by
+        # the atexit and signal handler. Ideally, we should call
+        # self.httpd.shutdown(), but that doesn't work because we're in the
+        # same thread.
         raise SystemExit()
 
 class FormConfig:
