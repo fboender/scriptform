@@ -165,6 +165,7 @@ class ScriptForm:
             self.callbacks = {}
         self.basepath = os.path.realpath(os.path.dirname(config_file))
         self.log = logging.getLogger('SCRIPTFORM')
+        self.websrv = None
 
     def get_form_config(self):
         """
@@ -217,7 +218,9 @@ class ScriptForm:
         Ctrl-c.
         """
         ScriptFormWebApp.scriptform = self
-        WebSrv(ScriptFormWebApp, listen_addr=listen_addr, listen_port=listen_port)
+        self.httpd = ThreadedHTTPServer((listen_addr, listen_port), ScriptFormWebApp)
+        self.log.info("Listening on {0}:{1}".format(listen_addr, listen_port))
+        self.httpd.serve_forever()
 
 
 class FormConfig:
@@ -497,17 +500,6 @@ class FormDefinition:
 
 class ThreadedHTTPServer(ThreadingMixIn, BaseHTTPServer.HTTPServer):
     pass
-
-
-class WebSrv:
-    """
-    Very basic web server.
-    """
-    def __init__(self, request_handler, listen_addr='', listen_port=80):
-        self.log = logging.getLogger('WEBSRV')
-        httpd = ThreadedHTTPServer((listen_addr, listen_port), request_handler)
-        self.log.info("Listening on {0}:{1}".format(listen_addr, listen_port))
-        httpd.serve_forever()
 
 
 class WebAppHandler(BaseHTTPRequestHandler):
