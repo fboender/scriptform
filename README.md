@@ -82,9 +82,16 @@ The script `job_add_user.sh`:
 
     echo "User created or password updated"
 
-We can now start ScriptForm to start serving the form over HTTP:
+Set some rights and create the initial `htpasswd` file:
 
-    $ scriptform -p8080 ./test_server.json
+    $ chmod 755 job_add_user.sh
+    $ touch .htpasswd
+
+We can now start ScriptForm to start serving the form over HTTP. By default it
+starts as a daemon, so we specify the `-f` option to start it in the foreground
+instead.
+
+    $ scriptform -f -p8080 ./test_server.json
 
 The user is presented with the following form:
 
@@ -112,7 +119,56 @@ certainly available.
 
 ## Usage
 
-FIXME
+Usage:
+
+    Usage: ./scriptform.py [option] (--start|--stop) <form_definition.json>
+           ./scriptform.py --generate-pw
+
+    Options:
+      -h, --help            show this help message and exit
+      -g, --generate-pw     Generate password
+      -p PORT, --port=PORT  Port to listen on
+      -f, --foreground      Run in foreground (debugging)
+      --pid-file=PID_FILE   Pid file
+      --log-file=LOG_FILE   Log file
+      --start               Start daemon
+      --stop                Stop daemon
+
+
+ScriptForm can run both in daemon mode or in the foreground. In daemon mode, we
+can control ScriptForm with the `--start` and `--stop` options. By default it
+runs on port 80, which we can change with the `-p` option.
+
+    $ ./scriptform -p8000 ./test_server.json
+
+This puts ScriptForm in the background as a daemon. It creates a PID file and a
+log file.
+
+    $ tail scriptform.py.log
+    2015-04-08 07:57:27,160:DAEMON:INFO:Starting
+    2015-04-08 07:57:27,161:DAEMON:INFO:PID = 5614
+    2015-04-08 07:57:27,162:SCRIPTFORM:INFO:Listening on 0.0.0.0:8000
+
+In order to stop the daemon:
+
+    $ ./scriptform --stop
+
+We can control the location of the PID file and log file with the `--pid-file`
+and `--log-file` options. If we don't specify these, ScriptForm will create
+them in the local directory.
+
+To run ScriptForm in the foreground, specify the `-f` option. 
+
+If you're going to use basic authentication, you can generate a password for
+your user with the `--generate-pw` option:
+
+    $ ./scriptform.py --generate-pw
+    Password: 
+    Repeat password: 
+    2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae
+
+You can paste the generated password into the password field. For more
+information, see the User Manual.
 
 ## Security
 
