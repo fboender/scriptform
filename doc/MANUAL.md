@@ -2,27 +2,39 @@
 
 ## Table of Contents
 
-1. Invocations
-1. [Form definition (JSON) files](#form_def)
-1. [Field types](#form_def)
-    - [String](#form_def)
-    - [Integer](#form_def)
-    - [Float](#form_def)
-    - [Date](#form_def)
-    - [Radio](#form_def)
-    - [Select](#form_def)
-    - [Text](#form_def)
-    - [Password](#form_def)
-    - [File](#form_def)
+1. [Invocations](#invocations)
+1. [Form config (JSON) files](#form_config)
+1. [Field types](#field_types)
+    - [String](#field_types_string)
+    - [Integer](#field_types_integer)
+    - [Float](#field_types_float)
+    - [Date](#field_types_date)
+    - [Radio](#field_types_radio)
+    - [Select](#field_types_select)
+    - [Text](#field_types_text)
+    - [Password](#field_types_password)
+    - [File](#field_types_file)
 1. [Output](#output)
-1. [Callbacks](#form_def)
+1. [Callbacks](#callbacks)
     - [Script callbacks]()
         - [Validation]()
         - [Field Values]()
     - [Python callbacks]()
 1. [Users](#users)
 
-## Invocations
+## <a name="invocations">Invocations</a>
+
+There are multiple ways of running ScriptForm. This chapter outlines the
+various methods. They are listed in the order of least to most
+pruduction-ready.
+
+### Shell foreground
+
+Sriptform can be run directly from the shell in the foreground. This is most
+useful for testing and development.
+
+Unless the paths to your scripts are absolute, you should run Scriptform from
+the directory that contains the Form definition file.
 
 ### Behind Apache
 
@@ -39,7 +51,7 @@ Configure:
 
 Make sure the path ends in a slash! (That's what the redirect is for).
 
-## Form config (JSON) files
+## <a name="form_config">Form config (JSON) files</a>
 
 Forms are defined in JSON format. They are referred to as *Form config*
 files. A single JSON file may contain multiple forms. Scriptform will show them
@@ -130,9 +142,9 @@ For example, here's a form config file that contains two forms:
     }
 
 
-## Field types
+## <a name="field_types">Field types</a>
 
-### String
+### <a name="field_types_string">String</a>
 
 The `string` field type presents the user with a single line input field.
 
@@ -141,7 +153,7 @@ The `string` field type supports the following additional options:
 - **`minlen`**: The minimum allowed length for the field.
 - **`maxlen`**: The maximum allowed length for the field.
 
-### Integer
+### <a name="field_types_integer">Integer</a>
 
 The `integer` field type presents the user with an input box in wich they may
 enter an integer number. Depending on the browser's support for HTML5 forms,
@@ -152,7 +164,7 @@ The `integer` field type supports the following additional options:
 - **`min`**: The minimum allowed value for the field.
 - **`max`**: The maximum allowed value for the field.
 
-### Float
+### <a name="field_types_float">Float</a>
 
 The `float` field type presents the user with an input box in which they enter
 a Real number (fractions).
@@ -166,7 +178,7 @@ Please note that some real numbers cannot be represented exactly by a computer
 and validation may thus be approximate. E.g. 0.499999999999999 will pass the
 test for a maximum value of 0.5.
 
-### Date
+### <a name="field_types_date">Date</a>
 
 The `date` field type presents the user with an input box in which they can
 enter a date. Depending on the browser's support for HTML5 forms, the input
@@ -180,11 +192,11 @@ The `date` field type supports the following additional options:
 - **`min`**: The minimum allowed date (format: a string YYYY-MM-DD)
 - **`max`**: The maximum allowed date (format: a string YYYY-MM-DD)
 
-### Radio
+### <a name="field_types_radio">Radio</a>
 
-### Select
+### <a name="field_types_select">Select</a>
 
-### Text
+### <a name="field_types_text">Text</a>
 
 The `text` field presents the user with a field in which they can enter
 multi-lined text.
@@ -196,11 +208,11 @@ The `text` field type supports the following additional options:
 - **`minlen`**: The minimum allowed length for the field.
 - **`maxlen`**: The maximum allowed length for the field.
 
-### Password
+### <a name="field_types_password">Password</a>
 
 - **`minlen`**: The minimum allowed length for the field.
 
-### File
+### <a name="field_types_file">File</a>
 
 The `file` field type presents the user with a field through which they can
 upload a file. Uploaded files are streamed to temporary files by Scriptform,
@@ -244,7 +256,8 @@ completely custom HTML output. The script's output must be a valid HTTP
 response, including headers and a body. Examples of raw script output can be
 found in the `examples/raw` directory.
 
-## Callbacks
+## <a name="callbacks">Callbacks</a>
+
 
 Callbacks are called after the form has been submitted and its values have been
 validated. They are the actual implementations of the form's action.
@@ -254,18 +267,18 @@ There are two types of callbacks:
 - Scripts
 - Python callables (functions or methods)
 
-### Scripts
-
-A script callback can be any kind of executable, written in any kind of
-language. As long as it is executable, can read the environment and output
-things to stdout, it can be used as a callback.
-
-#### Validation
+### Validation
 
 Fields of the form are validated by Scriptform before the script is called.
 Exactly what is validated depends on the options specified in the Form
 Definition. For more info on that, see the *Field Types* section of this
 manual.
+
+### <a name="scripts">Scripts</a>
+
+A script callback can be any kind of executable, written in any kind of
+language. As long as it is executable, can read the environment and output
+things to stdout, it can be used as a callback.
 
 #### Field values
 
@@ -282,11 +295,6 @@ field definition:
 becomes available in a shell script as:
 
     echo $ip_address
-
-or in a Python script as:
-
-    import os
-    print os.environ['ip_address']
 
 Uploaded files are streamed to temporary files by Scriptform. The name of the
 temporary file is then passed on as the field's value. For example, given the
@@ -311,7 +319,59 @@ Examples of file uploads can be found in the `examples/simple` and
 `examples/megacorp` directories.
 
 
-### Python callbacks
+### <a name="python_callbacks">Python callbacks</a>
+
+or in a Python script as:
+
+    import os
+    print os.environ['ip_address']
 
 ## <a name="users">Users</a>
 
+ScriptForm supports basic htauth user authentication. Users can be defined, and
+form access can be limited to certain users. Users are defined in the `users`
+top-level field of the form configuration file. For example, in the following
+form configuration file, there are two users. Only user `test2` is allowed to
+view the form 'only_some_users'.
+
+
+    {
+      "title": "Authorization protected",
+      "users": {
+        "test": "2bb80d537b1da3e38bd30361aa855686bde0eacd7162fef6a25fe97bf527a25b",
+        "test2": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
+      },
+      "forms": {
+        "only_some_users": {
+          "title": "Only some users",
+          "description": "You should only see this if you're user 'test2'",
+          "submit_title": "Do nothing",
+          "script": "job_do_nothing.sh",
+          "allowed_users": ["test2"],
+          "fields": []
+        }
+      }
+    }
+
+Passwords are unsalted SHA256 hashed passwords. To generate one, you can use
+the `--generate-pw` option of Scriptform. This will ask you twice for a
+plaintext password and return the hash that can be used in the `users` element.
+
+    $ ./scriptform.py --generate-pw
+    Password: 
+    Repeat password: 
+    ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad
+    
+Form definitions may specify which users are allowed to view, access and submit
+the form. This is specified by a `allowed_users` field in the form definition,
+as can be seen in the previous form configuration example. Multiple users may
+be specified.
+
+### Security considerations
+
+- Passwords have no salt. This makes them slightly easier to bruteforce en-mass.
+- Scriptform does not natively support secure HTTPS connections. This means
+  usernames and passwords are transmitted over the line in nearly plaintext. If
+  you wish to prevent this, you should put Scriptform behind a proxy that
+  *does* support Scriptform, such as Apache. For more information on that, see
+  the "Invocations" chapter.
