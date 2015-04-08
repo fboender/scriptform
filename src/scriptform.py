@@ -151,6 +151,10 @@ class ScriptFormError(BaseException):
     pass
 
 
+class DaemonError(BaseException):
+    pass
+
+
 class ScriptForm:
     """
     'Main' class that orchestrates parsing the Form configurations, hooking up
@@ -838,10 +842,6 @@ class ScriptFormWebApp(WebAppHandler):
         for file_name in tmp_files:
             if os.path.exists(file_name):
                 os.unlink(file_name)
-
-
-class DaemonError(BaseException):
-    pass
 
 
 class Daemon:
