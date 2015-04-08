@@ -17,7 +17,6 @@ import BaseHTTPServer
 from BaseHTTPServer import BaseHTTPRequestHandler
 from SocketServer import ThreadingMixIn
 import cgi
-import re
 import datetime
 import subprocess
 import base64
@@ -179,7 +178,6 @@ class ScriptForm:
         path = self.config_file
         config = json.load(file(path, 'r'))
 
-        title = config['title']
         forms = []
         callbacks = self.callbacks
         users = None
@@ -230,6 +228,7 @@ class ScriptForm:
         # self.httpd.shutdown(), but that doesn't work because we're in the
         # same thread.
         raise SystemExit()
+
 
 class FormConfig:
     """
@@ -315,7 +314,7 @@ class FormConfig:
             else:
                 # Raw output
                 pass
-        except Exception,e :
+        except Exception, e:
             return {
                 'stdout': '',
                 'stderr': str(e),
@@ -533,7 +532,7 @@ class WebAppHandler(BaseHTTPRequestHandler):
         qs = urlparse.parse_qs(url_comp.query)
         # Only return the first value of each query var. E.g. for
         # "?foo=1&foo=2" return '1'.
-        vars = dict( [(k, v[0]) for k, v in qs.items()] )
+        vars = dict([(k, v[0]) for k, v in qs.items()])
         return (path.strip('/'), vars)
 
     def _call(self, path, params):
@@ -562,7 +561,7 @@ class WebAppHandler(BaseHTTPRequestHandler):
                 self.send_error(404, "Not found")
                 return
             method_cb(**params)
-        except Exception, e:
+        except Exception:
             self.send_error(500, "Internal server error")
             raise
 
@@ -628,7 +627,7 @@ class ScriptFormWebApp(WebAppHandler):
         for form_def in form_config.forms:
             if form_def.allowed_users is not None and \
                self.username not in form_def.allowed_users:
-                continue # User is not allowed to run this form
+                continue  # User is not allowed to run this form
             h_form_list.append('''
               <li>
                 <h2 class="form-title">{title}</h2>
@@ -678,7 +677,7 @@ class ScriptFormWebApp(WebAppHandler):
 
             required = ''
             if field.get('required', None):
-                required='required'
+                required = 'required'
 
             if field['type'] == 'string':
                 input = tpl.format(required, field['name'])
@@ -699,7 +698,7 @@ class ScriptFormWebApp(WebAppHandler):
                 checked = 'checked'
                 for option in field['options']:
                     radio_elems.append(tpl.format(checked, field['name'], option[0], option[1]))
-                    checked = '' # Check first radio option
+                    checked = ''  # Check first radio option
                 input = ''.join(radio_elems)
             elif field['type'] == 'text':
                 rows = field.get('rows', 5)
@@ -711,10 +710,7 @@ class ScriptFormWebApp(WebAppHandler):
                     cols
                 )
             elif field['type'] == 'select':
-                options = ''.join([
-                        tpl.format(o[0], o[1]) for o in field['options']
-                    ]
-                )
+                options = ''.join([tpl.format(o[0], o[1]) for o in field['options']])
                 input = '<select {0} name="{1}">{2}</select>'.format(required, field['name'], options)
             else:
                 raise ValueError("Unsupported field type: {0}".format(
@@ -726,12 +722,9 @@ class ScriptFormWebApp(WebAppHandler):
                 <p class="form-field-title">{title}</p>
                 <p class="form-field-input">{input} <span class="error">{errors}</span></p>
               </li>
-            '''.format(
-                    title=field['title'],
-                    input=input,
-                    errors=', '.join(errors)
-                )
-            )
+            '''.format(title=field['title'],
+                       input=input,
+                       errors=', '.join(errors)))
 
         # Make sure the user is allowed to access this form.
         form_def = form_config.get_form_def(form_name)
@@ -801,7 +794,7 @@ class ScriptFormWebApp(WebAppHandler):
                 f.close()
                 field.file.close()
 
-                tmp_files.append(tmpfile) # For later cleanup
+                tmp_files.append(tmpfile)  # For later cleanup
                 values[field_name] = tmpfile
                 values['{0}__name'.format(field_name)] = field.filename
             else:
@@ -892,7 +885,7 @@ class Daemon:
 
         # Kill the daemon and wait until the process is gone
         os.kill(pid, signal.SIGTERM)
-        for timeout in range(25): # 5 seconds
+        for timeout in range(25):  # 5 seconds
             time.sleep(0.2)
             if not self._pid_running(pid):
                 break
@@ -943,7 +936,7 @@ class Daemon:
         # Fork a child and end the parent (detach from parent)
         pid = os.fork()
         if pid > 0:
-            sys.exit(0) # End parent
+            sys.exit(0)  # End parent
 
         # Change some defaults so the daemon doesn't tie up dirs, etc.
         os.setsid()
@@ -956,7 +949,7 @@ class Daemon:
             f = file(self.pid_file, 'w')
             f.write(str(pid))
             f.close()
-            sys.exit(0) # End parent
+            sys.exit(0)  # End parent
 
         atexit.register(self._cleanup)
         signal.signal(signal.SIGTERM, self._cleanup)
@@ -995,10 +988,10 @@ if __name__ == "__main__":
     parser.add_option("-g", "--generate-pw", dest="generate_pw", action="store_true", default=False, help="Generate password")
     parser.add_option("-p", "--port", dest="port", action="store", type="int", default=80, help="Port to listen on")
     parser.add_option("-f", "--foreground", dest="foreground", action="store_true", default=False, help="Run in foreground (debugging)")
-    parser.add_option(      "--pid-file", dest="pid_file", action="store", default=None, help="Pid file")
-    parser.add_option(      "--log-file", dest="log_file", action="store", default=None, help="Log file")
-    parser.add_option(      "--start", dest="action_start", action="store_true", default=None, help="Start daemon")
-    parser.add_option(      "--stop", dest="action_stop", action="store_true", default=None, help="Stop daemon")
+    parser.add_option("--pid-file", dest="pid_file", action="store", default=None, help="Pid file")
+    parser.add_option("--log-file", dest="log_file", action="store", default=None, help="Log file")
+    parser.add_option("--start", dest="action_start", action="store_true", default=None, help="Start daemon")
+    parser.add_option("--stop", dest="action_stop", action="store_true", default=None, help="Stop daemon")
 
     (options, args) = parser.parse_args()
 
