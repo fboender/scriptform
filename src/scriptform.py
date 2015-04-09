@@ -565,7 +565,8 @@ class WebAppHandler(BaseHTTPRequestHandler):
                 self.send_error(404, "Not found")
                 return
             method_cb(**params)
-        except Exception:
+        except Exception, e:
+            self.scriptform.log.exception(e)
             self.send_error(500, "Internal server error")
             raise
 
