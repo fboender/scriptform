@@ -7,10 +7,6 @@ err() {
     exit 1
 }
 
-echo $username
-echo $password1
-echo $password2
-
 if [ -z "$password1" ]; then
     err "Empty password specified"
 fi
