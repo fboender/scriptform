@@ -7,7 +7,7 @@
 # Should-Stop:       
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: Serve web form frontends to scripts..
+# Short-Description: Serve web form frontends to scripts.
 # Description:       Webserver daemon that dynamically constructs web forms
 #                    from JSON files and calls scripts on form submits.
 ### END INIT INFO
@@ -18,20 +18,32 @@
 NAME=scriptform
 PIDFILE=/var/run/scriptform.pid
 LOGFILE=/var/log/scriptform.log
-DAEMON=/home/fboender/Projects/prs/scriptform/src/scriptform.py
-FORM_CONFIG=/home/fboender/Projects/prs/scriptform/examples/simple/simple.json
+DAEMON=/usr/bin/scriptform
+FORM_CONFIG=
 DAEMON_ARGS="--pid-file $PIDFILE --log-file $LOGFILE $FORM_CONFIG"
-
-# Exit if scriptform isn't installed
-[ -x $DAEMON ] || exit 0
 
 # Define LSB log_* functions.
 # Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
 . /lib/lsb/init-functions
 
+# Exit if scriptform isn't installed
+if [ \! -x $DAEMON ]; then
+	log_daemon_msg "$DAEMON not found. Not starting."
+	log_end_msg 0
+    exit 0
+fi
+
+# Exit if the form config file hasn' been configured
+if [ -z "$FORM_CONFIG" ]; then
+	log_daemon_msg "No form configuration is configured. Please edit the init file."
+	log_end_msg 0
+    exit 0
+fi
+
 # Exit if the form config file can't be found
 if [ \! -e $FORM_CONFIG ]; then
-    echo "FORM CONFIG NOT FOUND FIXME"
+	log_daemon_msg "Configured form config '$FORM_CONFIG' not found."
+	log_end_msg 1
     exit 1
 fi
 
