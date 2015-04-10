@@ -284,6 +284,8 @@ class FormConfig:
 
     def callback_script(self, form, form_values, output_fh=None):
         # Pass form values to the script through the environment as strings.
+        os.chdir(os.path.dirname(form.script))
+
         env = os.environ.copy()
         for k, v in form_values.items():
             env[k] = str(v)
