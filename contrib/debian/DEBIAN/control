@@ -1,0 +1,14 @@
+Package: scriptform
+Version: %%VERSION%%
+Maintainer: Ferry Boender <ferry.boender@gmail.com>
+Section: utils
+Priority: optional
+Architecture: all
+Depends: diffutils
+Description: Serve web forms as frontends to scripts.
+ ScriptForm takes a JSON file which contains form definitions. It then
+ constructs web forms from this JSON and serves these to users. The user can
+ select a form and fill it out. When the user submits the form, it is
+ validated and the associated script or Python callback is called. Data
+ entered in the form is passed to the script through the environment.
+
