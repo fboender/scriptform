@@ -20,7 +20,8 @@ PIDFILE=/var/run/scriptform.pid
 LOGFILE=/var/log/scriptform.log
 DAEMON=/usr/bin/scriptform
 FORM_CONFIG=
-DAEMON_ARGS="--pid-file $PIDFILE --log-file $LOGFILE $FORM_CONFIG"
+PORT=8080
+DAEMON_ARGS="--port $PORT --pid-file $PIDFILE --log-file $LOGFILE $FORM_CONFIG"
 
 # Define LSB log_* functions.
 # Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
