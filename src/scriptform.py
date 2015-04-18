@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 # Todo:
 #
@@ -30,8 +31,9 @@ import errno
 import logging
 
 
-html_header = '''<html>
+html_header = u'''<html>
 <head>
+  <meta charset="UTF-8">
   <style>
     /* Default classes */
     .btn {{ color: #FFFFFF; font-weight: bold; font-size: 0.9em;
@@ -91,13 +93,13 @@ html_header = '''<html>
   <div class="page">
 '''
 
-html_footer = '''
+html_footer = u'''
   </div>
 </body>
 </html>
 '''
 
-html_list = '''
+html_list = u''''
 {header}
 <div class="list">
   {form_list}
@@ -105,7 +107,7 @@ html_list = '''
 {footer}
 '''
 
-html_form = '''
+html_form = u'''
 {header}
 <div class="form">
   <h2 class="form-title">{title}</h2>
@@ -124,7 +126,7 @@ html_form = '''
 {footer}
 '''
 
-html_submit_response = '''
+html_submit_response = u'''
 {header}
 <div class="result">
   <h2 class="result-title">{title}</h2>
@@ -635,7 +637,7 @@ class ScriptFormWebApp(WebAppHandler):
             if form_def.allowed_users is not None and \
                self.username not in form_def.allowed_users:
                 continue  # User is not allowed to run this form
-            h_form_list.append('''
+            h_form_list.append(u'''
               <li>
                 <h2 class="form-title">{title}</h2>
                 <p class="form-description">{description}</p>
@@ -656,7 +658,7 @@ class ScriptFormWebApp(WebAppHandler):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
-        self.wfile.write(output)
+        self.wfile.write(output.encode('utf8'))
 
     def h_form(self, form_name, errors={}):
         """
@@ -724,7 +726,7 @@ class ScriptFormWebApp(WebAppHandler):
                     field['type'])
                 )
 
-            return ('''
+            return (u'''
               <li>
                 <p class="form-field-title">{title}</p>
                 <p class="form-field-input">{input} <span class="error">{errors}</span></p>
@@ -760,7 +762,7 @@ class ScriptFormWebApp(WebAppHandler):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
-        self.wfile.write(output)
+        self.wfile.write(output.encode('utf8'))
 
     def h_submit(self, form_values):
         """
@@ -836,7 +838,7 @@ class ScriptFormWebApp(WebAppHandler):
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
-                self.wfile.write(output)
+                self.wfile.write(output.encode('utf8'))
         else:
             # Form had errors
             self.h_form(form_name, form_errors)
