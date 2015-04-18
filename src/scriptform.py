@@ -503,12 +503,12 @@ class FormDefinition:
     def validate_file(self, field_def, form_values):
         value = form_values[field_def['name']]
         field_name = field_def['name']
-        upload_fname = form_values['{0}__name'.format(field_name)]
+        upload_fname = form_values[u'{0}__name'.format(field_name)]
         upload_fname_ext = os.path.splitext(upload_fname)[-1].lstrip('.')
         extensions = field_def.get('extensions', None)
 
         if extensions is not None and upload_fname_ext not in extensions:
-            raise ValidationError("Only file types allowed: {0}".format(','.join(extensions)))
+            raise ValidationError("Only file types allowed: {0}".format(u','.join(extensions)))
 
         return value
 
@@ -653,7 +653,7 @@ class ScriptFormWebApp(WebAppHandler):
         output = html_list.format(
             header=html_header.format(title=form_config.title),
             footer=html_footer,
-            form_list=''.join(h_form_list)
+            form_list=u''.join(h_form_list)
         )
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
@@ -669,22 +669,22 @@ class ScriptFormWebApp(WebAppHandler):
             return
 
         field_tpl = {
-            "string": '<input {0} type="text" name="{1}" />',
-            "number": '<input {0} type="number" min="{1}" max="{2}" name="{3}" />',
-            "integer": '<input {0} type="number" min="{1}" max="{2}" name="{3}" />',
-            "float": '<input {0} type="number" min="{1}" max="{2}" step="any" name="{3}" />',
-            "date": '<input {0} type="date" name="{1}" />',
-            "file": '<input {0} type="file" name="{1}" />',
-            "password": '<input {0} type="password" min="{1}" name="{2}" />',
-            "text": '<textarea {0} name="{1}" rows="{2}" cols="{3}"></textarea>',
-            "select": '<option value="{0}">{1}</option>',
-            "radio": '<input {0} type="radio" name="{1}" value="{2}">{3}<br/>',
+            "string": u'<input {0} type="text" name="{1}" />',
+            "number": u'<input {0} type="number" min="{1}" max="{2}" name="{3}" />',
+            "integer": u'<input {0} type="number" min="{1}" max="{2}" name="{3}" />',
+            "float": u'<input {0} type="number" min="{1}" max="{2}" step="any" name="{3}" />',
+            "date": u'<input {0} type="date" name="{1}" />',
+            "file": u'<input {0} type="file" name="{1}" />',
+            "password": u'<input {0} type="password" min="{1}" name="{2}" />',
+            "text": u'<textarea {0} name="{1}" rows="{2}" cols="{3}"></textarea>',
+            "select": u'<option value="{0}">{1}</option>',
+            "radio": u'<input {0} type="radio" name="{1}" value="{2}">{3}<br/>',
         }
 
         def render_field(field, errors):
             tpl = field_tpl[field['type']]
 
-            required = ''
+            required = u''
             if field.get('required', None):
                 required = 'required'
 
@@ -704,11 +704,11 @@ class ScriptFormWebApp(WebAppHandler):
                 input = tpl.format(required, field.get('minlen', ''), field['name'])
             elif field['type'] == 'radio':
                 radio_elems = []
-                checked = 'checked'
+                checked = u'checked'
                 for option in field['options']:
                     radio_elems.append(tpl.format(checked, field['name'], option[0], option[1]))
-                    checked = ''  # Check first radio option
-                input = ''.join(radio_elems)
+                    checked = u''  # Check first radio option
+                input = u''.join(radio_elems)
             elif field['type'] == 'text':
                 rows = field.get('rows', 5)
                 cols = field.get('cols', 80)
@@ -719,8 +719,8 @@ class ScriptFormWebApp(WebAppHandler):
                     cols
                 )
             elif field['type'] == 'select':
-                options = ''.join([tpl.format(o[0], o[1]) for o in field['options']])
-                input = '<select {0} name="{1}">{2}</select>'.format(required, field['name'], options)
+                options = u''.join([tpl.format(o[0], o[1]) for o in field['options']])
+                input = u'<select {0} name="{1}">{2}</select>'.format(required, field['name'], options)
             else:
                 raise ValueError("Unsupported field type: {0}".format(
                     field['type'])
@@ -733,7 +733,7 @@ class ScriptFormWebApp(WebAppHandler):
               </li>
             '''.format(title=field['title'],
                        input=input,
-                       errors=', '.join(errors)))
+                       errors=u', '.join(errors)))
 
         # Make sure the user is allowed to access this form.
         form_def = form_config.get_form_def(form_name)
@@ -742,12 +742,12 @@ class ScriptFormWebApp(WebAppHandler):
             self.send_error(401, "You're not authorized to view this form")
             return
 
-        html_errors = ''
+        html_errors = u''
         if errors:
-            html_errors = '<ul>'
+            html_errors = u'<ul>'
             for error in errors:
-                html_errors += '<li class="error">{0}</li>'.format(error)
-            html_errors += '</ul>'
+                html_errors += u'<li class="error">{0}</li>'.format(error)
+            html_errors += u'</ul>'
 
         output = html_form.format(
             header=html_header.format(title=form_config.title),
@@ -756,7 +756,7 @@ class ScriptFormWebApp(WebAppHandler):
             description=form_def.description,
             errors=html_errors,
             name=form_def.name,
-            fields=''.join([render_field(f, errors.get(f['name'], [])) for f in form_def.fields]),
+            fields=u''.join([render_field(f, errors.get(f['name'], [])) for f in form_def.fields]),
             submit_title=form_def.submit_title
         )
         self.send_response(200)
@@ -821,10 +821,10 @@ class ScriptFormWebApp(WebAppHandler):
             result = form_config.callback(form_name, form_values, self)
             if result:
                 if result['exitcode'] != 0:
-                    msg = '<span class="error">{0}</span>'.format(cgi.escape(result['stderr']))
+                    msg = u'<span class="error">{0}</span>'.format(cgi.escape(result['stderr']))
                 else:
                     if form_def.output == 'escaped':
-                        msg = '<pre>{0}</pre>'.format(cgi.escape(result['stdout']))
+                        msg = u'<pre>{0}</pre>'.format(cgi.escape(result['stdout']))
                     else:
                         msg = result['stdout']
 
