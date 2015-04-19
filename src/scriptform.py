@@ -145,15 +145,15 @@ html_submit_response = u'''
 '''
 
 
-class ValidationError(BaseException):
+class ValidationError(Exception):
     pass
 
 
-class ScriptFormError(BaseException):
+class ScriptFormError(Exception):
     pass
 
 
-class DaemonError(BaseException):
+class DaemonError(Exception):
     pass
 
 
