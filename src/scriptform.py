@@ -170,6 +170,7 @@ class ScriptForm:
             self.callbacks = {}
         self.basepath = os.path.realpath(os.path.dirname(config_file))
         self.log = logging.getLogger('SCRIPTFORM')
+        self.get_form_config()  # Init form config so it can raise errors about problems.
         self.websrv = None
 
     def get_form_config(self):
