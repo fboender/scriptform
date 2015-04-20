@@ -1,0 +1,68 @@
+#!/bin/bash
+#
+# scriptform    Scriptform server
+#
+# chkconfig: 345 70 30
+# description: Standalone web form front-end to scripts.
+# processname: scriptform
+
+# Source function library.
+. /etc/init.d/functions
+
+RETVAL=0
+prog="scriptform"
+
+# Settings. Change these, especially FORM_CONFIG
+NAME=scriptform
+PIDFILE=/var/run/scriptform.pid
+LOGFILE=/var/log/scriptform.log
+DAEMON=/usr/bin/scriptform
+FORM_CONFIG=
+PORT=8080
+DAEMON_ARGS="--port $PORT --pid-file $PIDFILE --log-file $LOGFILE $FORM_CONFIG"
+
+start() {
+    echo -n "Starting $prog: "
+    $DAEMON $DAEMON_ARGS
+    RETVAL=$?
+    echo $RETVAL
+    echo
+    return $RETVAL
+}
+
+stop() {
+    echo -n "Shutting down $prog: "
+    $DAEMON --stop $DAEMON_ARGS && success || failure
+    RETVAL=$?
+    echo $RETVAL
+    echo
+    return $RETVAL
+}
+
+status() {
+    echo -n "Checking $prog status: "
+    [ \! -e $PIDFILE ]
+    RETVAL=$?
+    return $RETVAL
+}
+
+case "$1" in
+    start)
+    start
+    ;;
+    stop)
+    stop
+    ;;
+    status)
+    status
+    ;;
+    restart)
+    stop
+    start
+    ;;
+    *)
+    echo "Usage: $prog {start|stop|status|restart}"
+    exit 1
+    ;;
+esac
+exit $RETVAL
