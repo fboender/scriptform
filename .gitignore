@@ -2,3 +2,7 @@
 *.log
 examples/native/htaccess
 examples/simple/htaccess
+*.rpm
+*.deb
+*.tar.gz
+*.zip
