@@ -1,0 +1,5 @@
+install:
+	cp src/scriptform.py /usr/bin/scriptform
+
+uninstall:
+	rm /etc/init.d/scriptform
