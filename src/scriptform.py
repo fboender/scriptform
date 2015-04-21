@@ -822,12 +822,12 @@ class ScriptFormWebApp(WebAppHandler):
             result = form_config.callback(form_name, form_values, self)
             if result:
                 if result['exitcode'] != 0:
-                    msg = u'<span class="error">{0}</span>'.format(cgi.escape(result['stderr']))
+                    msg = u'<span class="error">{0}</span>'.format(cgi.escape(result['stderr'].decode('utf8')))
                 else:
                     if form_def.output == 'escaped':
-                        msg = u'<pre>{0}</pre>'.format(cgi.escape(result['stdout']))
+                        msg = u'<pre>{0}</pre>'.format(cgi.escape(result['stdout'].decode('utf8')))
                     else:
-                        msg = result['stdout']
+                        msg = result['stdout'].decode('utf8')
 
                 output = html_submit_response.format(
                     header=html_header.format(title=form_config.title),

@@ -242,6 +242,8 @@ FIXME
       client's browser. This allows you to output images, binary files, etc to
       the client. The script must include the proper headers and body itself. 
 
+**All output is assumed to be UTF8, regardless of system encoding!**
+
 If the script's exit code is 0, the output of the script (stdout) is captured
 and shown to the user in the browser.
 
