@@ -86,6 +86,10 @@ html_header = u'''<html>
     div.result ul li {{ list-style: none; float: left; margin-right: 20px;
                         font-size: 0.90em; }}
     div.result ul.nav {{ margin-bottom: 128px; }}
+
+    /* Other */
+    div.about {{ text-align: center; font-size: 12px; color: #808080; }}
+    div.about a {{ text-decoration: none; color: #000000; }}
   </style>
 </head>
 <body>
@@ -94,6 +98,7 @@ html_header = u'''<html>
 '''
 
 html_footer = u'''
+  <div class="about">Powered by <a href="https://github.com/fboender/scriptform">Scriptform</a></div>
   </div>
 </body>
 </html>
