@@ -22,10 +22,8 @@
     - [Output types](#output_types)
     - [Exit codes](#output_exitcodes)
 1. [Callbacks](#callbacks)
-    - [Script callbacks]()
-        - [Validation]()
-        - [Field Values]()
-    - [Python callbacks]()
+    - [Validation](#callbacks_validation)
+    - [Field Values](#callbacks_fieldvalues)
 1. [Users](#users)
     - [Passwords](#users_passwords)
     - [Form limiting](#users_formlimit)
@@ -52,7 +50,38 @@ Sriptform can be run directly from the shell in the foreground with the `-f`
 
 ### <a name="invocations_daemon">Daemon</a>
 
+If you do not specify the `-f` option, Scriptform will go into the background:
+
+    $ /usr/bin/scriptform -p8000 ./formdef.json
+    $
+
+A pid file will be written in the current directory, or to the file specified
+by `--pid-file`. A log file will be written a .log file in the current
+directory, or to the file specified by the `--log-file` option.
+
+To stop the daemon, invoke the command with the `--stop` option. You must
+specifiy at least the `--pid-file` option, if the daemon was started with one.
+
+    $ /usr/bin/scriptform --pid-file /var/run/scriptform.pid --stop
+
 ### <a name="invocations_init">Init script</a>
+
+An example init script is provided in the *contrib* directory. For the Debian
+package, you can find it in `/usr/share/doc/scriptform/`. To install it on
+Debian-derived systems:
+
+    sudo cp /usr/share/doc/scriptform/scriptform.init.d_debian /etc/init.d/scriptform
+    sudo chmod 755 /etc/init.d/scriptform
+    sudo update-rc.d scriptform defaults
+
+Then, edit the init script and set the FORM_CONFIG variable.
+
+    sudo vi /etc/init.d/scriptform
+    FORM_CONFIG="/usr/local/scriptform/myscript/myscript.json
+
+Finally, start it:
+
+    sudo /etc/init.d/scriptform start
 
 ### <a name="invocations_apache">Behind Apache</a>
 
@@ -68,6 +97,9 @@ Configure:
     ProxyPassReverse /scriptform/ http://localhost:8000/
 
 Make sure the path ends in a slash! (That's what the redirect is for).
+Otherwise, you may encounter the following error:
+
+    +  TypeError: index() got an unexpected keyword argument 'form_name'
 
 ## <a name="form_config">Form config (JSON) files</a>
 
@@ -90,12 +122,10 @@ Structurally, they are made up of the following elements:
       default value is '`Submit`'. **Optional**, **String**.
 
     - **`script`**: The path to an executable script of binary that will be
-      called if the form is submitted. See also [Callbacks](#callbacks). If this field is
-      omitted, Scriptform will instead call a python callable (function,
-      method) that's been registered. Scriptform will raise an error if the
-      script isn't found, if the script isn't executable or (if the `script`
-      tag is omitted) if no Python callback is registered to handle this form.
-      **String**.
+      called if the form is submitted. See also [Callbacks](#callbacks). When
+      Scriptform starts, it switches to the directory containing the form
+      definition. You should place your scripts there or otherwise specify full
+      paths to the scripts.  **Required**, **String**.
 
     - **`output`**: Determines how the output of the callback is handled. See
       the [Output](#output) section. The default value is '`escaped`'.
@@ -314,29 +344,21 @@ will show the script's stderr output (in red) to the user instead of stdin.
 Callbacks are called after the form has been submitted and its values have been
 validated. They are the actual implementations of the form's action.
 
-There are two types of callbacks:
+A script callback can be any kind of executable, written in any kind of
+language. As long as it is executable, can read the environment and output
+things to stdout, it can be used as a callback.
 
-- Scripts
-- Python callables (functions or methods)
-
-### Validation
+### <a name="callbacks_validation">Validation</a>
 
 Fields of the form are validated by Scriptform before the script is called.
 Exactly what is validated depends on the options specified in the Form
 Definition. For more info on that, see the *Field Types* section of this
 manual.
 
-### <a name="scripts">Scripts</a>
-
-A script callback can be any kind of executable, written in any kind of
-language. As long as it is executable, can read the environment and output
-things to stdout, it can be used as a callback.
-
-#### Field values
+### <a name="callbacks_fieldvalues">Field values</a>
 
 Field values are passed to the script in its environment. For instance, a form
 field definition:
-
 
     {
       "name": "ip_address",
@@ -347,6 +369,11 @@ field definition:
 becomes available in a shell script as:
 
     echo $ip_address
+
+or in a Python script as:
+
+    import os
+    print os.environ['ip_address']
 
 Uploaded files are streamed to temporary files by Scriptform. The name of the
 temporary file is then passed on as the field's value. For example, given the
@@ -370,13 +397,6 @@ ends.
 Examples of file uploads can be found in the `examples/simple` and
 `examples/megacorp` directories.
 
-
-### <a name="python_callbacks">Python callbacks</a>
-
-or in a Python script as:
-
-    import os
-    print os.environ['ip_address']
 
 ## <a name="users">Users</a>
 
@@ -437,5 +457,3 @@ For an example, see the (beginning of this chapter)[#users].
   you wish to prevent this, you should put Scriptform behind a proxy that
   *does* support Scriptform, such as Apache. For more information on that, see
   the "Invocations" chapter.
-
-## <a name="troubleshooting">Troubleshooting</a>
