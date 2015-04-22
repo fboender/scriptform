@@ -82,10 +82,9 @@ html_header = u'''<html>
     div.result h2 {{ background-color: #E0E5E5; border-radius: 3px;
                     font-weight: bold; padding: 10px; }}
     div.result div.result-result {{ margin-left: 25px; }}
-    div.result ul {{ margin-top: 64px; padding-left: 0px; }}
-    div.result ul li {{ list-style: none; float: left; margin-right: 20px;
-                        font-size: 0.90em; }}
-    div.result ul.nav {{ margin-bottom: 128px; }}
+    div.result ul.nav {{ margin: 64px 0px 128px 0px; padding-left: 0px; }}
+    div.result ul.nav li {{ list-style: none; float: left;
+                        font-size: 0.90em; margin-right: 20px; }}
 
     /* Other */
     div.about {{ text-align: center; font-size: 12px; color: #808080; }}
