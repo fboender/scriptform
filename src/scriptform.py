@@ -163,15 +163,11 @@ class DaemonError(Exception):
 
 class ScriptForm:
     """
-    'Main' class that orchestrates parsing the Form configurations, hooking up
-    callbacks and running the webserver.
+    'Main' class that orchestrates parsing the Form configurations and running
+    the webserver.
     """
-    def __init__(self, config_file, callbacks=None):
+    def __init__(self, config_file):
         self.config_file = config_file
-        if callbacks:
-            self.callbacks = callbacks
-        else:
-            self.callbacks = {}
         self.basepath = os.path.realpath(os.path.dirname(config_file))
         self.log = logging.getLogger('SCRIPTFORM')
         self.get_form_config()  # Init form config so it can raise errors about problems.
@@ -190,7 +186,6 @@ class ScriptForm:
         config = json.load(file(path, 'r'))
 
         forms = []
-        callbacks = self.callbacks
         users = None
 
         if 'users' in config:
@@ -214,7 +209,6 @@ class ScriptForm:
         form_config = FormConfig(
             config['title'],
             forms,
-            callbacks,
             users
         )
         self.form_config_singleton = form_config
@@ -247,20 +241,15 @@ class FormConfig:
     file. It holds information (title, users, the form definitions) on the
     form configuration being served by this instance of ScriptForm.
     """
-    def __init__(self, title, forms, callbacks={}, users={}):
+    def __init__(self, title, forms, users={}):
         self.title = title
         self.users = users
         self.forms = forms
-        self.callbacks = callbacks
 
         # Validate scripts
         for form_def in self.forms:
-            if form_def.script:
-                if not stat.S_IXUSR & os.stat(form_def.script)[stat.ST_MODE]:
-                    raise ScriptFormError("{0} is not executable".format(form_def.script))
-            else:
-                if not form_def.name in self.callbacks:
-                    raise ScriptFormError("No script or callback registered for '{0}'".format(form_def.name))
+            if not stat.S_IXUSR & os.stat(form_def.script)[stat.ST_MODE]:
+                raise ScriptFormError("{0} is not executable".format(form_def.script))
 
     def get_form_def(self, form_name):
         """
@@ -276,30 +265,26 @@ class FormConfig:
 
     def callback(self, form_name, form_values, request):
         """
-        Perform a callback for the form `form_name`. This either calls a script
-        or a Python callable, depending on how the callback is registered.
+        Perform a callback for the form `form_name`. This calls a script.
         `form_values` is a dictionary of validated values as returned by
         FormDefinition.validate(). `request` is the request handler context
-        (ScriptFormWebApp). Scripts and Python callables can use it to send
-        their responses.
+        (ScriptFormWebApp). The output of the script is hooked up to the
+        output, depending on the output type.
         """
         form = self.get_form_def(form_name)
-        if form.script:
-            return self.callback_script(form, form_values, request.wfile)
-        else:
-            return self.callback_python(form, form_values, request)
 
-    def callback_script(self, form, form_values, output_fh=None):
-        # Pass form values to the script through the environment as strings.
         os.chdir(os.path.dirname(form.script))
 
+        # Pass form values to the script through the environment as strings.
         env = os.environ.copy()
         for k, v in form_values.items():
             env[k] = str(v)
 
         if form.output == 'raw':
-            p = subprocess.Popen(form.script, shell=True, stdout=output_fh,
-                                 stderr=output_fh, env=env)
+            p = subprocess.Popen(form.script, shell=True,
+                                 stdout=request.wfile,
+                                 stderr=request.wfile,
+                                 env=env)
             stdout, stderr = p.communicate(input)
             return None
         else:
@@ -311,27 +296,6 @@ class FormConfig:
                 'stdout': stdout,
                 'stderr': stderr,
                 'exitcode': p.returncode
-            }
-
-    def callback_python(self, form, form_values, request):
-        callback = self.callbacks[form.name]
-
-        try:
-            result = callback(form_values, request)
-            if result:
-                return {
-                    'stdout': result,
-                    'stderr': '',
-                    'exitcode': 0
-                }
-            else:
-                # Raw output
-                pass
-        except Exception, e:
-            return {
-                'stdout': '',
-                'stderr': str(e),
-                'exitcode': 1
             }
 
 
@@ -772,7 +736,7 @@ class ScriptFormWebApp(WebAppHandler):
     def h_submit(self, form_values):
         """
         Handle the submitting of a form by validating the values and then doing
-        a callback to either a script or a Python function. How the output is
+        a callback to a script. How the output is
         handled depends on settings in the form definition.
         """
         form_config = self.scriptform.get_form_config()
