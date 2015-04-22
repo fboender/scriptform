@@ -3,6 +3,10 @@
 ## Table of Contents
 
 1. [Invocations](#invocations)
+    - [Shell foreground](#invocations_foreground)
+    - [Daemon](#invocations_daemon)
+    - [Init script](#invocations_init)
+    - [Behind Apache](#invocations_apache)
 1. [Form config (JSON) files](#form_config)
 1. [Field types](#field_types)
     - [String](#field_types_string)
@@ -15,28 +19,42 @@
     - [Password](#field_types_password)
     - [File](#field_types_file)
 1. [Output](#output)
+    - [Output types](#output_types)
+    - [Exit codes](#output_exitcodes)
 1. [Callbacks](#callbacks)
     - [Script callbacks]()
         - [Validation]()
         - [Field Values]()
     - [Python callbacks]()
 1. [Users](#users)
+    - [Passwords](#users_passwords)
+    - [Form limiting](#users_formlimit)
+    - [Security considerations](#users_security)
+1. [Troubleshooting](#troubleshooting)
 
 ## <a name="invocations">Invocations</a>
+
+Upon starting Scriptform, it will change the working directory to the path
+containing the form definition you've sepcified. It will read the form
+definition and perform some basic sanity checks to see if, for instance, the
+scripts you specified exist and are executable.
 
 There are multiple ways of running ScriptForm. This chapter outlines the
 various methods. They are listed in the order of least to most
 pruduction-ready.
 
-### Shell foreground
+### <a name="invocations_foreground">Shell foreground</a>
 
-Sriptform can be run directly from the shell in the foreground. This is most
-useful for testing and development.
+Sriptform can be run directly from the shell in the foreground with the `-f`
+(`--foreground`) option. This is most useful for testing and development:
 
-Unless the paths to your scripts are absolute, you should run Scriptform from
-the directory that contains the Form definition file.
+    $ /usr/bin/scriptform -p8000 -f ./formdef.json
 
-### Behind Apache
+### <a name="invocations_daemon">Daemon</a>
+
+### <a name="invocations_init">Init script</a>
+
+### <a name="invocations_apache">Behind Apache</a>
 
 Enable Apache modules mod_proxy and mod_proxy_http:
 
@@ -60,11 +78,16 @@ on an overview page, and the user can select which form they want to fill out.
 Structurally, they are made up of the following elements:
 
 - **`title`**: Text to show at the top of each page. **Required**, **String**.
+
 - **`forms`**: Dictionary where the key is the form id and the value is a
   dictionary that is the definition for a single form. **Required**, **Dictionary**.
+
     - **`title`**: Title for the form. **Required**, **String**.
+
     - **`description`**: A description of the form. May include HTML tags. **Required**, **String**.
+
     - **`submit_title`**: The text on the submit button of the form.
+
     - **`script`**: The path to an executable script of binary that will be
       called if the form is submitted. See also [[Callbacks]]. If this field is
       omitted, Scriptform will instead call a python callable (function,
@@ -72,19 +95,32 @@ Structurally, they are made up of the following elements:
       script isn't found, if the script isn't executable or (if the `script`
       tag is omitted) if no Python callback is registered to handle this form.
       **String**.
+
     - **`output`**: Determines how the output of the callback is handled. See
-      the *Output types* seciton.
+      the [Output](#output) section.
+
     - **`fields`**: List of fields in the form. Each field is a dictionary.
       **Required**, **List of dictionaries**.
+
         - **`name`**: The name of the field. This is what is passed as an
-          environment variable to the callback.
+          environment variable to the callback. **Required**, **String**.
+
         - **`title`**: The title for the field, shown just above the actual
-          field.
+          field. **Required**, **String**.
+
         - **`type`**: Field type. Supported types are: *string*, *integer*,
           *float*, *date*, *radio*, *select*, *text*, *password* and *file*.
           For more information, see [Field types].
-        - **`required`**: Whether the field is required.
+
+        - **`required`**: Whether the field is required. **Optional**,
+          **Boolean**.
+
         - **`...`**: Other options, which depend on the type of field.
+          **Optional**.
+
+    - **`allowed_users`**: A list of users that are allowed to view and submit
+      this form. **Optional**, **List of strings**.
+
 - **`users`**: A dictionary of users where the key is the username and the
   value is the plaintext password. This field is not required. **Dictionary**.
 
@@ -141,6 +177,7 @@ For example, here's a form config file that contains two forms:
       }
     }
 
+Many more examples can be found in the `examples` directory in the source code.
 
 ## <a name="field_types">Field types</a>
 
@@ -231,18 +268,37 @@ No additional validatikon is done on the file contents.
 
 ## <a name="output">Output</a>
 
-FIXME
-
-      If
-      its value is `escaped`, the output of the callback will have its HTML
-      entities escaped and will be wrapped in PRE elements. This is the
-      **default** option. If the value is `html`, the output will not be
-      escaped or wrapped in PRE tags, and can thus include HTML markup. If the
-      output is `raw`, the output of the script is streamed directly to the
-      client's browser. This allows you to output images, binary files, etc to
-      the client. The script must include the proper headers and body itself. 
-
 **All output is assumed to be UTF8, regardless of system encoding!**
+
+### <a name="output_types">Output types</a>
+
+Scripts can have a few different output types. The output type is specified in
+the **`output`** field of the form definition. For example, the following form
+definition has a `raw` output type.:
+
+    "display_image" {
+        "title": "Show an image",
+        "description": "Show an image",
+        "script: "job_display_image.sh",
+        "output": "raw",
+        "fields": []
+    }
+
+The following output types are supported:
+
+- **`escaped`**: the output of the callback will have its HTML entities escaped
+  and will be wrapped in PRE elements. This is the **default** option.
+
+- **`html`**: If the value is `html`, the output will not be escaped or wrapped
+  in PRE tags, and can thus include HTML markup. 
+
+- **`raw`**: The output of the script is streamed directly to the client's
+  browser. This allows you to output images, binary files, etc to the client.
+  The script must include the proper headers and body itself. Examples of raw
+  script output can be found in the `examples/raw` directory.
+
+
+### <a name="output_exitcodes">Exit codes</a>
 
 If the script's exit code is 0, the output of the script (stdout) is captured
 and shown to the user in the browser.
@@ -250,16 +306,8 @@ and shown to the user in the browser.
 If a script's exit code is not 0, it is assumed an error occured. Scriptform
 will show the script's stderr output (in red) to the user instead of stdin.
 
-FIXME:
-If the form definition has a `script_raw` field, and its value is `true`,
-Scriptform will pass the output of the script to the browser as-is. This allows
-scripts to show images, stream a file download to the browser or even show
-completely custom HTML output. The script's output must be a valid HTTP
-response, including headers and a body. Examples of raw script output can be
-found in the `examples/raw` directory.
 
 ## <a name="callbacks">Callbacks</a>
-
 
 Callbacks are called after the form has been submitted and its values have been
 validated. They are the actual implementations of the form's action.
@@ -355,6 +403,8 @@ view the form 'only_some_users'.
       }
     }
 
+### <a name="users_passwords">Passwords</a>
+
 Passwords are unsalted SHA256 hashed passwords. To generate one, you can use
 the `--generate-pw` option of Scriptform. This will ask you twice for a
 plaintext password and return the hash that can be used in the `users` element.
@@ -369,7 +419,15 @@ the form. This is specified by a `allowed_users` field in the form definition,
 as can be seen in the previous form configuration example. Multiple users may
 be specified.
 
-### Security considerations
+### <a name="users_formlimit">Form limiting</a>
+
+You may specify a `allowed_users` field in a form definition. Only user names
+listed in the field are allowed to see and submit that form. If the user is not
+listed, they won't even see the form as being available.
+
+For an example, see the (beginning of this chapter)[#users].
+
+### <a name="users_security">Security considerations</a>
 
 - Passwords have no salt. This makes them slightly easier to bruteforce en-mass.
 - Scriptform does not natively support secure HTTPS connections. This means
@@ -377,3 +435,5 @@ be specified.
   you wish to prevent this, you should put Scriptform behind a proxy that
   *does* support Scriptform, such as Apache. For more information on that, see
   the "Invocations" chapter.
+
+## <a name="troubleshooting">Troubleshooting</a>
