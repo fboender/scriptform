@@ -23,8 +23,9 @@ script through the environment.
 - Uploaded files are automatically saved to temporary files, which are passed
   on to the callback.
 - Multiple forms in a single JSON definition file.
-- Handles script / exception errors, HTML output or lets scripts callbacks
-  stream their own HTTP response to the browser.
+- Scripts can produce normal output, HTML output or stream their own HTTP
+  response to the client. The last one lets you stream images or binaries to
+  the browser.
 
 ### Use-cases
 
