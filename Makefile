@@ -20,6 +20,7 @@ release_src:
 	cp LICENSE $(PROG)-$(REL_VERSION)/
 	cp README.md $(PROG)-$(REL_VERSION)/
 	cp contrib/release_Makefile $(PROG)-$(REL_VERSION)/Makefile
+	markdown_py doc/MANUAL.md > $(PROG)-$(REL_VERSION)/MANUAL.html
 
 	# Bump version numbers
 	find $(PROG)-$(REL_VERSION)/ -type f -print0 | xargs -0 sed -i "s/%%VERSION%%/$(REL_VERSION)/g" 
