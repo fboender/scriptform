@@ -1,5 +1,7 @@
 # Scriptform Manual
 
+This is the manual for version %%VERSION%%.
+
 ## Table of Contents
 
 1. [Invocations](#invocations)

@@ -956,7 +956,7 @@ if __name__ == "__main__":
         sys.argv[0] + " [option] (--start|--stop) <form_definition.json>",
         "       " + sys.argv[0] + " --generate-pw",
     ]
-    parser = optparse.OptionParser()
+    parser = optparse.OptionParser(version="%%VERSION%%")
     parser.set_usage('\n'.join(usage))
 
     parser.add_option("-g", "--generate-pw", dest="generate_pw", action="store_true", default=False, help="Generate password")
