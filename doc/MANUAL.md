@@ -86,10 +86,11 @@ Structurally, they are made up of the following elements:
 
     - **`description`**: A description of the form. May include HTML tags. **Required**, **String**.
 
-    - **`submit_title`**: The text on the submit button of the form.
+    - **`submit_title`**: The text on the submit button of the form. The
+      default value is '`Submit`'. **Optional**, **String**.
 
     - **`script`**: The path to an executable script of binary that will be
-      called if the form is submitted. See also [[Callbacks]]. If this field is
+      called if the form is submitted. See also [Callbacks](#callbacks). If this field is
       omitted, Scriptform will instead call a python callable (function,
       method) that's been registered. Scriptform will raise an error if the
       script isn't found, if the script isn't executable or (if the `script`
@@ -97,7 +98,8 @@ Structurally, they are made up of the following elements:
       **String**.
 
     - **`output`**: Determines how the output of the callback is handled. See
-      the [Output](#output) section.
+      the [Output](#output) section. The default value is '`escaped`'.
+      **Optional**, **String**.
 
     - **`fields`**: List of fields in the form. Each field is a dictionary.
       **Required**, **List of dictionaries**.
@@ -110,7 +112,7 @@ Structurally, they are made up of the following elements:
 
         - **`type`**: Field type. Supported types are: *string*, *integer*,
           *float*, *date*, *radio*, *select*, *text*, *password* and *file*.
-          For more information, see [Field types].
+          For more information, see [Field types](#field_types).
 
         - **`required`**: Whether the field is required. **Optional**,
           **Boolean**.
