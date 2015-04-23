@@ -69,4 +69,5 @@ clean:
 	rm -rf *.deb
 	rm -rf rel_deb
 	rm -rf scriptform-*
-	rm doc/manual.html
+	rm -rf doc/manual.html
+	rm -rf doc/MANUAL.html
