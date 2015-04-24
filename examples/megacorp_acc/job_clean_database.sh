@@ -1,7 +1,9 @@
 #!/bin/sh
 
-MYSQL_DEFAULTS_FILE="my.cnf"
-MYSQL="mysql --defaults-file=$MYSQL_DEFAULTS_FILE"
-
-echo "echo 'DROP DATABASE scriptform_acc' | $MYSQL"
-echo "$MYSQL < dbs/${sample_db}.sql"
+if [ "$source_sql" = "empty" ]; then
+    echo "Loading empty database"
+    rm megacorp.db
+    sqlite3 megacorp.db < megacorp_empty.sql && echo "Succesfully loaded"
+else
+    echo "Not Implemented"
+fi

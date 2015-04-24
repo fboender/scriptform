@@ -1,17 +1,92 @@
 {
     "title": "MegaCorp acceptance jobs",
-    "forms": {
-        "enable_firewall": {
-            "title": "Enable firewall",
-            "description": "Enable access to the acceptance environment from the entered IP",
-            "submit_title": "Enable access",
+    "users": {
+        "jjohnson": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+        "admin": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
+    },
+    "forms": [
+        {
+            "name": "clean_database",
+            "title": "Load clean database",
+            "description": "Recreate the acceptance database from scratch. This deletes all the information in the database",
+            "submit_title": "Run",
             "script": "job_clean_database.sh",
             "fields": [
                 {
-                    "name": "ip_address",
-                    "title": "IP Address",
-                    "type": "string",
+                    "name": "source_sql",
+                    "title": "Database type",
+                    "type": "select",
+                    "options": [
+                        ["empty", "Empty database"],
+                        ["dev", "Development test database"],
+                        ["ua", "Acceptance database"]
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "import_employees",
+            "title": "Import employee data from CSV",
+            "description": "Load a CSV with employee data into the database. The employee table MUST be empty.",
+            "submit_title": "Import CSV",
+            "script": "job_import_employees.sh",
+            "fields": [
+                {
+                    "name": "csv_file",
+                    "title": "CSV file",
+                    "type": "file"
+                }
+            ]
+        },
+        {
+            "name": "list_employees",
+            "title": "List employees",
+            "description": "List the employees currently in the database",
+            "submit_title": "List",
+            "script": "job_list_employees.sh",
+            "output": "html",
+            "fields": [
+            ]
+        },
+        {
+            "name": "download_db",
+            "title": "Download database",
+            "description": "Download the full binary database",
+            "submit_title": "Download",
+            "script": "job_download_db.sh",
+            "output": "raw",
+            "fields": [
+            ]
+        },
+        {
+            "name": "restart_services",
+            "title": "Restart Acceptance services",
+            "description": "Restarts the acceptance services (web, db, cache). Consult with <a href='mailto:k.karlson@megacorp.com'>Karl Karlsön</a> first!",
+            "submit_title": "Restart",
+            "script": "job_restart_acc.sh",
+            "fields": [
+                {
+                    "name": "passwd",
+                    "title": "Karl Karlsön gave you a password. What is it?",
+                    "type": "password",
                     "required": true
+                }
+            ]
+        },
+        {
+            "name": "enable_firewall",
+            "allowed_users": ["admin"],
+            "title": "Enable firewall",
+            "description": "Enable access to the acceptance environment from the entered IP",
+            "submit_title": "Enable access",
+            "script": "job_enable_firewall.sh",
+            "fields": [
+                {
+                    "name": "ip_address",
+                    "title": "From IP Address",
+                    "type": "string",
+                    "required": true,
+                    "min_length": 7
                 },
                 {
                     "name": "expire_days",
@@ -21,14 +96,8 @@
                     "min": 2
                 },
                 {
-                    "name": "expire_date",
-                    "title": "Expire (date)",
-                    "type": "date",
-                    "required": true
-                },
-                {
                     "name": "network",
-                    "title": "Which network",
+                    "title": "To which network",
                     "type": "radio",
                     "options": [
                         ["intra", "Whole intranet"],
@@ -41,50 +110,6 @@
                     "type": "text"
                 }
             ]
-        },
-        "clean_database": {
-            "title": "Load clean database",
-            "description": "Recreate the acceptance database from scratch. This deletes all the information in the database",
-            "submit_title": "Run",
-            "script": "job_clean_database.sh",
-            "fields": [
-                {
-                    "name": "sample_db",
-                    "title": "Sample database",
-                    "type": "select",
-                    "options": [
-                        ["empty", "Empty database"],
-                        ["dev", "Development test database"],
-                        ["ua", "Acceptance database"]
-                    ]
-                }
-            ]
-        },
-        "import_csv": {
-            "title": "Import CSV data into database",
-            "description": "Load a CSV with test data into the database",
-            "submit_title": "Import CSV",
-            "script": "job_restart_acc.sh",
-            "fields": [
-                {
-                    "name": "csv_file",
-                    "title": "CSV file",
-                    "type": "file"
-                }
-            ]
-        },
-        "restart_services": {
-            "title": "Restart Acceptance services",
-            "description": "Restarts the acceptance services (web, db, cache). Consult with <a href='foo@example.com'>John Foo</a> first!",
-            "submit_title": "Restart",
-            "script": "job_restart_acc.sh",
-            "fields": [
-                {
-                    "name": "passwd",
-                    "title": "John Foo gave you a password. What is it?",
-                    "type": "password"
-                }
-            ]
         }
-    }
+    ]
 }
