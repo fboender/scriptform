@@ -262,6 +262,18 @@ class FormConfig:
         else:
             raise ValueError("No such form: {0}".format(form_name))
 
+    def get_visible_forms(self, username):
+        form_list = []
+        for form_def in self.forms:
+            if form_def.allowed_users is not None and \
+               username not in form_def.allowed_users:
+                continue  # User is not allowed to run this form
+            if form_def.hide:
+                continue # Don't show hidden forms in the list.
+            else:
+                form_list.append(form_def)
+        return form_list
+
     def callback(self, form_name, form_values, request):
         """
         Perform a callback for the form `form_name`. This calls a script.
@@ -554,8 +566,10 @@ class ScriptFormWebApp(WebAppHandler):
         Otherwise render a list of available forms.
         """
         form_config = self.scriptform.get_form_config()
-        if len(form_config.forms) == 1:
-            first_form = form_config.forms[0]
+
+        visible_forms = form_config.get_visible_forms(getattr(self, 'username', None))
+        if len(visible_forms) == 1:
+            first_form = visible_forms[0]
             return self.h_form(first_form.name)
         else:
             return self.h_list()
@@ -602,12 +616,7 @@ class ScriptFormWebApp(WebAppHandler):
             return
 
         h_form_list = []
-        for form_def in form_config.forms:
-            if form_def.allowed_users is not None and \
-               self.username not in form_def.allowed_users:
-                continue  # User is not allowed to run this form
-            if form_def.hide:
-                continue # Don't show hidden forms in the list.
+        for form_def in form_config.get_visible_forms(getattr(self, 'username', None)):
             h_form_list.append(u'''
               <li>
                 <h2 class="form-title">{title}</h2>
