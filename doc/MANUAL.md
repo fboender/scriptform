@@ -16,6 +16,7 @@ This is the manual for version %%VERSION%%.
     - [Float](#field_types_float)
     - [Date](#field_types_date)
     - [Radio](#field_types_radio)
+    - [Checkbox](#field_types_checkbox)
     - [Select](#field_types_select)
     - [Text](#field_types_text)
     - [Password](#field_types_password)
@@ -277,6 +278,16 @@ The `date` field type supports the following additional options:
 - **`max`**: The maximum allowed date (format: a string YYYY-MM-DD)
 
 ### <a name="field_types_radio">Radio</a>
+
+### <a name="field_types_checkbox">Checkbox</a>
+
+The `checkbox` field type represents the user with a toggleble checkbox that
+can be either 'on' or 'off'.
+
+If the checkbox was checked, the value '`on`' is passed to the script.
+Otherwise, '`off`' is passed. Unlike HTML forms, which send no value to the
+server if the checkbox was not checked, Scriptform always sends either 'on' or
+'off'.
 
 ### <a name="field_types_select">Select</a>
 

@@ -460,6 +460,13 @@ class FormDefinition:
                 "Invalid value for dropdown: {0}".format(value))
         return value
 
+    def validate_checkbox(self, field_def, form_values):
+        value = form_values.get(field_def['name'], 'off')
+        if not value in ['on', 'off']:
+            raise ValidationError(
+                "Invalid value for checkbox: {0}".format(value))
+        return value
+
     def validate_text(self, field_def, form_values):
         value = form_values[field_def['name']]
         minlen = field_def.get('minlen', None)
@@ -662,6 +669,7 @@ class ScriptFormWebApp(WebAppHandler):
             "password": u'<input {0} type="password" min="{1}" name="{2}" />',
             "text": u'<textarea {0} name="{1}" rows="{2}" cols="{3}"></textarea>',
             "select": u'<option value="{0}">{1}</option>',
+            "checkbox": u'<input {0} type="checkbox" name="{1}" />',
             "radio": u'<input {0} type="radio" name="{1}" value="{2}">{3}<br/>',
         }
 
@@ -693,6 +701,8 @@ class ScriptFormWebApp(WebAppHandler):
                     radio_elems.append(tpl.format(checked, field['name'], option[0], option[1]))
                     checked = u''  # Check first radio option
                 input = u''.join(radio_elems)
+            elif field['type'] == 'checkbox':
+                input = tpl.format(required, field['name'])
             elif field['type'] == 'text':
                 rows = field.get('rows', 5)
                 cols = field.get('cols', 80)

@@ -6,4 +6,9 @@ if [ "$passwd" != "123foobar" ]; then
 fi
 
 echo "RESTARTING"
+
+if [ $no_db = "on" ]; then
+    echo "NOT RESTARTING DATABASE"
+fi
+
 ls -l /home/fboender
