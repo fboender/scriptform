@@ -1,7 +1,8 @@
 {
     "title": "Validation example",
-    "forms": {
-        "validate": {
+    "forms": [
+        {
+            "name": "validate",
             "title": "Validated form",
             "description": "This form is heavily validated",
             "submit_title": "Validate it",
@@ -76,5 +77,5 @@
                 }
             ]
         }
-    }
+    ]
 }

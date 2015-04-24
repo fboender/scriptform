@@ -113,12 +113,16 @@ Structurally, they are made up of the following elements:
 
 - **`title`**: Text to show at the top of each page. **Required**, **String**.
 
-- **`forms`**: Dictionary where the key is the form id and the value is a
-  dictionary that is the definition for a single form. **Required**, **Dictionary**.
+- **`forms`**: A list of dictionaries of form definitions. **Required**, **List
+    of dictionaries**.
+
+    - **`name`**: Name for the form. This must be unique. **Required**,
+      **String**, **Unique**.
 
     - **`title`**: Title for the form. **Required**, **String**.
 
-    - **`description`**: A description of the form. May include HTML tags. **Required**, **String**.
+    - **`description`**: A description of the form. May include HTML tags.
+      **Required**, **String**.
 
     - **`submit_title`**: The text on the submit button of the form. The
       default value is '`Submit`'. **Optional**, **String**.
@@ -162,8 +166,8 @@ For example, here's a form config file that contains two forms:
 
     {
       "title": "Test server",
-      "forms": {
-        "import": {
+      "forms": [
+          "name": "import",
           "title": "Import data",
           "description": "Import SQL into a database",
           "submit_title": "Import",
@@ -185,7 +189,8 @@ For example, here's a form config file that contains two forms:
             }
           ]
         },
-        "add_user": {
+        {
+          "name": "add_user",
           "title": "Add user",
           "description": "Add a user to the htaccess file or change their password",
           "submit_title": "Add user",
@@ -208,7 +213,7 @@ For example, here's a form config file that contains two forms:
             }
           ]
         }
-      }
+      ]
     }
 
 Many more examples can be found in the `examples` directory in the source code.
@@ -310,7 +315,8 @@ Scripts can have a few different output types. The output type is specified in
 the **`output`** field of the form definition. For example, the following form
 definition has a `raw` output type.:
 
-    "display_image" {
+    {
+        "name": "display_image",
         "title": "Show an image",
         "description": "Show an image",
         "script: "job_display_image.sh",
@@ -415,8 +421,8 @@ view the form 'only_some_users'.
         "test": "2bb80d537b1da3e38bd30361aa855686bde0eacd7162fef6a25fe97bf527a25b",
         "test2": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
       },
-      "forms": {
-        "only_some_users": {
+      "forms": [
+          "name": "only_some_users",
           "title": "Only some users",
           "description": "You should only see this if you're user 'test2'",
           "submit_title": "Do nothing",
@@ -424,7 +430,7 @@ view the form 'only_some_users'.
           "allowed_users": ["test2"],
           "fields": []
         }
-      }
+      ]
     }
 
 ### <a name="users_passwords">Passwords</a>

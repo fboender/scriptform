@@ -54,8 +54,8 @@ Form configuration file: `test_server.json`
 
     {
       "title": "Test server",
-      "forms": {
-        "add_user": {
+      "forms": [
+          "name": "add_user",
           "title": "Add user",
           "description": "Add a user to the htpasswd file",
           "submit_title": "Add user",
@@ -66,7 +66,7 @@ Form configuration file: `test_server.json`
             {"name": "password2", "title": "Repeat password", "type": "password"}
           ]
         }
-      }
+      ]
     }
 
 The script `job_add_user.sh`:

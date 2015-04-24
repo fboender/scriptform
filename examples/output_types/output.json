@@ -1,7 +1,8 @@
 {
     "title": "Output type callback examples",
-    "forms": {
-        "show_image": {
+    "forms": [
+        {
+            "name": "show_image",
             "title": "Show an image",
             "description": "Shows you an image. This is a 'raw' output type where the script writes a complete HTTP response to stdout, which is directly streamed to the browser by scriptform.",
             "submit_title": "Show",
@@ -9,7 +10,8 @@
             "output": "raw",
             "fields": {}
         },
-        "large_bin": {
+        {
+            "name": "large_bin",
             "title": "Download large binary file",
             "description": "Download a large (100mb) binary file. This demonstrated streaming directly to the client of large files.",
             "submit_title": "Download",
@@ -17,7 +19,8 @@
             "output": "raw",
             "fields": {}
         },
-        "some_html": {
+        {
+            "name": "some_html",
             "title": "Show some HTML",
             "description": "This is the 'html' output type, which allows HTML in the output of scripts. This can be useful to refer to another form after this form is completed, for instance.",
             "submit_title": "Show HTML",
@@ -25,7 +28,8 @@
             "output": "html",
             "fields": {}
         },
-        "escaped": {
+        {
+            "name": "escaped",
             "title": "Escaped contents (default)",
             "description": "This is the 'escaped' output type. It is the default. The HTML entities in the output are escaped properly, and is wrapped in PRE elements.",
             "submit_title": "Show HTML",
@@ -33,6 +37,5 @@
             "output": "escaped",
             "fields": {}
         }
-
-    }
+    ]
 }

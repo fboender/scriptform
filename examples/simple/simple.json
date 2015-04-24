@@ -1,7 +1,8 @@
 {
     "title": "Test server",
-    "forms": {
-        "import": {
+    "forms": [
+        {
+            "name": "import",
             "title": "Import data",
             "description": "Import SQL into a database",
             "submit_title": "Import",
@@ -23,7 +24,8 @@
                 }
             ]
         },
-        "add_user": {
+        {
+            "name": "add_user",
             "title": "Add user",
             "description": "Add a user to the htaccess file or change their password",
             "submit_title": "Add user",
@@ -46,5 +48,5 @@
                 }
             ]
         }
-    }
+    ]
 }

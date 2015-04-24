@@ -7,7 +7,7 @@
 #  - Default values for input fields.
 #  - If there are errors in the form, its values are empties.
 #  - Send responses using self.send_ if possible
-#  - Complain about no registered callback on startup instead of serving.
+#  - Maintain order of forms in form configuration.
 
 import sys
 import optparse
@@ -190,7 +190,8 @@ class ScriptForm:
 
         if 'users' in config:
             users = config['users']
-        for form_name, form in config['forms'].items():
+        for form in config['forms']:
+            form_name = form['name']
             if 'script' in form:
                 script = os.path.join(self.basepath, form['script'])
             else:
