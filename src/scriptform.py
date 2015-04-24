@@ -200,7 +200,7 @@ class ScriptForm:
                                form['fields'],
                                script,
                                output=form.get('output', 'escaped'),
-                               submit_title=form.get('submit_title', None),
+                               submit_title=form.get('submit_title', 'Submit'),
                                allowed_users=form.get('allowed_users', None))
             )
 
