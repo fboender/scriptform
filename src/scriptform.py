@@ -192,10 +192,7 @@ class ScriptForm:
             users = config['users']
         for form in config['forms']:
             form_name = form['name']
-            if 'script' in form:
-                script = os.path.join(self.basepath, form['script'])
-            else:
-                script = None
+            script = os.path.join(self.basepath, form['script'])
             forms.append(
                 FormDefinition(form_name,
                                form['title'],
@@ -305,7 +302,7 @@ class FormDefinition:
     FormDefinition holds information about a single form and provides methods
     for validation of the form values.
     """
-    def __init__(self, name, title, description, fields, script=None,
+    def __init__(self, name, title, description, fields, script,
                  output='escaped', submit_title="Submit",
                  allowed_users=None):
         self.name = name
