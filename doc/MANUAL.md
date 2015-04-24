@@ -116,12 +116,16 @@ Structurally, they are made up of the following elements:
 - **`forms`**: A list of dictionaries of form definitions. **Required**, **List
     of dictionaries**.
 
-    - **`name`**: Name for the form. This must be unique. **Required**,
-      **String**, **Unique**.
+    - **`name`**: Name for the form. This must be unique. It is used internally
+      by Scriptform to refer to forms. **Required**, **String**, **Unique**.
 
-    - **`title`**: Title for the form. **Required**, **String**.
+    - **`title`**: Title for the form. This is shown in the list of available
+      forms and on the form page itself as the title for the form and as the
+      caption for the button which takes you to the form. **Required**,
+      **String**.
 
-    - **`description`**: A description of the form. May include HTML tags.
+    - **`description`**: A description of the form. May include HTML tags. This
+      is shown in the list of available forms and on the form page itself.
       **Required**, **String**.
 
     - **`submit_title`**: The text on the submit button of the form. The
