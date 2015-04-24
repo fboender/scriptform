@@ -71,3 +71,4 @@ clean:
 	rm -rf scriptform-*
 	rm -rf doc/manual.html
 	rm -rf doc/MANUAL.html
+	rm -rf examples/megacorp_acc/megacorp.db
