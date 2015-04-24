@@ -153,8 +153,12 @@ Structurally, they are made up of the following elements:
         - **`required`**: Whether the field is required. **Optional**,
           **Boolean**.
 
-        - **`...`**: Other options, which depend on the type of field.
-          **Optional**.
+        - **`hide`**: If 'true', don't show the form in the list. You can still
+          view it, if you know its name. This is useful for other forms to
+          redirect to this forms and such.
+
+        - **`...`**: Other options, which depend on the type of field.  For
+          more information, see [Field types](#field_types). **Optional**.
 
     - **`allowed_users`**: A list of users that are allowed to view and submit
       this form. **Optional**, **List of strings**.
