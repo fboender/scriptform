@@ -72,3 +72,5 @@ clean:
 	rm -rf doc/manual.html
 	rm -rf doc/MANUAL.html
 	rm -rf examples/megacorp_acc/megacorp.db
+	rm -rf examples/megacorp_acc/.coverage
+	rm -rf examples/megacorp_acc/htmlcov
