@@ -262,7 +262,11 @@ class FormConfig:
         else:
             raise ValueError("No such form: {0}".format(form_name))
 
-    def get_visible_forms(self, username):
+    def get_visible_forms(self, username=None):
+        """
+        Return a list of all visible forms. Excluded forms are those that have
+        the 'hide' property set, and where the user has no access to.
+        """
         form_list = []
         for form_def in self.forms:
             if form_def.allowed_users is not None and \
