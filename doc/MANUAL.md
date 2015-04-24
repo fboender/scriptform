@@ -31,7 +31,7 @@ This is the manual for version %%VERSION%%.
     - [Passwords](#users_passwords)
     - [Form limiting](#users_formlimit)
     - [Security considerations](#users_security)
-1. [Troubleshooting](#troubleshooting)
+1. [Security](#security)
 
 ## <a name="invocations">Invocations</a>
 
@@ -484,3 +484,22 @@ For an example, see the (beginning of this chapter)[#users].
   you wish to prevent this, you should put Scriptform behind a proxy that
   *does* support Scriptform, such as Apache. For more information on that, see
   the "Invocations" chapter.
+
+## <a name="security">Security</a>
+
+There are a few security issues to take into consideration when deploying Scriptform:
+
+- You should limit harmful forms to specific users. See the [Users](#users)
+  chapter for more information.
+
+- User passwords have no salt. This makes them slightly easier to bruteforce
+  en-mass.
+
+- Scriptform does not natively support secure HTTPS connections. This means
+  usernames and passwords are transmitted over the line in nearly plaintext. If
+  you wish to prevent this, you should put Scriptform behind a proxy that
+  *does* support Scriptform, such as Apache. For more information on that, see
+  the "Invocations" chapter.
+
+- Scriptform logs the invocation of scripts and variables to the log file for
+  auditing purposes.
