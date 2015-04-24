@@ -244,6 +244,7 @@ class FormConfig:
         self.title = title
         self.users = users
         self.forms = forms
+        self.log = logging.getLogger('FORMCONFIG')
 
         # Validate scripts
         for form_def in self.forms:
@@ -287,6 +288,11 @@ class FormConfig:
         output, depending on the output type.
         """
         form = self.get_form_def(form_name)
+
+        # Log the callback and its parameters for auditing purposes.
+        self.log.info("Calling script {0}".format(form.script))
+        self.log.info("User: {0}".format(getattr(request, 'username', 'None')))
+        self.log.info("Variables: {0}".format(dict(form_values.items())))
 
         os.chdir(os.path.dirname(form.script))
 
@@ -608,6 +614,7 @@ class ScriptFormWebApp(WebAppHandler):
                 if username in form_config.users and \
                    pw_hash == form_config.users[username]:
                     self.username = username
+                    print self.username
                     authorized = True
 
             if not authorized:
