@@ -482,7 +482,7 @@ For an example, see the (beginning of this chapter)[#users].
 - Scriptform does not natively support secure HTTPS connections. This means
   usernames and passwords are transmitted over the line in nearly plaintext. If
   you wish to prevent this, you should put Scriptform behind a proxy that
-  *does* support Scriptform, such as Apache. For more information on that, see
+  *does* support HTTPS, such as Apache. For more information on that, see
   the "Invocations" chapter.
 
 ## <a name="security">Security</a>
@@ -498,7 +498,7 @@ There are a few security issues to take into consideration when deploying Script
 - Scriptform does not natively support secure HTTPS connections. This means
   usernames and passwords are transmitted over the line in nearly plaintext. If
   you wish to prevent this, you should put Scriptform behind a proxy that
-  *does* support Scriptform, such as Apache. For more information on that, see
+  *does* support HTTPS, such as Apache. For more information on that, see
   the "Invocations" chapter.
 
 - Scriptform logs the invocation of scripts and variables to the log file for
