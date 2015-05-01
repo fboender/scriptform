@@ -658,69 +658,85 @@ class ScriptFormWebApp(WebAppHandler):
         self.end_headers()
         self.wfile.write(output.encode('utf8'))
 
-    def h_form(self, form_name, errors={}):
+    def h_form(self, form_name, errors={}, **form_values):
         """
         Render a form.
         """
+
         form_config = self.scriptform.get_form_config()
         if not self.auth():
             return
 
         field_tpl = {
-            "string": u'<input {0} type="text" name="{1}" />',
-            "number": u'<input {0} type="number" min="{1}" max="{2}" name="{3}" />',
-            "integer": u'<input {0} type="number" min="{1}" max="{2}" name="{3}" />',
-            "float": u'<input {0} type="number" min="{1}" max="{2}" step="any" name="{3}" />',
-            "date": u'<input {0} type="date" name="{1}" />',
-            "file": u'<input {0} type="file" name="{1}" />',
-            "password": u'<input {0} type="password" min="{1}" name="{2}" />',
-            "text": u'<textarea {0} name="{1}" rows="{2}" cols="{3}"></textarea>',
-            "select": u'<option value="{0}">{1}</option>',
-            "checkbox": u'<input {0} type="checkbox" name="{1}" />',
+            "string": u'<input {0} type="text" name="{1}" value="{2}" />',
+            "number": u'<input {0} type="number" min="{1}" max="{2}" name="{3}" value="{4}" />',
+            "integer": u'<input {0} type="number" min="{1}" max="{2}" name="{3}" value="{4}" />',
+            "float": u'<input {0} type="number" min="{1}" max="{2}" step="any" name="{3}" value="{4}" />',
+            "date": u'<input {0} type="date" name="{1}" value="{2}" />',
+            "file": u'<input {0} type="file" name="{1}" value="{2}" />',
+            "password": u'<input {0} type="password" min="{1}" name="{2}" value="{3}" />',
+            "text": u'<textarea {0} name="{1}" rows="{2}" cols="{3}">{4}</textarea>',
+            "select": u'<option value="{0}" {1}>{2}</option>',
+            "checkbox": u'<input {0} type="checkbox" name="{1}" value="{2}" />',
             "radio": u'<input {0} type="radio" name="{1}" value="{2}">{3}<br/>',
         }
 
         def render_field(field, errors):
             tpl = field_tpl[field['type']]
+            field_value = form_values.get(field['name'], '')
 
             required = u''
             if field.get('required', None):
                 required = 'required'
 
             if field['type'] == 'string':
-                input = tpl.format(required, field['name'])
+                input = tpl.format(required, field['name'], field_value)
+                print input
             elif field['type'] == 'number' or \
                     field['type'] == 'integer' or \
                     field['type'] == 'float':
                 input = tpl.format(required, field.get('min', ''),
                                    field.get('max', ''),
-                                   field['name'])
+                                   field['name'],
+                                   field_value)
             elif field['type'] == 'date':
-                input = tpl.format(required, field['name'])
+                input = tpl.format(required, field['name'], field_value)
             elif field['type'] == 'file':
-                input = tpl.format(required, field['name'])
+                input = tpl.format(required, field['name'], field_value)
             elif field['type'] == 'password':
-                input = tpl.format(required, field.get('minlen', ''), field['name'])
+                input = tpl.format(required, field.get('minlen', ''), field['name'], field_value)
             elif field['type'] == 'radio':
                 radio_elems = []
                 checked = u'checked'
                 for option in field['options']:
-                    radio_elems.append(tpl.format(checked, field['name'], option[0], option[1]))
+                    if field['name'] in form_values:
+                        # If a value was passed in, set the radio to checked if
+                        # this is that value.
+                        if form_values[field['name']] == option[0]:
+                            checked = u'checked'
+                        else:
+                            checked = u''
+                    radio_elems.append(tpl.format(checked, field['name'], option[0], option[1], field_value))
                     checked = u''  # Check first radio option
                 input = u''.join(radio_elems)
             elif field['type'] == 'checkbox':
-                input = tpl.format(required, field['name'])
+                input = tpl.format(required, field['name'], field_value)
             elif field['type'] == 'text':
                 rows = field.get('rows', 5)
                 cols = field.get('cols', 80)
-                input = tpl.format(
-                    required,
-                    field['name'],
-                    rows,
-                    cols
-                )
+                input = tpl.format(required,
+                                   field['name'],
+                                   rows,
+                                   cols,
+                                   field_value)
             elif field['type'] == 'select':
-                options = u''.join([tpl.format(o[0], o[1]) for o in field['options']])
+                options = []
+                selected = ''
+                for option in field['options']:
+                    if field['name'] in form_values and form_values[field['name']] == option[0]:
+                        selected = 'selected'
+                    options.append(tpl.format(option[0], selected, option[1]))
+                    selected = ''
                 input = u'<select {0} name="{1}">{2}</select>'.format(required, field['name'], options)
             else:
                 raise ValueError("Unsupported field type: {0}".format(
