@@ -152,8 +152,8 @@ Structurally, they are made up of the following elements:
           field. **Required**, **String**.
 
         - **`type`**: Field type. Supported types are: *string*, *integer*,
-          *float*, *date*, *radio*, *select*, *text*, *password* and *file*.
-          For more information, see [Field types](#field_types).
+          *float*, *date*, *radio*, *checkbox*, *select*, *text*, *password*
+          and *file*.  For more information, see [Field types](#field_types).
 
         - **`required`**: Whether the field is required. **Optional**,
           **Boolean**.
@@ -463,11 +463,6 @@ plaintext password and return the hash that can be used in the `users` element.
     Repeat password: 
     ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad
     
-Form definitions may specify which users are allowed to view, access and submit
-the form. This is specified by a `allowed_users` field in the form definition,
-as can be seen in the previous form configuration example. Multiple users may
-be specified.
-
 ### <a name="users_formlimit">Form limiting</a>
 
 You may specify a `allowed_users` field in a form definition. Only user names
@@ -503,3 +498,7 @@ There are a few security issues to take into consideration when deploying Script
 
 - Scriptform logs the invocation of scripts and variables to the log file for
   auditing purposes.
+
+- Scriptform is not meant to be served to the public internet. **You should
+  only use it in controlled environments where a certain level of trust is
+  placed in the users!**
