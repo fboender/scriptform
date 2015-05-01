@@ -8,6 +8,7 @@
 #  - If there are errors in the form, its values are empties.
 #  - Send responses using self.send_ if possible
 #  - Maintain order of forms in form configuration.
+#  - NOt possible right now to auto prefir dates.
 
 import sys
 import optparse
