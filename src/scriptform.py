@@ -98,7 +98,7 @@ html_header = u'''<html>
 '''
 
 html_footer = u'''
-  <div class="about">Powered by <a href="https://github.com/fboender/scriptform">Scriptform</a></div>
+  <div class="about">Powered by <a href="https://github.com/fboender/scriptform">Scriptform</a> v%%VERSION%%</div>
   </div>
 </body>
 </html>
