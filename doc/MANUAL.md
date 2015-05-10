@@ -168,6 +168,10 @@ Structurally, they are made up of the following elements:
     - **`allowed_users`**: A list of users that are allowed to view and submit
       this form. **Optional**, **List of strings**.
 
+    - **`hidden`**: If 'true', the input field is hidden. This is useful for
+      pre-filled forms which takes it values from the GET request.
+      **Optional**, **boolean**.
+
 - **`users`**: A dictionary of users where the key is the username and the
   value is the plaintext password. This field is not required. **Dictionary**.
 

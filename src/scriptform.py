@@ -66,6 +66,7 @@ html_header = u'''<html>
     div.form p.form-description {{ font-size: 0.90em;
                                   margin: 40px 25px 65px 25px; }}
     div.form li {{ font-size: 0.90em; list-style: none; }}
+    div.form li.hidden {{ display: none; }}
     div.form p.form-field-title {{ margin-bottom: 0px; }}
     div.form p.form-field-input {{ margin-top: 0px; }}
     select,
@@ -743,12 +744,17 @@ class ScriptFormWebApp(WebAppHandler):
                     field['type'])
                 )
 
+            classes = ''
+            if 'hidden' in field and field['hidden']:
+                classes += 'hidden '
+
             return (u'''
-              <li>
+              <li class="{classes}">
                 <p class="form-field-title">{title}</p>
                 <p class="form-field-input">{input} <span class="error">{errors}</span></p>
               </li>
-            '''.format(title=field['title'],
+            '''.format(classes=classes,
+                       title=field['title'],
                        input=input,
                        errors=u', '.join(errors)))
 
