@@ -616,7 +616,6 @@ class ScriptFormWebApp(WebAppHandler):
                 if username in form_config.users and \
                    pw_hash == form_config.users[username]:
                     self.username = username
-                    print self.username
                     authorized = True
 
             if not authorized:
@@ -693,7 +692,6 @@ class ScriptFormWebApp(WebAppHandler):
 
             if field['type'] == 'string':
                 input = tpl.format(required, field['name'], field_value)
-                print input
             elif field['type'] == 'number' or \
                     field['type'] == 'integer' or \
                     field['type'] == 'float':
