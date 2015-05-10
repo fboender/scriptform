@@ -167,8 +167,9 @@ class ScriptForm:
     'Main' class that orchestrates parsing the Form configurations and running
     the webserver.
     """
-    def __init__(self, config_file):
+    def __init__(self, config_file, cache=True):
         self.config_file = config_file
+        self.cache = cache
         self.basepath = os.path.realpath(os.path.dirname(config_file))
         self.log = logging.getLogger('SCRIPTFORM')
         self.get_form_config()  # Init form config so it can raise errors about problems.
@@ -180,7 +181,7 @@ class ScriptForm:
         instance. If it has already been read, a cached version is returned.
         """
         # Cache
-        if hasattr(self, 'form_config_singleton'):
+        if self.cache and hasattr(self, 'form_config_singleton'):
             return self.form_config_singleton
 
         path = self.config_file
@@ -1011,6 +1012,7 @@ if __name__ == "__main__":
     parser.add_option("-g", "--generate-pw", dest="generate_pw", action="store_true", default=False, help="Generate password")
     parser.add_option("-p", "--port", dest="port", action="store", type="int", default=80, help="Port to listen on")
     parser.add_option("-f", "--foreground", dest="foreground", action="store_true", default=False, help="Run in foreground (debugging)")
+    parser.add_option("-r", "--reload", dest="reload", action="store_true", default=False, help="Reload form config on every request (DEV)")
     parser.add_option("--pid-file", dest="pid_file", action="store", default=None, help="Pid file")
     parser.add_option("--log-file", dest="log_file", action="store", default=None, help="Log file")
     parser.add_option("--start", dest="action_start", action="store_true", default=None, help="Start daemon")
@@ -1036,7 +1038,7 @@ if __name__ == "__main__":
         log = logging.getLogger('MAIN')
         try:
             if options.action_start:
-                sf = ScriptForm(args[0])
+                sf = ScriptForm(args[0], cache=not options.reload)
                 daemon.register_shutdown_cb(sf.shutdown)
                 daemon.start()
                 sf.run(listen_port=options.port)
