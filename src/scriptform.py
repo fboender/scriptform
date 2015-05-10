@@ -681,7 +681,7 @@ class ScriptFormWebApp(WebAppHandler):
             "password": u'<input {0} type="password" min="{1}" name="{2}" value="{3}" />',
             "text": u'<textarea {0} name="{1}" rows="{2}" cols="{3}">{4}</textarea>',
             "select": u'<option value="{0}" {1}>{2}</option>',
-            "checkbox": u'<input {0} type="checkbox" name="{1}" value="{2}" />',
+            "checkbox": u'<input {0} {1} type="checkbox" name="{1}" value="on" />',
             "radio": u'<input {0} type="radio" name="{1}" value="{2}">{3}<br/>',
         }
 
@@ -723,7 +723,10 @@ class ScriptFormWebApp(WebAppHandler):
                     checked = u''  # Check first radio option
                 input = u''.join(radio_elems)
             elif field['type'] == 'checkbox':
-                input = tpl.format(required, field['name'], field_value)
+                checked = ''
+                if field['name'] in form_values and form_values[field['name']] == 'on':
+                    checked = 'checked'
+                input = tpl.format(required, checked, field['name'])
             elif field['type'] == 'text':
                 rows = field.get('rows', 5)
                 cols = field.get('cols', 80)
