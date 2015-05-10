@@ -1025,7 +1025,7 @@ if __name__ == "__main__":
         if not plain_pw == getpass.getpass('Repeat password: '):
             sys.stderr.write("Passwords do not match.\n")
             sys.exit(1)
-        print hashlib.sha256(plain_pw).hexdigest()
+        sys.stdout.write(hashlib.sha256(plain_pw).hexdigest() + '\n')
         sys.exit(0)
     else:
         if not options.action_stop and len(args) < 1:
