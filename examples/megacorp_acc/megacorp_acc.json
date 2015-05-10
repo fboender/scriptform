@@ -31,7 +31,7 @@
         },
         {
             "name": "signup_step_2",
-            "hide": true,
+            "hidden": true,
             "title": "Sign up: Your subscriptions",
             "description": "Please check which topics you are interested in",
             "script": "job_signup_step2.sh",

@@ -203,7 +203,7 @@ class ScriptForm:
                                form['fields'],
                                script,
                                output=form.get('output', 'escaped'),
-                               hide=form.get('hide', False),
+                               hidden=form.get('hidden', False),
                                submit_title=form.get('submit_title', 'Submit'),
                                allowed_users=form.get('allowed_users', None))
             )
@@ -269,14 +269,14 @@ class FormConfig:
     def get_visible_forms(self, username=None):
         """
         Return a list of all visible forms. Excluded forms are those that have
-        the 'hide' property set, and where the user has no access to.
+        the 'hidden' property set, and where the user has no access to.
         """
         form_list = []
         for form_def in self.forms:
             if form_def.allowed_users is not None and \
                username not in form_def.allowed_users:
                 continue  # User is not allowed to run this form
-            if form_def.hide:
+            if form_def.hidden:
                 continue # Don't show hidden forms in the list.
             else:
                 form_list.append(form_def)
@@ -331,7 +331,7 @@ class FormDefinition:
     for validation of the form values.
     """
     def __init__(self, name, title, description, fields, script,
-                 output='escaped', hide=False, submit_title="Submit",
+                 output='escaped', hidden=False, submit_title="Submit",
                  allowed_users=None):
         self.name = name
         self.title = title
@@ -339,7 +339,7 @@ class FormDefinition:
         self.fields = fields
         self.script = script
         self.output = output
-        self.hide = hide
+        self.hidden = hidden
         self.submit_title = submit_title
         self.allowed_users = allowed_users
 

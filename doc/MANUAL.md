@@ -142,6 +142,13 @@ Structurally, they are made up of the following elements:
       the [Output](#output) section. The default value is '`escaped`'.
       **Optional**, **String**.
 
+    - **`allowed_users`**: A list of users that are allowed to view and submit
+      this form. **Optional**, **List of strings**.
+
+    - **`hidden`**: If 'true', don't show the form in the list. You can still
+      view it, if you know its name. This is useful for other forms to
+      redirect to this forms and such.
+
     - **`fields`**: List of fields in the form. Each field is a dictionary.
       **Required**, **List of dictionaries**.
 
@@ -158,19 +165,12 @@ Structurally, they are made up of the following elements:
         - **`required`**: Whether the field is required. **Optional**,
           **Boolean**.
 
-        - **`hide`**: If 'true', don't show the form in the list. You can still
-          view it, if you know its name. This is useful for other forms to
-          redirect to this forms and such.
-
         - **`...`**: Other options, which depend on the type of field.  For
           more information, see [Field types](#field_types). **Optional**.
 
-    - **`allowed_users`**: A list of users that are allowed to view and submit
-      this form. **Optional**, **List of strings**.
-
-    - **`hidden`**: If 'true', the input field is hidden. This is useful for
-      pre-filled forms which takes it values from the GET request.
-      **Optional**, **boolean**.
+        - **`hidden`**: If 'true', the input field is hidden. This is useful for
+          pre-filled forms which takes it values from the GET request.
+          **Optional**, **boolean**.
 
 - **`users`**: A dictionary of users where the key is the username and the
   value is the plaintext password. This field is not required. **Dictionary**.
