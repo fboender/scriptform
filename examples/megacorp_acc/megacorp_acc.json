@@ -6,6 +6,67 @@
     },
     "forms": [
         {
+            "name": "signup_step_1",
+            "title": "Newsletter Sign up",
+            "description": "Test sign up for the newsletter",
+            "script": "job_signup_step1.sh",
+            "output": "raw",
+            "fields": [
+                {
+                    "name": "first_name",
+                    "title": "First name",
+                    "type": "string"
+                },
+                {
+                    "name": "last_name",
+                    "title": "Last name",
+                    "type": "string"
+                },
+                {
+                    "name": "email_address",
+                    "title": "What's your email address?",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "signup_step_2",
+            "hide": true,
+            "title": "Sign up: Your subscriptions",
+            "description": "Please check which topics you are interested in",
+            "script": "job_signup_step2.sh",
+            "fields": [
+                {
+                    "name": "first_name",
+                    "title": "First name",
+                    "type": "string",
+                    "hidden": true
+                },
+                {
+                    "name": "last_name",
+                    "title": "Last name",
+                    "type": "string",
+                    "hidden": true
+                },
+                {
+                    "name": "email_address",
+                    "title": "What's your email address?",
+                    "type": "string",
+                    "hidden": true
+                },
+                {
+                    "name": "check_company",
+                    "title": "Negacorp Company news",
+                    "type": "checkbox"
+                },
+                {
+                    "name": "check_products",
+                    "title": "Product news",
+                    "type": "checkbox"
+                }
+            ]
+        },
+        {
             "name": "clean_database",
             "title": "Load clean database",
             "description": "Recreate the acceptance database from scratch. This deletes all the information in the database",

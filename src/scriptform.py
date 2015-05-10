@@ -304,6 +304,8 @@ class FormConfig:
         for k, v in form_values.items():
             env[k] = str(v)
 
+        # If the form output type is 'raw', we directly stream the output to
+        # the browser. Otherwise we store it for later displaying.
         if form.output == 'raw':
             p = subprocess.Popen(form.script, shell=True,
                                  stdout=request.wfile,
