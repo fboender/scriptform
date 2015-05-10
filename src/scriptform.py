@@ -69,6 +69,7 @@ html_header = u'''<html>
     div.form li.hidden {{ display: none; }}
     div.form p.form-field-title {{ margin-bottom: 0px; }}
     div.form p.form-field-input {{ margin-top: 0px; }}
+    div.form li.checkbox p.form-field-input {{ float: left; margin-right: 8px; }}
     select,
     textarea,
     input[type=text],
@@ -130,6 +131,19 @@ html_form = u'''
   </form>
 </div>
 {footer}
+'''
+
+html_field = u'''
+  <li class="{classes}">
+    <p class="form-field-title">{title}</p>
+    <p class="form-field-input">{input} <span class="error">{errors}</span></p>
+  </li>
+'''
+
+html_field_checkbox = u'''
+  <li class="checkbox {classes}">
+    <p class="form-field-input">{input} <p class="form-field-title">{title}</p><span class="error">{errors}</span></p>
+  </li>
 '''
 
 html_submit_response = u'''
@@ -753,15 +767,14 @@ class ScriptFormWebApp(WebAppHandler):
             if 'hidden' in field and field['hidden']:
                 classes += 'hidden '
 
-            return (u'''
-              <li class="{classes}">
-                <p class="form-field-title">{title}</p>
-                <p class="form-field-input">{input} <span class="error">{errors}</span></p>
-              </li>
-            '''.format(classes=classes,
-                       title=field['title'],
-                       input=input,
-                       errors=u', '.join(errors)))
+            if field['type'] != 'checkbox':
+                html = html_field
+            else:
+                html = html_field_checkbox
+            return (html.format(classes=classes,
+                                title=field['title'],
+                                input=input,
+                                errors=u', '.join(errors)))
 
         # Make sure the user is allowed to access this form.
         form_def = form_config.get_form_def(form_name)
