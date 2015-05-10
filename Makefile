@@ -1,3 +1,4 @@
+.PHONY: doc
 PROG=scriptform
 
 install:
@@ -8,7 +9,11 @@ uninstall:
 
 release: release_src release_deb release_rpm
 
-release_src:
+doc:
+	markdown_py doc/MANUAL.md > doc/MANUAL.html
+	markdown_py README.md > README.html
+
+release_src: doc
 	@echo "Making release for version $(REL_VERSION)"
 
 	@if [ -z "$(REL_VERSION)" ]; then echo "REL_VERSION required"; exit 1; fi
@@ -20,7 +25,7 @@ release_src:
 	cp LICENSE $(PROG)-$(REL_VERSION)/
 	cp README.md $(PROG)-$(REL_VERSION)/
 	cp contrib/release_Makefile $(PROG)-$(REL_VERSION)/Makefile
-	markdown_py doc/MANUAL.md > $(PROG)-$(REL_VERSION)/MANUAL.html
+	cp doc/MANUAL.html $(PROG)-$(REL_VERSION)/MANUAL.html
 
 	# Bump version numbers
 	find $(PROG)-$(REL_VERSION)/ -type f -print0 | xargs -0 sed -i "s/%%VERSION%%/$(REL_VERSION)/g" 
@@ -32,7 +37,7 @@ release_src:
 	# Cleanup
 	rm -rf $(PROG)-$(REL_VERSION)
 
-release_deb:
+release_deb: doc
 	@if [ -z "$(REL_VERSION)" ]; then echo "REL_VERSION required"; exit 1; fi
 
 	mkdir -p rel_deb/usr/bin
@@ -43,8 +48,8 @@ release_deb:
 	cp LICENSE rel_deb/usr/share/doc/$(PROG)
 	cp README.md rel_deb/usr/share/doc/$(PROG)
 	cp doc/MANUAL.md rel_deb/usr/share/doc/$(PROG)
-	markdown_py README.md > rel_deb/usr/share/doc/$(PROG)/README.html
-	markdown_py doc/MANUAL.md > rel_deb/usr/share/doc/$(PROG)/MANUAL.html
+	cp README.html $(PROG)-$(REL_VERSION)/README.html
+	cp doc/MANUAL.html $(PROG)-$(REL_VERSION)/MANUAL.html
 	cp src/scriptform.py rel_deb/usr/bin/scriptform
 	cp contrib/scriptform.init.d_debian rel_deb/usr/share/doc/$(PROG)
 	cp contrib/scriptform.init.d_redhat rel_deb/usr/share/doc/$(PROG)

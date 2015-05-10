@@ -6,3 +6,5 @@ examples/simple/htaccess
 *.deb
 *.tar.gz
 *.zip
+doc/*.html
+README.html
