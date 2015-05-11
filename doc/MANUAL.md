@@ -129,18 +129,18 @@ Structurally, they are made up of the following elements:
       is shown in the list of available forms and on the form page itself.
       **Required**, **String**.
 
-    - **`submit_title`**: The text on the submit button of the form. The
-      default value is '`Submit`'. **Optional**, **String**.
-
     - **`script`**: The path to an executable script of binary that will be
       called if the form is submitted. See also [Callbacks](#callbacks). When
       Scriptform starts, it switches to the directory containing the form
       definition. You should place your scripts there or otherwise specify full
       paths to the scripts.  **Required**, **String**.
 
+    - **`submit_title`**: The text on the submit button of the form.
+      **Optional**, **String**, **Default:** `Submit`.
+
     - **`output`**: Determines how the output of the callback is handled. See
       the [Output](#output) section. The default value is '`escaped`'.
-      **Optional**, **String**.
+      **Optional**, **String**, **Default:** `escaped`.
 
     - **`allowed_users`**: A list of users that are allowed to view and submit
       this form. **Optional**, **List of strings**.
@@ -163,14 +163,14 @@ Structurally, they are made up of the following elements:
           and *file*.  For more information, see [Field types](#field_types).
 
         - **`required`**: Whether the field is required. **Optional**,
-          **Boolean**.
-
-        - **`...`**: Other options, which depend on the type of field.  For
-          more information, see [Field types](#field_types). **Optional**.
+          **Boolean**, **Default:** `false`.
 
         - **`hidden`**: If 'true', the input field is hidden. This is useful for
           pre-filled forms which takes it values from the GET request.
-          **Optional**, **boolean**.
+          **Optional**, **boolean**, **Default:** `false`.
+
+        - **`...`**: Other options, which depend on the type of field.  For
+          more information, see [Field types](#field_types). **Optional**.
 
 - **`users`**: A dictionary of users where the key is the username and the
   value is the plaintext password. This field is not required. **Dictionary**.
