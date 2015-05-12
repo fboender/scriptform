@@ -9,6 +9,8 @@
 #  - Send responses using self.send_ if possible
 #  - Maintain order of forms in form configuration.
 #  - NOt possible right now to auto prefir dates.
+#  - Visually distinguish required fields.
+#  - Allow custom CSS
 
 import sys
 import optparse
@@ -686,92 +688,82 @@ class ScriptFormWebApp(WebAppHandler):
             return
 
         field_tpl = {
-            "string": u'<input {0} type="text" name="{1}" value="{2}" />',
-            "number": u'<input {0} type="number" min="{1}" max="{2}" name="{3}" value="{4}" />',
-            "integer": u'<input {0} type="number" min="{1}" max="{2}" name="{3}" value="{4}" />',
-            "float": u'<input {0} type="number" min="{1}" max="{2}" step="any" name="{3}" value="{4}" />',
-            "date": u'<input {0} type="date" name="{1}" value="{2}" />',
-            "file": u'<input {0} type="file" name="{1}" value="{2}" />',
-            "password": u'<input {0} type="password" min="{1}" name="{2}" value="{3}" />',
-            "text": u'<textarea {0} name="{1}" rows="{2}" cols="{3}">{4}</textarea>',
-            "select": u'<option value="{0}" {1}>{2}</option>',
-            "checkbox": u'<input {0} {1} type="checkbox" name="{1}" value="on" />',
-            "radio": u'<input {0} type="radio" name="{1}" value="{2}">{3}<br/>',
+            "string": u'<input {required} type="text" name="{name}" value="{value}" class="{classes}" />',
+            "number": u'<input {required} type="number" min="{min}" max="{max}" name="{name}" value="{value}" class="{classes}" />',
+            "integer": u'<input {required} type="number" min="{min}" max="{max}" name="{name}" value="{value}" class="{classes}" />',
+            "float": u'<input {required} type="number" min="{min}" max="{max}" step="any" name="{name}" value="{value}" class="{classes}" />',
+            "date": u'<input {required} type="date" name="{name}" value="{value}" class="{classes}" />',
+            "file": u'<input {required} type="file" name="{name}" value="{value}" class="{classes}" />',
+            "password": u'<input {required} type="password" min="{min}" name="{name}" value="{value}" class="{classes}" />',
+            "text": u'<textarea {required} name="{name}" rows="{rows}" cols="{cols}" class="{classes}">{value}</textarea>',
+            "select": u'<option value="{value}" {selected} class="{classes}">{title}</option>',
+            "checkbox": u'<input {required} {checked} type="checkbox" name="{name}" value="on" class="{classes}" />',
+            "radio": u'<input {required} {checked} type="radio" name="{name}" value="{value}" class="{classes}">{title}<br/>',
         }
 
         def render_field(field, errors):
             tpl = field_tpl[field['type']]
-            field_value = form_values.get(field['name'], '')
 
-            required = u''
+            params = {
+                "required": u"",
+                "value": form_values.get(field['name'], ''),
+                "classes": "",
+                "name": field['name'],
+                "min": field.get("min", ''),    # number, float
+                "max": field.get("max", ''),    # number, float
+                "rows": field.get('rows', 5),   # text
+                "cols": field.get('cols', 80),  # text
+            }
             if field.get('required', None):
                 required = 'required'
+            if field.get('hidden', None):
+                params['classes'] += 'hidden '
 
-            if field['type'] == 'string':
-                input = tpl.format(required, field['name'], field_value)
-            elif field['type'] == 'number' or \
-                    field['type'] == 'integer' or \
-                    field['type'] == 'float':
-                input = tpl.format(required, field.get('min', ''),
-                                   field.get('max', ''),
-                                   field['name'],
-                                   field_value)
-            elif field['type'] == 'date':
-                input = tpl.format(required, field['name'], field_value)
-            elif field['type'] == 'file':
-                input = tpl.format(required, field['name'], field_value)
-            elif field['type'] == 'password':
-                input = tpl.format(required, field.get('minlen', ''), field['name'], field_value)
+            if field['type'] in ('string', 'number', 'integer', 'float', 'date', 'file', 'password', 'text'):
+                input = tpl.format(**params)
             elif field['type'] == 'radio':
+                # Check first radio button if no other one is checked
+                if not form_values.get(field['name'], None):
+                    checked_value = field['options'][0][0]
+                else:
+                    checked_value = form_values[field['name']]
                 radio_elems = []
-                checked = u'checked'
                 for option in field['options']:
-                    if field['name'] in form_values:
-                        # If a value was passed in, set the radio to checked if
-                        # this is that value.
-                        if form_values[field['name']] == option[0]:
-                            checked = u'checked'
-                        else:
-                            checked = u''
-                    radio_elems.append(tpl.format(checked, field['name'], option[0], option[1], field_value))
-                    checked = u''  # Check first radio option
+                    params['value'] = option[0]
+                    params['title'] = option[1]
+                    if checked_value == option[0]:
+                        params['checked'] = u'checked'
+                    else:
+                        params['checked'] = u''
+                    radio_elems.append(tpl.format(**params))
                 input = u''.join(radio_elems)
             elif field['type'] == 'checkbox':
-                checked = ''
+                params['checked'] = ''
                 if field['name'] in form_values and form_values[field['name']] == 'on':
-                    checked = 'checked'
-                input = tpl.format(required, checked, field['name'])
-            elif field['type'] == 'text':
-                rows = field.get('rows', 5)
-                cols = field.get('cols', 80)
-                input = tpl.format(required,
-                                   field['name'],
-                                   rows,
-                                   cols,
-                                   field_value)
+                    params['checked'] = u'checked'
+                input = tpl.format(**params)
             elif field['type'] == 'select':
                 options = []
                 selected = ''
                 for option in field['options']:
+                    params['value'] = option[0]
+                    params['title'] = option[1]
+                    params['selected'] = u''
                     if field['name'] in form_values and form_values[field['name']] == option[0]:
-                        selected = 'selected'
-                    options.append(tpl.format(option[0], selected, option[1]))
-                    selected = ''
-                input = u'<select {0} name="{1}">{2}</select>'.format(required, field['name'], options)
+                        params['selected'] = u'selected'
+                    options.append(tpl.format(**params))
+                params['options'] = ''.join(options)
+                input = u'<select {required} name="{name}">{options}</select>'.format(**params)
             else:
                 raise ValueError("Unsupported field type: {0}".format(
                     field['type'])
                 )
 
-            classes = ''
-            if 'hidden' in field and field['hidden']:
-                classes += 'hidden '
-
             if field['type'] != 'checkbox':
                 html = html_field
             else:
                 html = html_field_checkbox
-            return (html.format(classes=classes,
+            return (html.format(classes=params['classes'],
                                 title=field['title'],
                                 input=input,
                                 errors=u', '.join(errors)))
