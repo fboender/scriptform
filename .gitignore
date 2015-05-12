@@ -1,10 +1,11 @@
 *.pyc
 *.log
-examples/native/htaccess
-examples/simple/htaccess
 *.rpm
 *.deb
 *.tar.gz
 *.zip
 doc/*.html
 README.html
+examples/native/htaccess
+examples/simple/htaccess
+examples/megacorp_acc/megacorp.db
