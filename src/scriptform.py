@@ -594,6 +594,104 @@ class WebAppHandler(BaseHTTPRequestHandler):
             raise
 
 
+class FormRender():
+    field_tpl = {
+        "string": u'<input {required} type="text" name="{name}" value="{value}" class="{classes}" />',
+        "number": u'<input {required} type="number" min="{min}" max="{max}" name="{name}" value="{value}" class="{classes}" />',
+        "integer": u'<input {required} type="number" min="{min}" max="{max}" name="{name}" value="{value}" class="{classes}" />',
+        "float": u'<input {required} type="number" min="{min}" max="{max}" step="any" name="{name}" value="{value}" class="{classes}" />',
+        "date": u'<input {required} type="date" name="{name}" value="{value}" class="{classes}" />',
+        "file": u'<input {required} type="file" name="{name}" class="{classes}" />',
+        "password": u'<input {required} type="password" min="{min}" name="{name}" value="{value}" class="{classes}" />',
+        "text": u'<textarea {required} name="{name}" rows="{rows}" cols="{cols}" class="{classes}">{value}</textarea>',
+        "radio_option": u'<input {checked} type="radio" name="{name}" value="{value}" class="{classes}">{label}<br/>',
+        "select_option": u'<option value="{value}" {selected}>{label}</option>',
+        "select": u'<select name="{name}" class="{classes}">{select_elems}</select>',
+        "checkbox": u'<input {checked} type="checkbox" name="{name}" value="on" class="{classes}" />',
+    }
+
+    def __init__(self, form_def):
+        self.form_def = form_def
+
+    def cast_params(self, params):
+        new_params = params.copy()
+        if not params.get('required', False):
+            new_params['required'] = ""
+        if not params.get('min', False):
+            new_params["min"] = ""
+        if not params.get('max', False):
+            new_params["max"] = ""
+        return new_params
+
+    def r_field(self, type, **kwargs):
+        method_name = 'r_field_{0}'.format(type)
+        method = getattr(self, method_name, None)
+        return method(**kwargs)
+
+    def r_field_input(self, type, **kwargs):
+        params = self.cast_params(kwargs)
+        tpl = self.field_tpl[type]
+        return tpl.format(**params)
+
+    def r_field_string(self, name, value, required=False, classes=[]):
+        tpl = self.field_tpl['string']
+        return tpl.format(name=name, value=value, required=required, classes=classes)
+
+    def r_field_number(self, name, value, min=None, max=None, required=False, classes=[]):
+        tpl = self.field_tpl['number']
+        return tpl.format(name=name, value=value, min=min, max=max, required=required, classes=classes)
+
+    def r_field_integer(self, name, value, min=None, max=None, required=False, classes=[]):
+        tpl = self.field_tpl['integer']
+        return tpl.format(name=name, value=value, min=min, max=max, required=required, classes=classes)
+
+    def r_field_float(self, name, value, min=None, max=None, required=False, classes=[]):
+        tpl = self.field_tpl['integer']
+        return tpl.format(name=name, value=value, min=min, max=max, required=required, classes=classes)
+
+    def r_field_date(self, name, value, required=False, classes=[]):
+        tpl = self.field_tpl['date']
+        return tpl.format(name=name, value=value, required=required, classes=classes)
+
+    def r_field_file(self, name, required=False, classes=[]):
+        tpl = self.field_tpl['file']
+        return tpl.format(name=name, required=required, classes=classes)
+
+    def r_field_password(self, name, value, min=None, required=False, classes=[]):
+        tpl = self.field_tpl['password']
+        return tpl.format(name=name, value=value, min=min, required=required, classes=classes)
+
+    def r_field_text(self, name, value, rows=4, cols=80, required=False, classes=[]):
+        tpl = self.field_tpl['text']
+        return tpl.format(name=name, value=value, rows=rows, cols=cols, required=required, classes=classes)
+
+    def r_field_radio(self, name, value, options, classes=[]):
+        tpl_option = self.field_tpl['radio_option']
+        radio_elems = []
+        for o_value, o_label in options:
+            checked = ''
+            if o_value == value:
+                checked = 'checked'
+            radio_elems.append(tpl_option.format(name=name, value=value, checked=checked, label=o_label, classes=classes))
+        return u''.join(radio_elems)
+
+    def r_field_checkbox(self, name, checked, classes=''):
+        tpl = self.field_tpl['checkbox']
+        return tpl.format(name=name, checked=checked, classes=classes)
+
+    def r_field_select(self, name, value, options, classes=[]):
+        tpl_option = self.field_tpl['select_option']
+        select_elems = []
+        for o_value, o_label in options:
+            selected = ''
+            if o_value == value:
+                selected = 'selected'
+            select_elems.append(tpl_option.format(value=o_value, selected=selected, label=o_label))
+
+        tpl = self.field_tpl['select']
+        return tpl.format(name=name, select_elems=''.join(select_elems), classes=classes)
+
+
 class ScriptFormWebApp(WebAppHandler):
     """
     This class is a request handler for WebSrv.
@@ -701,63 +799,49 @@ class ScriptFormWebApp(WebAppHandler):
             "radio": u'<input {required} {checked} type="radio" name="{name}" value="{value}" class="{classes}">{title}<br/>',
         }
 
+        fr = FormRender(None)
+
         def render_field(field, errors):
             tpl = field_tpl[field['type']]
 
             params = {
-                "required": u"",
-                "value": form_values.get(field['name'], ''),
-                "classes": "",
-                "name": field['name'],
-                "min": field.get("min", ''),    # number, float
-                "max": field.get("max", ''),    # number, float
-                "rows": field.get('rows', 5),   # text
-                "cols": field.get('cols', 80),  # text
+                'name': field['name'],
+                'classes': [],
             }
-            if field.get('required', None):
-                required = 'required'
-            if field.get('hidden', None):
-                params['classes'] += 'hidden '
 
-            if field['type'] in ('string', 'number', 'integer', 'float', 'date', 'file', 'password', 'text'):
-                input = tpl.format(**params)
-            elif field['type'] == 'radio':
-                # Check first radio button if no other one is checked
+            if field.get('hidden', None):
+                params['classes'].append('hidden')
+
+            if field['type'] not in ('file', 'checkbox'):
+                params['value'] = form_values.get(field['name'], ''),
+
+            if field['type'] not in ('radio', 'checkbox', 'select'):
+                params['required'] = field.get('required', False),
+
+            if field['type'] in ('number', 'integer', 'float', 'password'):
+                params['min'] = field.get("min", '')
+
+            if field['type'] in ('number', 'integer', 'float'):
+                params['max'] = field.get("max", '')
+
+            if field['type'] in ('text'):
+                params['rows'] = field.get("rows", ''),
+                params['cols'] = field.get("cols", ''),
+
+            if field['type'] == 'radio':
                 if not form_values.get(field['name'], None):
-                    checked_value = field['options'][0][0]
-                else:
-                    checked_value = form_values[field['name']]
-                radio_elems = []
-                for option in field['options']:
-                    params['value'] = option[0]
-                    params['title'] = option[1]
-                    if checked_value == option[0]:
-                        params['checked'] = u'checked'
-                    else:
-                        params['checked'] = u''
-                    radio_elems.append(tpl.format(**params))
-                input = u''.join(radio_elems)
-            elif field['type'] == 'checkbox':
-                params['checked'] = ''
+                    params['value'] = field['options'][0][0]
+                params['options'] = field['options'],
+
+            if field['type'] in ('radio', 'select'):
+                params['options'] = field['options']
+
+            if field['type'] == 'checkbox':
+                params['checked'] = False
                 if field['name'] in form_values and form_values[field['name']] == 'on':
-                    params['checked'] = u'checked'
-                input = tpl.format(**params)
-            elif field['type'] == 'select':
-                options = []
-                selected = ''
-                for option in field['options']:
-                    params['value'] = option[0]
-                    params['title'] = option[1]
-                    params['selected'] = u''
-                    if field['name'] in form_values and form_values[field['name']] == option[0]:
-                        params['selected'] = u'selected'
-                    options.append(tpl.format(**params))
-                params['options'] = ''.join(options)
-                input = u'<select {required} name="{name}">{options}</select>'.format(**params)
-            else:
-                raise ValueError("Unsupported field type: {0}".format(
-                    field['type'])
-                )
+                    params['checked'] = True
+
+            input = fr.r_field(field['type'], **params)
 
             if field['type'] != 'checkbox':
                 html = html_field
