@@ -693,6 +693,16 @@ class FormRender():
         tpl = self.field_tpl['select']
         return tpl.format(name=name, select_elems=''.join(select_elems), classes=classes)
 
+    def r_form_line(self, type, title, input, classes, errors):
+        if type == 'checkbox':
+            html = html_field_checkbox
+        else:
+            html = html_field
+
+        return (html.format(classes=classes,
+                            title=title,
+                            input=input,
+                            errors=u', '.join(errors)))
 
 class ScriptFormWebApp(WebAppHandler):
     """
@@ -829,14 +839,8 @@ class ScriptFormWebApp(WebAppHandler):
 
             input = fr.r_field(field['type'], **params)
 
-            if field['type'] != 'checkbox':
-                html = html_field
-            else:
-                html = html_field_checkbox
-            return (html.format(classes=params['classes'],
-                                title=field['title'],
-                                input=input,
-                                errors=u', '.join(errors)))
+            return fr.r_form_line(field['type'], field['title'],
+                                  input, params['classes'], errors)
 
         # Make sure the user is allowed to access this form.
         form_def = form_config.get_form_def(form_name)
