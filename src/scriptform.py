@@ -791,25 +791,9 @@ class ScriptFormWebApp(WebAppHandler):
         if not self.auth():
             return
 
-        field_tpl = {
-            "string": u'<input {required} type="text" name="{name}" value="{value}" class="{classes}" />',
-            "number": u'<input {required} type="number" min="{min}" max="{max}" name="{name}" value="{value}" class="{classes}" />',
-            "integer": u'<input {required} type="number" min="{min}" max="{max}" name="{name}" value="{value}" class="{classes}" />',
-            "float": u'<input {required} type="number" min="{min}" max="{max}" step="any" name="{name}" value="{value}" class="{classes}" />',
-            "date": u'<input {required} type="date" name="{name}" value="{value}" class="{classes}" />',
-            "file": u'<input {required} type="file" name="{name}" value="{value}" class="{classes}" />',
-            "password": u'<input {required} type="password" min="{min}" name="{name}" value="{value}" class="{classes}" />',
-            "text": u'<textarea {required} name="{name}" rows="{rows}" cols="{cols}" class="{classes}">{value}</textarea>',
-            "select": u'<option value="{value}" {selected} class="{classes}">{title}</option>',
-            "checkbox": u'<input {required} {checked} type="checkbox" name="{name}" value="on" class="{classes}" />',
-            "radio": u'<input {required} {checked} type="radio" name="{name}" value="{value}" class="{classes}">{title}<br/>',
-        }
-
         fr = FormRender(None)
 
         def render_field(field, errors):
-            tpl = field_tpl[field['type']]
-
             params = {
                 'name': field['name'],
                 'classes': [],
