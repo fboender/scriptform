@@ -819,7 +819,7 @@ class ScriptFormWebApp(WebAppHandler):
                 params['classes'].append('hidden')
 
             if field['type'] not in ('file', 'checkbox'):
-                params['value'] = form_values.get(field['name'], ''),
+                params['value'] = form_values.get(field['name'], '')
 
             if field['type'] not in ('radio', 'checkbox', 'select'):
                 params['required'] = field.get('required', False),
