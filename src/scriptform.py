@@ -187,7 +187,6 @@ class ScriptForm:
     def __init__(self, config_file, cache=True):
         self.config_file = config_file
         self.cache = cache
-        self.basepath = os.path.realpath(os.path.dirname(config_file))
         self.log = logging.getLogger('SCRIPTFORM')
         self.get_form_config()  # Init form config so it can raise errors about problems.
         self.websrv = None
@@ -201,8 +200,7 @@ class ScriptForm:
         if self.cache and hasattr(self, 'form_config_singleton'):
             return self.form_config_singleton
 
-        path = self.config_file
-        config = json.load(file(path, 'r'))
+        config = json.load(file(self.config_file, 'r'))
 
         forms = []
         users = None
@@ -211,7 +209,7 @@ class ScriptForm:
             users = config['users']
         for form in config['forms']:
             form_name = form['name']
-            script = os.path.join(self.basepath, form['script'])
+            script = form['script']
             forms.append(
                 FormDefinition(form_name,
                                form['title'],
@@ -312,8 +310,6 @@ class FormConfig:
         self.log.info("Calling script {0}".format(form.script))
         self.log.info("User: {0}".format(getattr(request, 'username', 'None')))
         self.log.info("Variables: {0}".format(dict(form_values.items())))
-
-        os.chdir(os.path.dirname(form.script))
 
         # Pass form values to the script through the environment as strings.
         env = os.environ.copy()
@@ -1122,7 +1118,15 @@ if __name__ == "__main__":
             parser.error("Insufficient number of arguments")
         if not options.action_stop and not options.action_start:
             options.action_start = True
-        daemon = Daemon(options.pid_file, options.log_file, foreground=options.foreground)
+
+        # If a form configuration was specified, change to that dir so we can
+        # find the job scripts and such.
+        if len(args) > 0:
+            os.chdir(os.path.dirname(args[0]))
+            args[0] = os.path.basename(args[0])
+
+        daemon = Daemon(options.pid_file, options.log_file,
+                        foreground=options.foreground)
         log = logging.getLogger('MAIN')
         try:
             if options.action_start:
