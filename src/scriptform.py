@@ -956,7 +956,8 @@ class Daemon:
     """
     Daemonize the current process (detach it from the console).
     """
-    def __init__(self, pid_file, log_file=None, log_level=logging.INFO, foreground=False):
+    def __init__(self, pid_file, log_file=None, log_level=logging.INFO,
+                 foreground=False):
         if pid_file is None:
             self.pid_file = '{0}.pid'.format(os.path.basename(sys.argv[0]))
         else:
@@ -1093,14 +1094,25 @@ if __name__ == "__main__":
     parser = optparse.OptionParser(version="%%VERSION%%")
     parser.set_usage('\n'.join(usage))
 
-    parser.add_option("-g", "--generate-pw", dest="generate_pw", action="store_true", default=False, help="Generate password")
-    parser.add_option("-p", "--port", dest="port", action="store", type="int", default=80, help="Port to listen on")
-    parser.add_option("-f", "--foreground", dest="foreground", action="store_true", default=False, help="Run in foreground (debugging)")
-    parser.add_option("-r", "--reload", dest="reload", action="store_true", default=False, help="Reload form config on every request (DEV)")
-    parser.add_option("--pid-file", dest="pid_file", action="store", default=None, help="Pid file")
-    parser.add_option("--log-file", dest="log_file", action="store", default=None, help="Log file")
-    parser.add_option("--start", dest="action_start", action="store_true", default=None, help="Start daemon")
-    parser.add_option("--stop", dest="action_stop", action="store_true", default=None, help="Stop daemon")
+    parser.add_option("-g", "--generate-pw", dest="generate_pw",
+                      action="store_true", default=False,
+                      help="Generate password")
+    parser.add_option("-p", "--port", dest="port", action="store", type="int",
+                      default=80, help="Port to listen on")
+    parser.add_option("-f", "--foreground", dest="foreground",
+                      action="store_true", default=False,
+                      help="Run in foreground (debugging)")
+    parser.add_option("-r", "--reload", dest="reload", action="store_true",
+                      default=False,
+                      help="Reload form config on every request (DEV)")
+    parser.add_option("--pid-file", dest="pid_file", action="store",
+                      default=None, help="Pid file")
+    parser.add_option("--log-file", dest="log_file", action="store",
+                      default=None, help="Log file")
+    parser.add_option("--start", dest="action_start", action="store_true",
+                      default=None, help="Start daemon")
+    parser.add_option("--stop", dest="action_stop", action="store_true",
+                      default=None, help="Stop daemon")
 
     (options, args) = parser.parse_args()
 
