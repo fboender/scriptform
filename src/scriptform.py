@@ -615,23 +615,29 @@ class FormRender():
 
     def cast_params(self, params):
         new_params = params.copy()
-        if not params.get('required', False):
-            new_params['required'] = ""
-        if not params.get('min', False):
-            new_params["min"] = ""
-        if not params.get('max', False):
-            new_params["max"] = ""
+
+        if 'required' in new_params:
+            if new_params['required'] == False:
+                new_params['required'] = ""
+            else:
+                new_params["required"] = "required"
+
+        if 'classes' in new_params:
+            new_params['classes'] = ' '.join(new_params['classes'])
+
+        if 'checked' in new_params:
+            if new_params['checked'] == False:
+                new_params['checked'] = ""
+            else:
+                new_params['checked'] = "checked"
+
         return new_params
 
     def r_field(self, type, **kwargs):
+        params = self.cast_params(kwargs)
         method_name = 'r_field_{0}'.format(type)
         method = getattr(self, method_name, None)
-        return method(**kwargs)
-
-    def r_field_input(self, type, **kwargs):
-        params = self.cast_params(kwargs)
-        tpl = self.field_tpl[type]
-        return tpl.format(**params)
+        return method(**params)
 
     def r_field_string(self, name, value, required=False, classes=[]):
         tpl = self.field_tpl['string']
