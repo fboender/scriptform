@@ -296,20 +296,16 @@ class FormConfig:
                 form_list.append(form_def)
         return form_list
 
-    def callback(self, form_name, form_values, request):
+    def callback(self, form_name, form_values, stdout, stderr):
         """
         Perform a callback for the form `form_name`. This calls a script.
         `form_values` is a dictionary of validated values as returned by
-        FormDefinition.validate(). `request` is the request handler context
-        (ScriptFormWebApp). The output of the script is hooked up to the
-        output, depending on the output type.
+        FormDefinition.validate(). If form.output is of type 'raw', `stdout`
+        and `stderr` have to be open filehandles where the output of the
+        callback should be written. The output of the script is hooked up to
+        the output, depending on the output type.
         """
         form = self.get_form_def(form_name)
-
-        # Log the callback and its parameters for auditing purposes.
-        self.log.info("Calling script {0}".format(form.script))
-        self.log.info("User: {0}".format(getattr(request, 'username', 'None')))
-        self.log.info("Variables: {0}".format(dict(form_values.items())))
 
         # Pass form values to the script through the environment as strings.
         env = os.environ.copy()
@@ -320,8 +316,8 @@ class FormConfig:
         # the browser. Otherwise we store it for later displaying.
         if form.output == 'raw':
             p = subprocess.Popen(form.script, shell=True,
-                                 stdout=request.wfile,
-                                 stderr=request.wfile,
+                                 stdout=stdout,
+                                 stderr=stderr,
                                  env=env)
             stdout, stderr = p.communicate(input)
             return None
@@ -925,7 +921,14 @@ class ScriptFormWebApp(WebAppHandler):
             # in some nice HTML. If no result is returned, the output was raw
             # and the callback should have written its own response to the
             # self.wfile filehandle.
-            result = form_config.callback(form_name, form_values, self)
+
+            # Log the callback and its parameters for auditing purposes.
+            log = logging.getLogger('CALLBACK_AUDIT')
+            log.info("Calling script {0}".format(form_def.script))
+            log.info("User: {0}".format(getattr(self.request, 'username', 'None')))
+            log.info("Variables: {0}".format(dict(form_values.items())))
+
+            result = form_config.callback(form_name, form_values, self.wfile, self.wfile)
             if result:
                 if result['exitcode'] != 0:
                     msg = u'<span class="error">{0}</span>'.format(cgi.escape(result['stderr'].decode('utf8')))
