@@ -32,6 +32,7 @@ import signal
 import time
 import errno
 import logging
+import thread
 
 
 html_header = u'''<html>
@@ -190,6 +191,7 @@ class ScriptForm:
         self.log = logging.getLogger('SCRIPTFORM')
         self.get_form_config()  # Init form config so it can raise errors about problems.
         self.websrv = None
+        self.running = False
 
     def get_form_config(self):
         """
@@ -233,22 +235,27 @@ class ScriptForm:
     def run(self, listen_addr='0.0.0.0', listen_port=80):
         """
         Start the webserver on address `listen_addr` and port `listen_port`.
-        This call is blocking and will never return unless the user hits
-        Ctrl-c.
+        This call is blocking until the user hits Ctrl-c, the shutdown() method
+        is called or something like SystemExit is raised in a handler.
         """
         ScriptFormWebApp.scriptform = self
         self.httpd = ThreadedHTTPServer((listen_addr, listen_port), ScriptFormWebApp)
+        self.httpd.daemon_threads = True
         self.log.info("Listening on {0}:{1}".format(listen_addr, listen_port))
+        self.running = True
         self.httpd.serve_forever()
+        self.running = False
 
     def shutdown(self):
         self.log.info("Attempting server shutdown")
-        self.log.info(self.websrv)
-        # FIXME: This is not the cleanest way to exit. shutdown() is called by
-        # the atexit and signal handler. Ideally, we should call
-        # self.httpd.shutdown(), but that doesn't work because we're in the
-        # same thread.
-        raise SystemExit()
+        def t_shutdown(sf):
+            sf.log.info(self.websrv)
+            sf.httpd.socket.close() # Undocumented requirement to shut the server
+            sf.httpd.shutdown()
+        # We need to spawn a new thread in which the server is shut down,
+        # because doing it from the main thread blocks, since the server is
+        # wainting for connections..
+        t = thread.start_new_thread(t_shutdown, (self, ))
 
 
 class FormConfig:
