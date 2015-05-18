@@ -58,12 +58,16 @@ class FormConfigTestCase(unittest.TestCase):
         self.assertTrue(fc.get_visible_forms() == [])
 
 class ScriptFormTestCase(unittest.TestCase):
-    def testShutdown(self):
+    def setUp(self):
         config = copy.deepcopy(base_config)
         file('test.json', 'w').write(json.dumps(config))
-        sf = scriptform.ScriptForm('test.json')
-        run_server(sf)
-        sf.shutdown()
+        self.sf = scriptform.ScriptForm('test.json', cache=False)
+        run_server(self.sf)
+
+    def tearDown(self):
+        self.sf.shutdown()
+
+    def testShutdown(self):
         self.assertTrue(True)
 
 if __name__ == '__main__':
