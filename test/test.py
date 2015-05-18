@@ -69,6 +69,8 @@ class ScriptFormTestCase(unittest.TestCase):
 
     def testShutdown(self):
         self.assertTrue(True)
+        if os.path.exists('test.json'):
+            os.unlink('test.json')
 
 if __name__ == '__main__':
     unittest.main()
