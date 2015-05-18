@@ -1,4 +1,4 @@
-.PHONY: doc
+.PHONY: doc test
 PROG=scriptform
 
 install:
@@ -79,3 +79,6 @@ clean:
 	rm -rf examples/megacorp_acc/megacorp.db
 	rm -rf examples/megacorp_acc/.coverage
 	rm -rf examples/megacorp_acc/htmlcov
+
+test:
+	cd test && python ./test.py
