@@ -1177,7 +1177,9 @@ if __name__ == "__main__":
         # If a form configuration was specified, change to that dir so we can
         # find the job scripts and such.
         if len(args) > 0:
-            os.chdir(os.path.dirname(args[0]))
+            path = os.path.dirname(args[0])
+            if path:
+                os.chdir(path)
             args[0] = os.path.basename(args[0])
 
         daemon = Daemon(options.pid_file, options.log_file,
