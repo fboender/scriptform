@@ -962,13 +962,16 @@ class ScriptFormWebApp(WebAppHandler):
             log.info("Variables: {0}".format(dict(form_values.items())))
 
             result = form_config.callback(form_name, form_values, self.wfile, self.wfile)
-            if result:
+            if form_def.output != 'raw':
+                # Ignore everything if we're doing raw output, since it's the
+                # scripts responsibility.
                 if result['exitcode'] != 0:
                     msg = u'<span class="error">{0}</span>'.format(cgi.escape(result['stderr'].decode('utf8')))
                 else:
                     if form_def.output == 'escaped':
                         msg = u'<pre>{0}</pre>'.format(cgi.escape(result['stdout'].decode('utf8')))
                     else:
+                        # Non-escaped output (html, usually)
                         msg = result['stdout'].decode('utf8')
 
                 output = html_submit_response.format(
