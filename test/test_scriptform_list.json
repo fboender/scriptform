@@ -1,0 +1,19 @@
+{
+    "title": "test",
+    "forms": [
+        {
+            "name": "test_list_1",
+            "title": "title_list_1",
+            "description": "description",
+            "script": "test.sh",
+            "fields": []
+        },
+        {
+            "name": "test_list_2",
+            "title": "test_list_2",
+            "description": "description",
+            "script": "test.sh",
+            "fields": []
+        }
+    ]
+}

@@ -1,0 +1,12 @@
+{
+    "title": "test",
+    "forms": [
+        {
+            "name": "test",
+            "title": "title",
+            "description": "description",
+            "script": "test_noexec.sh",
+            "fields": []
+        }
+    ]
+}

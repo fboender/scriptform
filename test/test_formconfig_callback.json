@@ -1,0 +1,20 @@
+{
+    "title": "test",
+    "forms": [
+        {
+            "name": "test_store",
+            "title": "title",
+            "description": "description",
+            "script": "test_formconfig_callback.sh",
+            "fields": []
+        },
+        {
+            "name": "test_raw",
+            "title": "title",
+            "description": "description",
+            "script": "test_formconfig_callback.sh",
+            "output": "raw",
+            "fields": []
+        }
+    ]
+}
