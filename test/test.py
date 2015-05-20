@@ -8,6 +8,8 @@ import os
 import copy
 import thread
 import time
+import requests
+import StringIO
 
 base_config = {
     "title": "test",
@@ -32,45 +34,42 @@ def run_server(sf):
         if sf.running:
             break
 
-class FormConfigTestCase(unittest.TestCase):
 
+class FormConfigTestCase(unittest.TestCase):
     def testMissing(self):
         """Missing script callbacks should raise an OSError"""
-        config = copy.deepcopy(base_config)
-        config["forms"][0]["script"] = "nonexisting.sh"
-        file('test.json', 'w').write(json.dumps(config))
-        self.assertRaises(OSError, scriptform.ScriptForm, 'test.json')
+        self.assertRaises(OSError, scriptform.ScriptForm, 'test_formconfig_missingscript.json')
 
     def testNoExec(self):
-        """Nonn-executable script callbacks should raise an ScriptFormError"""
-        config = copy.deepcopy(base_config)
-        config["forms"][0]["script"] = "test_noexec.sh"
-        file('test.json', 'w').write(json.dumps(config))
-        self.assertRaises(scriptform.ScriptFormError, scriptform.ScriptForm, 'test.json')
+        """Non-executable script callbacks should raise an ScriptFormError"""
+        self.assertRaises(scriptform.ScriptFormError, scriptform.ScriptForm, 'test_formconfig_noexec.json')
 
     def testHidden(self):
         """Hidden forms should not show up in the list of forms"""
-        config = copy.deepcopy(base_config)
-        config["forms"][0]["hidden"] = True
-        file('test.json', 'w').write(json.dumps(config))
-        sf = scriptform.ScriptForm('test.json')
+        sf = scriptform.ScriptForm('test_formconfig_hidden.json')
         fc = sf.get_form_config()
         self.assertTrue(fc.get_visible_forms() == [])
 
-class ScriptFormTestCase(unittest.TestCase):
-    def setUp(self):
-        config = copy.deepcopy(base_config)
-        file('test.json', 'w').write(json.dumps(config))
-        self.sf = scriptform.ScriptForm('test.json', cache=False)
-        run_server(self.sf)
+    def testCallbackStore(self):
+        sf = scriptform.ScriptForm('test_formconfig_callback.json')
+        fc = sf.get_form_config()
+        res = fc.callback('test_store', {})
+        self.assertEquals(res['exitcode'], 33)
+        self.assertTrue('stdout' in res['stdout'])
+        self.assertTrue('stderr' in res['stderr'])
 
-    def tearDown(self):
-        self.sf.shutdown()
+    #def testCallbackRaw(self):
+    #    sf = scriptform.ScriptForm('test_formconfig_callback.json')
+    #    fc = sf.get_form_config()
+    #    stdout = StringIO.StringIO()
+    #    stderr = StringIO.StringIO()
+    #    res = fc.callback('test_raw', {}, stdout, stderr)
+    #    stdout.seek(0)
+    #    stderr.seek(0)
+    #    self.assertTrue(res['exitcode'] == 33)
+    #    print stdout.read()
+    #    self.assertTrue('stdout' in stdout.read())
 
-    def testShutdown(self):
-        self.assertTrue(True)
-        if os.path.exists('test.json'):
-            os.unlink('test.json')
 
 if __name__ == '__main__':
     unittest.main()
