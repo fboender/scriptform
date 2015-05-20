@@ -1,0 +1,14 @@
+{
+    "title": "Test server",
+    "forms": [
+        {
+            "name": "zombie",
+            "title": "Zombie process",
+            "description": "",
+            "submit_title": "Start background process",
+            "script": "job_zombie.sh",
+            "fields": [
+            ]
+        }
+    ]
+}
