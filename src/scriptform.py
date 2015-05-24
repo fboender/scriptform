@@ -329,7 +329,7 @@ class FormConfig:
                 form_list.append(form_def)
         return form_list
 
-    def callback(self, form_name, form_values, stdout, stderr):
+    def callback(self, form_name, form_values, stdout=None, stderr=None):
         """
         Perform a callback for the form `form_name`. This calls a script.
         `form_values` is a dictionary of validated values as returned by
@@ -339,6 +339,10 @@ class FormConfig:
         the output, depending on the output type.
         """
         form = self.get_form_def(form_name)
+
+        # Validate params
+        if form.output == 'raw' and (stdout is None or stderr is None):
+            raise ValueError('stdout and stderr cannot be None if script output is \'raw\'')
 
         # Pass form values to the script through the environment as strings.
         env = os.environ.copy()
