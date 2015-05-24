@@ -728,7 +728,7 @@ class FormRender():
         else:
             html = html_field
 
-        return (html.format(classes=classes,
+        return (html.format(classes=' '.join(classes),
                             title=title,
                             input=input,
                             errors=u', '.join(errors)))
