@@ -570,6 +570,11 @@ class WebAppHandler(BaseHTTPRequestHandler):
     requests. If no path is set, it dispatches to the 'index' or 'default'
     method.
     """
+    def log_message(self, format, *args):
+        """Overrides BaseHTTPRequestHandler which logs to the console. We log
+        to our log file instead"""
+        self.scriptform.log.info("%s %s" % (self.address_string(), format%args))
+
     def do_GET(self):
         self._call(*self._parse(self.path))
 
