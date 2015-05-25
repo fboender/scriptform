@@ -37,6 +37,12 @@ class FormConfigTestCase(unittest.TestCase):
         if os.path.exists('tmp_stderr'):
             os.unlink('tmp_stderr')
 
+    def testNoSuchForm(self):
+        """Getting non-existing form should raise ValueError"""
+        sf = scriptform.ScriptForm('test_formconfig_hidden.json')
+        fc = sf.get_form_config()
+        self.assertRaises(ValueError, fc.get_form_def, 'nonexisting')
+
     def testMissing(self):
         """Missing script callbacks should raise an OSError"""
         self.assertRaises(OSError, scriptform.ScriptForm, 'test_formconfig_missingscript.json')
