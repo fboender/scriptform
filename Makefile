@@ -79,6 +79,7 @@ clean:
 	rm -rf examples/megacorp_acc/megacorp.db
 	rm -rf examples/megacorp_acc/.coverage
 	rm -rf examples/megacorp_acc/htmlcov
+	find ./ -name "*.log" -delete
 
 test:
 	cd test && python ./test.py
