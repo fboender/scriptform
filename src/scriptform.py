@@ -1006,7 +1006,7 @@ class ScriptFormWebApp(WebAppHandler):
                 os.unlink(file_name)
 
 
-class Daemon:
+class Daemon: # pragma: no cover 
     """
     Daemonize the current process (detach it from the console).
     """
