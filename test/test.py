@@ -156,7 +156,7 @@ class WebAppTest(unittest.TestCase):
             "form_name": 'output_escaped',
             "string": '<foo>'
         }
-        r = requests.post('http://localhost:8000/submit', data)
+        r = requests.post('http://localhost:8002/submit', data)
         self.assertIn('string=&lt;foo&gt;', r.text)
 
 
