@@ -503,7 +503,7 @@ class FormDefinition:
                 raise ValidationError("Minimum value is {0}".format(min))
         if max is not None:
             if value > datetime.datetime.strptime(max, '%Y-%m-%d').date():
-                raise ValidationError("maximum value is {0}".format(max))
+                raise ValidationError("Maximum value is {0}".format(max))
 
         return value
 
