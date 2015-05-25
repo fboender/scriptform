@@ -2,6 +2,19 @@
     "title": "test",
     "forms": [
         {
+            "name": "test_required",
+            "title": "title",
+            "description": "description",
+            "script": "test.sh",
+            "fields": [
+                {
+                    "name": "string",
+                    "type": "string",
+                    "required": true
+                }
+            ]
+        },
+        {
             "name": "test_val_string",
             "title": "title",
             "description": "description",
@@ -40,6 +53,20 @@
                     "type": "float",
                     "min": 2.1,
                     "max": 2.3 
+                }
+            ]
+        },
+        {
+            "name": "test_val_date",
+            "title": "title",
+            "description": "description",
+            "script": "test.sh",
+            "fields": [
+                {
+                    "name": "val_date",
+                    "type": "date",
+                    "min": "2015-03-02",
+                    "max": "2015-03-05" 
                 }
             ]
         }

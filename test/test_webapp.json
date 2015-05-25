@@ -1,6 +1,19 @@
 {
     "title": "Webapp test",
+    "users": {
+        "admin": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+        "user": "04f8996da763b7a969b1028ee3007569eaf3a635486ddab211d512c85b9df8fb"
+    },
     "forms": [
+        {
+            "name": "admin_only",
+            "title": "Admin only",
+            "description": "Restricted form",
+            "script": "test.sh",
+            "hidden": "true",
+            "fields": [],
+            "allowed_users": ["admin"]
+        },
         {
             "name": "hidden",
             "title": "Hidden form",
@@ -19,6 +32,20 @@
                 {
                     "name": "string",
                     "title": "This string should be escaped in the output",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "output_raw",
+            "title": "Output raw",
+            "description": "Output raw",
+            "script": "test.sh",
+            "output": "raw",
+            "fields": [
+                {
+                    "name": "string",
+                    "title": "This string should be raw in the output",
                     "type": "string"
                 }
             ]
