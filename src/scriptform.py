@@ -357,7 +357,7 @@ class FormConfig:
                                  stderr=stderr,
                                  env=env)
             stdout, stderr = p.communicate(input)
-            return None
+            return p.returncode
         else:
             p = subprocess.Popen(form.script, shell=True, stdin=subprocess.PIPE,
                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE,
