@@ -388,7 +388,7 @@ class FormDefinition:
         self.submit_title = submit_title
         self.allowed_users = allowed_users
 
-    def _get_field(self, field_name):
+    def get_field_def(self, field_name):
         for field in self.fields:
             if field['name'] == field_name:
                 return field
@@ -429,7 +429,7 @@ class FormDefinition:
         this class in the form 'validate_<field_type>'.
         """
         # Find field definition by iterating through all the fields.
-        field_def = self._get_field(field_name)
+        field_def = self.get_field_def(field_name)
         if not field_def:
             raise ValidationError("Unknown field: {0}".format(field_name))
 
