@@ -1,7 +1,5 @@
 import sys
 import unittest
-sys.path.insert(0, '../src')
-import scriptform
 from StringIO import StringIO
 import json
 import os
