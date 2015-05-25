@@ -256,12 +256,21 @@ class WebAppTest(unittest.TestCase):
 
 if __name__ == '__main__':
     import coverage
-    cov = coverage.coverage(omit=['*test*'])
+    cov = coverage.coverage(omit=['*test*', 'main'])
     cov.start()
 
+    sys.path.insert(0, '../src')
+    import scriptform
     unittest.main(exit=False)
 
     cov.stop()
     cov.save()
 
     print cov.report()
+    try:
+        print cov.html_report()
+    except coverage.misc.CoverageException, e:
+        if "Couldn't find static file 'jquery.hotkeys.js'" in e.message:
+            pass
+        else:
+            raise
