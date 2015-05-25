@@ -9,3 +9,5 @@ README.html
 examples/native/htaccess
 examples/simple/htaccess
 examples/megacorp_acc/megacorp.db
+test/.coverage
+test/htmlcov
