@@ -80,44 +80,104 @@ class FormDefinitionTest(unittest.TestCase):
         self.sf = scriptform.ScriptForm('test_formdefinition_validate.json')
         self.fc = self.sf.get_form_config()
 
-    def testValidateString(self):
-        fd = self.fc.get_form_def('test_val_string')
+    def testRequired(self):
+        fd = self.fc.get_form_def('test_required')
 
+        form_values = {}
+        errors, values = fd.validate(form_values)
+        self.assertIn('string', errors)
+        self.assertIn('required', errors['string'][0])
+
+    def testValidateStringMin(self):
+        fd = self.fc.get_form_def('test_val_string')
         form_values = {"val_string": "123"}
         errors, values = fd.validate(form_values)
-        self.assertTrue('val_string' in errors)
-        self.assertTrue('Minimum' in errors['val_string'][0])
+        self.assertIn('val_string', errors)
+        self.assertIn('Minimum', errors['val_string'][0])
 
+    def testValidateStringMax(self):
+        fd = self.fc.get_form_def('test_val_string')
         form_values = {"val_string": "1234567"}
         errors, values = fd.validate(form_values)
-        self.assertTrue('val_string' in errors)
-        self.assertTrue('Maximum' in errors['val_string'][0])
+        self.assertIn('val_string', errors)
+        self.assertIn('Maximum', errors['val_string'][0])
 
-    def testValidateString(self):
+    def testValidateStringValue(self):
+        fd = self.fc.get_form_def('test_val_string')
+        form_values = {"val_string": "1234"}
+        errors, values = fd.validate(form_values)
+        self.assertNotIn('val_string', errors)
+        self.assertEquals(values['val_string'], "1234")
+
+    def testValidateIntegerInvalid(self):
         fd = self.fc.get_form_def('test_val_integer')
+        form_values = {"val_integer": 'three'}
+        errors, values = fd.validate(form_values)
+        self.assertIn('val_integer', errors)
+        self.assertIn('Must be a', errors['val_integer'][0])
 
+    def testValidateIntegerMin(self):
+        fd = self.fc.get_form_def('test_val_integer')
         form_values = {"val_integer": 3}
         errors, values = fd.validate(form_values)
-        self.assertTrue('val_integer' in errors)
-        self.assertTrue('Minimum' in errors['val_integer'][0])
+        self.assertIn('val_integer', errors)
+        self.assertIn('Minimum', errors['val_integer'][0])
 
+    def testValidateIntegerMax(self):
+        fd = self.fc.get_form_def('test_val_integer')
         form_values = {"val_integer": 7}
         errors, values = fd.validate(form_values)
-        self.assertTrue('val_integer' in errors)
-        self.assertTrue('Maximum' in errors['val_integer'][0])
+        self.assertIn('val_integer', errors)
+        self.assertIn('Maximum', errors['val_integer'][0])
 
-    def testValidateFloat(self):
+    def testValidateIntegerValue(self):
+        fd = self.fc.get_form_def('test_val_integer')
+        form_values = {"val_integer": 6}
+        errors, values = fd.validate(form_values)
+        self.assertNotIn('val_integer', errors)
+        self.assertEquals(values['val_integer'], 6)
+
+    def testValidateFloatInvalid(self):
         fd = self.fc.get_form_def('test_val_float')
+        form_values = {"val_float": 'four'}
+        errors, values = fd.validate(form_values)
+        self.assertTrue('val_float' in errors)
+        self.assertTrue('Must be a' in errors['val_float'][0])
 
+    def testValidateFloatMin(self):
+        fd = self.fc.get_form_def('test_val_float')
         form_values = {"val_float": 2.05}
         errors, values = fd.validate(form_values)
         self.assertTrue('val_float' in errors)
         self.assertTrue('Minimum' in errors['val_float'][0])
 
+    def testValidateFloatMax(self):
+        fd = self.fc.get_form_def('test_val_float')
         form_values = {"val_float": 2.31}
         errors, values = fd.validate(form_values)
-        self.assertTrue('val_float' in errors)
-        self.assertTrue('Maximum' in errors['val_float'][0])
+        self.assertIn('val_float', errors)
+        self.assertIn('Maximum', errors['val_float'][0])
+
+    def testValidateDateInvalid(self):
+        fd = self.fc.get_form_def('test_val_date')
+        form_values = {"val_date": '2015-001'}
+        errors, values = fd.validate(form_values)
+        self.assertIn('val_date', errors)
+        self.assertIn('Invalid date', errors['val_date'][0])
+
+    def testValidateDateMin(self):
+        fd = self.fc.get_form_def('test_val_date')
+        form_values = {"val_date": '2015-03-01'}
+        errors, values = fd.validate(form_values)
+        self.assertIn('val_date', errors)
+        self.assertIn('Minimum', errors['val_date'][0])
+
+    def testValidateDateMax(self):
+        fd = self.fc.get_form_def('test_val_date')
+        form_values = {"val_date": '2015-03-06'}
+        errors, values = fd.validate(form_values)
+        self.assertIn('val_date', errors)
+        self.assertIn('Maximum', errors['val_date'][0])
 
 
 class WebAppTest(unittest.TestCase):
