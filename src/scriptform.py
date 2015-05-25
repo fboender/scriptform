@@ -395,7 +395,8 @@ class FormDefinition:
 
     def validate(self, form_values):
         """
-        Validate all relevant fields for this form against form_values.
+        Validate all relevant fields for this form against form_values. Returns
+        a set with the errors and new values.
         """
         errors = {}
         values = form_values.copy()
