@@ -161,4 +161,13 @@ class WebAppTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    import coverage
+    cov = coverage.coverage(omit=['*test*'])
+    cov.start()
+
+    unittest.main(exit=False)
+
+    cov.stop()
+    cov.save()
+
+    print cov.report()
