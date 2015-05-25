@@ -414,6 +414,10 @@ class FormDefinition:
         for field in self.fields:
             field_name = field['name']
             if field_name == 'form_name':
+                # Skip the field containing the name of the form
+                continue
+            if field_name in errors:
+                # Skip fields that are required but missing, since they can't be validated
                 continue
             try:
                 v = self._field_validate(field_name, form_values)
