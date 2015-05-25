@@ -1,0 +1,47 @@
+{
+    "title": "test",
+    "forms": [
+        {
+            "name": "test_val_string",
+            "title": "title",
+            "description": "description",
+            "script": "test.sh",
+            "fields": [
+                {
+                    "name": "val_string",
+                    "type": "string",
+                    "minlen": 4,
+                    "maxlen": 6
+                }
+            ]
+        },
+        {
+            "name": "test_val_integer",
+            "title": "title",
+            "description": "description",
+            "script": "test.sh",
+            "fields": [
+                {
+                    "name": "val_integer",
+                    "type": "integer",
+                    "min": 4,
+                    "max": 6
+                }
+            ]
+        },
+        {
+            "name": "test_val_float",
+            "title": "title",
+            "description": "description",
+            "script": "test.sh",
+            "fields": [
+                {
+                    "name": "val_float",
+                    "type": "float",
+                    "min": 2.1,
+                    "max": 2.3 
+                }
+            ]
+        }
+    ]
+}

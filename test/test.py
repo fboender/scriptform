@@ -24,18 +24,19 @@ base_config = {
     ]
 }
 
-def run_server(sf):
-    def server_thread(sf):
-        sf.run(listen_port=8002)
-    thread.start_new_thread(server_thread, (sf, ))
-    # Wait until the webserver is ready
-    while True:
-        time.sleep(0.1)
-        if sf.running:
-            break
-
 
 class FormConfigTestCase(unittest.TestCase):
+    """
+    Test the proper low-level handling of form configurations such as loading,
+    callbacks, etc.
+    """
+    @classmethod
+    def tearDownClass(cls):
+        if os.path.exists('tmp_stdout'):
+            os.unlink('tmp_stdout')
+        if os.path.exists('tmp_stderr'):
+            os.unlink('tmp_stderr')
+
     def testMissing(self):
         """Missing script callbacks should raise an OSError"""
         self.assertRaises(OSError, scriptform.ScriptForm, 'test_formconfig_missingscript.json')
@@ -51,6 +52,7 @@ class FormConfigTestCase(unittest.TestCase):
         self.assertTrue(fc.get_visible_forms() == [])
 
     def testCallbackStore(self):
+        """Test a callback that returns output in strings"""
         sf = scriptform.ScriptForm('test_formconfig_callback.json')
         fc = sf.get_form_config()
         res = fc.callback('test_store', {})
@@ -58,17 +60,104 @@ class FormConfigTestCase(unittest.TestCase):
         self.assertTrue('stdout' in res['stdout'])
         self.assertTrue('stderr' in res['stderr'])
 
-    #def testCallbackRaw(self):
-    #    sf = scriptform.ScriptForm('test_formconfig_callback.json')
-    #    fc = sf.get_form_config()
-    #    stdout = StringIO.StringIO()
-    #    stderr = StringIO.StringIO()
-    #    res = fc.callback('test_raw', {}, stdout, stderr)
-    #    stdout.seek(0)
-    #    stderr.seek(0)
-    #    self.assertTrue(res['exitcode'] == 33)
-    #    print stdout.read()
-    #    self.assertTrue('stdout' in stdout.read())
+    def testCallbackRaw(self):
+        """Test a callback that returns raw output"""
+        sf = scriptform.ScriptForm('test_formconfig_callback.json')
+        fc = sf.get_form_config()
+        stdout = file('tmp_stdout', 'w+') # can't use StringIO
+        stderr = file('tmp_stderr', 'w+')
+        exitcode = fc.callback('test_raw', {}, stdout, stderr)
+        stdout.seek(0)
+        stderr.seek(0)
+        self.assertTrue(exitcode == 33)
+        self.assertTrue('stdout' in stdout.read())
+
+class FormDefinitionTest(unittest.TestCase):
+    """
+    Form Definition tests. Mostly directly testing if validations work.
+    """
+    def setUp(self):
+        self.sf = scriptform.ScriptForm('test_formdefinition_validate.json')
+        self.fc = self.sf.get_form_config()
+
+    def testValidateString(self):
+        fd = self.fc.get_form_def('test_val_string')
+
+        form_values = {"val_string": "123"}
+        errors, values = fd.validate(form_values)
+        self.assertTrue('val_string' in errors)
+        self.assertTrue('Minimum' in errors['val_string'][0])
+
+        form_values = {"val_string": "1234567"}
+        errors, values = fd.validate(form_values)
+        self.assertTrue('val_string' in errors)
+        self.assertTrue('Maximum' in errors['val_string'][0])
+
+    def testValidateString(self):
+        fd = self.fc.get_form_def('test_val_integer')
+
+        form_values = {"val_integer": 3}
+        errors, values = fd.validate(form_values)
+        self.assertTrue('val_integer' in errors)
+        self.assertTrue('Minimum' in errors['val_integer'][0])
+
+        form_values = {"val_integer": 7}
+        errors, values = fd.validate(form_values)
+        self.assertTrue('val_integer' in errors)
+        self.assertTrue('Maximum' in errors['val_integer'][0])
+
+    def testValidateFloat(self):
+        fd = self.fc.get_form_def('test_val_float')
+
+        form_values = {"val_float": 2.05}
+        errors, values = fd.validate(form_values)
+        self.assertTrue('val_float' in errors)
+        self.assertTrue('Minimum' in errors['val_float'][0])
+
+        form_values = {"val_float": 2.31}
+        errors, values = fd.validate(form_values)
+        self.assertTrue('val_float' in errors)
+        self.assertTrue('Maximum' in errors['val_float'][0])
+
+
+class WebAppTest(unittest.TestCase):
+    """
+    Test the web app by actually running the server and making web calls to it.
+    """
+    @classmethod
+    def setUpClass(cls):
+        def server_thread(sf):
+            sf.run(listen_port=8002)
+        cls.sf = scriptform.ScriptForm('test_webapp.json')
+        thread.start_new_thread(server_thread, (cls.sf, ))
+        # Wait until the webserver is ready
+        while True:
+            time.sleep(0.1)
+            if cls.sf.running:
+                break
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.sf.shutdown()
+
+    def testHidden(self):
+        """Hidden forms shouldn't appear in the output"""
+        r = requests.get('http://localhost:8002/')
+        self.assertNotIn('Hidden form', r.text)
+
+    def testShown(self):
+        """Non-hidden forms should appear in the output"""
+        r = requests.get('http://localhost:8002/')
+        self.assertIn('Output escaped', r.text)
+
+    def testOutputEscaped(self):
+        """Form with 'escaped' output should have HTML entities escaped"""
+        data = {
+            "form_name": 'output_escaped',
+            "string": '<foo>'
+        }
+        r = requests.post('http://localhost:8000/submit', data)
+        self.assertIn('string=&lt;foo&gt;', r.text)
 
 
 if __name__ == '__main__':
