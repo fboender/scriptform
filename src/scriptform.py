@@ -1140,7 +1140,7 @@ class Daemon:
         self.shutdown_cb()
 
 
-if __name__ == "__main__":
+def main(): # pragma: no cover
     usage = [
         sys.argv[0] + " [option] (--start|--stop) <form_definition.json>",
         "       " + sys.argv[0] + " --generate-pw",
@@ -1208,3 +1208,6 @@ if __name__ == "__main__":
         except Exception, e:
             log.exception(e)
             raise
+
+if __name__ == "__main__": # pragma: no cover 
+    main()
