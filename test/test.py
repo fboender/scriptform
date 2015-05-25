@@ -186,6 +186,9 @@ class WebAppTest(unittest.TestCase):
     """
     @classmethod
     def setUpClass(cls):
+        cls.auth_admin = requests.auth.HTTPBasicAuth('admin', 'admin')
+        cls.auth_user = requests.auth.HTTPBasicAuth('user', 'user')
+
         def server_thread(sf):
             sf.run(listen_port=8002)
         cls.sf = scriptform.ScriptForm('test_webapp.json')
@@ -200,15 +203,38 @@ class WebAppTest(unittest.TestCase):
     def tearDownClass(cls):
         cls.sf.shutdown()
 
+    def testError404(self):
+        r = requests.get('http://localhost:8002/nosuchurl')
+        self.assertEqual(r.status_code, 404)
+        self.assertIn('Not found', r.text)
+
+    def testError401(self):
+        r = requests.get('http://localhost:8002/')
+        self.assertEqual(r.status_code, 401)
+
+    def testAuthFormNoAuth(self):
+        r = requests.get('http://localhost:8002/form?form_name=admin_only')
+        self.assertEqual(r.status_code, 401)
+
+    def testAuthFormWrongAuth(self):
+        r = requests.get('http://localhost:8002/form?form_name=admin_only', auth=self.auth_user)
+        self.assertEqual(r.status_code, 401)
+
     def testHidden(self):
         """Hidden forms shouldn't appear in the output"""
-        r = requests.get('http://localhost:8002/')
+        r = requests.get('http://localhost:8002/', auth=self.auth_user)
         self.assertNotIn('Hidden form', r.text)
 
     def testShown(self):
         """Non-hidden forms should appear in the output"""
-        r = requests.get('http://localhost:8002/')
+        r = requests.get('http://localhost:8002/', auth=self.auth_user)
         self.assertIn('Output escaped', r.text)
+
+    def testRender(self):
+        r = requests.get('http://localhost:8002/form?form_name=validate', auth=self.auth_user)
+        self.assertIn('Validated form', r.text)
+        self.assertIn('This form is heavily validated', r.text)
+        self.assertIn('name="string"', r.text)
 
     def testOutputEscaped(self):
         """Form with 'escaped' output should have HTML entities escaped"""
@@ -216,8 +242,16 @@ class WebAppTest(unittest.TestCase):
             "form_name": 'output_escaped',
             "string": '<foo>'
         }
-        r = requests.post('http://localhost:8002/submit', data)
+        r = requests.post('http://localhost:8002/submit', data, auth=self.auth_user)
         self.assertIn('string=&lt;foo&gt;', r.text)
+
+    def testOutputRaw(self):
+        data = {
+            "form_name": 'output_raw',
+            "string": '<foo>'
+        }
+        r = requests.post('http://localhost:8002/submit', data, auth=self.auth_user)
+        self.assertIn('string=<foo>', r.text)
 
 
 if __name__ == '__main__':
