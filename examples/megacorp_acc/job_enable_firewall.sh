@@ -13,3 +13,5 @@ fi
 
 echo "iptables -A INPUT -p tcp --source $ip_address --dest $NETWORK -j ACCEPT"
 echo "echo \"iptables -A INPUT -p tcp --source $ip_address --dest $NETWORK -j ACCEPT\" | at now + $expire_days days"
+echo 
+echo "Comment: ${comment}"
