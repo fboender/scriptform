@@ -84,6 +84,10 @@ class FormDefinitionTest(unittest.TestCase):
         self.sf = scriptform.ScriptForm('test_formdefinition_validate.json')
         self.fc = self.sf.get_form_config()
 
+    def testUnknownFieldError(self):
+        fd = self.fc.get_form_def('test_required')
+        self.assertRaises(KeyError, fd.get_field_def, 'nosuchfield')
+
     def testRequired(self):
         fd = self.fc.get_form_def('test_required')
 
@@ -162,6 +166,13 @@ class FormDefinitionTest(unittest.TestCase):
         self.assertIn('val_float', errors)
         self.assertIn('Maximum', errors['val_float'][0])
 
+    def testValidateFloatValue(self):
+        fd = self.fc.get_form_def('test_val_float')
+        form_values = {"val_float": 2.29}
+        errors, values = fd.validate(form_values)
+        self.assertNotIn('val_float', errors)
+        self.assertEquals(values['val_float'], 2.29)
+
     def testValidateDateInvalid(self):
         fd = self.fc.get_form_def('test_val_date')
         form_values = {"val_date": '2015-001'}
@@ -183,6 +194,13 @@ class FormDefinitionTest(unittest.TestCase):
         self.assertIn('val_date', errors)
         self.assertIn('Maximum', errors['val_date'][0])
 
+    def testValidateDateValue(self):
+        import datetime
+        fd = self.fc.get_form_def('test_val_date')
+        form_values = {"val_date": '2015-03-03'}
+        errors, values = fd.validate(form_values)
+        self.assertNotIn('val_date', errors)
+        self.assertEquals(values['val_date'], datetime.date(2015, 3, 3))
 
 class WebAppTest(unittest.TestCase):
     """
