@@ -1,0 +1,15 @@
+{
+    "title": "Static serve",
+    "static_dir": "static",
+    "forms": [
+        {
+            "name": "static_serve",
+            "title": "Serve static files",
+            "description": "This example has a script that serves a HTML page. The HTML page refers to some static files that are served by Scriptform",
+            "submit_title": "Serve",
+            "script": "job_serve.sh",
+            "output": "html",
+            "fields": []
+        }
+    ]
+}

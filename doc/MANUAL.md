@@ -115,6 +115,10 @@ Structurally, they are made up of the following elements:
 
 - **`title`**: Text to show at the top of each page. **Required**, **String**.
 
+- **`static_dir`**: Path to a directory from which static files should be
+  served. See also "[Serving static files](#output_static_files)".
+  **Optional**, **String**.
+
 - **`forms`**: A list of dictionaries of form definitions. **Required**, **List
     of dictionaries**.
 
@@ -369,6 +373,29 @@ and shown to the user in the browser.
 
 If a script's exit code is not 0, it is assumed an error occured. Scriptform
 will show the script's stderr output (in red) to the user instead of stdin.
+
+### <a name="output_static_files">Serving static files</a>
+
+Scriptform can serve static files. It is disabled by default. To enable it,
+provide a `static_dir` option in the top section of the form configuration:
+
+    {
+        "title": "Static serve",
+        "static_dir": "static",
+        "forms": [
+        ...
+
+This tells Scriptform to serve static files from that location. To refer to a
+static file, use the `/static` URL:
+
+    https://example.com/static?fname=foobar.png
+
+Will refer to the `static/foobar.png` file. If `static_dir` is a relative path,
+it will be relative to the form configuration (.json) file you're running.
+
+Scriptform does not provide the browser with a content-type of the file, since
+it is impossible to guess.  Generally, browsers do a decent job at figuring it
+out themselves.
 
 ## <a name="script_executing">Script execution</a>
 

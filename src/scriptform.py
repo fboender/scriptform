@@ -230,11 +230,14 @@ class ScriptForm:
 
         config = json.load(file(self.config_file, 'r'))
 
+        static_dir = None
         forms = []
         users = None
 
         if 'users' in config:
             users = config['users']
+        if 'static_dir' in config:
+            static_dir = config['static_dir']
         for form in config['forms']:
             form_name = form['name']
             script = form['script']
@@ -253,7 +256,8 @@ class ScriptForm:
         form_config = FormConfig(
             config['title'],
             forms,
-            users
+            users,
+            static_dir
         )
         self.form_config_singleton = form_config
         return form_config
@@ -290,10 +294,11 @@ class FormConfig:
     file. It holds information (title, users, the form definitions) on the
     form configuration being served by this instance of ScriptForm.
     """
-    def __init__(self, title, forms, users={}):
+    def __init__(self, title, forms, users={}, static_dir=None):
         self.title = title
         self.users = users
         self.forms = forms
+        self.static_dir = static_dir
         self.log = logging.getLogger('FORMCONFIG')
 
         # Validate scripts
@@ -1001,6 +1006,28 @@ class ScriptFormWebApp(WebAppHandler):
             if os.path.exists(file_name):
                 os.unlink(file_name)
 
+    def h_static(self, fname):
+        """Serve static files"""
+        form_config = self.scriptform.get_form_config()
+
+        if not form_config.static_dir:
+            self.send_error(501, "Static file serving not enabled")
+            return
+
+        if '..' in fname:
+            self.send_error(403, "Invalid file name")
+            return
+
+        path = os.path.join(form_config.static_dir, fname)
+        print path
+        if not os.path.exists(path):
+            self.send_error(404, "Not found")
+            return
+
+        f = file(path, 'r')
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(f.read())
 
 class Daemon: # pragma: no cover 
     """
