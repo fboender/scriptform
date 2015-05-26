@@ -392,6 +392,7 @@ class FormDefinition:
         for field in self.fields:
             if field['name'] == field_name:
                 return field
+        raise KeyError("Unknown field: {0}".format(field_name))
 
     def validate(self, form_values):
         """
@@ -413,9 +414,6 @@ class FormDefinition:
         # Validate the field values, possible casting them to the correct type.
         for field in self.fields:
             field_name = field['name']
-            if field_name == 'form_name':
-                # Skip the field containing the name of the form
-                continue
             if field_name in errors:
                 # Skip fields that are required but missing, since they can't be validated
                 continue
@@ -435,8 +433,6 @@ class FormDefinition:
         """
         # Find field definition by iterating through all the fields.
         field_def = self.get_field_def(field_name)
-        if not field_def:
-            raise ValidationError("Unknown field: {0}".format(field_name))
 
         field_type = field_def['type']
         validate_cb = getattr(self, 'validate_{0}'.format(field_type), None)
