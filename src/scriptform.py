@@ -999,7 +999,8 @@ class ScriptFormWebApp(WebAppHandler):
                 self.wfile.write(output.encode('utf8'))
         else:
             # Form had errors
-            self.h_form(form_name, form_errors)
+            form_values.pop('form_name')
+            self.h_form(form_name, form_errors, **form_values)
 
         # Clean up uploaded files
         for file_name in tmp_files:
