@@ -11,4 +11,6 @@ if [ $no_db = "on" ]; then
     echo "NOT RESTARTING DATABASE"
 fi
 
-ls -l /home/fboender
+sleep 1
+
+echo "RESTARTED"
