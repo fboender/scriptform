@@ -24,9 +24,10 @@ This is the manual for version %%VERSION%%.
 1. [Output](#output)
     - [Output types](#output_types)
     - [Exit codes](#output_exitcodes)
-1. [Callbacks](#callbacks)
-    - [Validation](#callbacks_validation)
-    - [Field Values](#callbacks_fieldvalues)
+    - [Serving static files](#output_static_files)
+1. [Script execution](#script_execution)
+    - [Validation](#script_validation)
+    - [Field Values](#script_fieldvalues)
 1. [Users](#users)
     - [Passwords](#users_passwords)
     - [Form limiting](#users_formlimit)
@@ -369,24 +370,30 @@ and shown to the user in the browser.
 If a script's exit code is not 0, it is assumed an error occured. Scriptform
 will show the script's stderr output (in red) to the user instead of stdin.
 
+## <a name="script_executing">Script execution</a>
 
-## <a name="callbacks">Callbacks</a>
+When the user submits the form, scriptform will validate the provided values.
+If they check out, the specified script for the form will be executed.
 
-Callbacks are called after the form has been submitted and its values have been
-validated. They are the actual implementations of the form's action.
+A script can be any kind of executable, written in any kind of language,
+including scripting languages. As long as it is executable, can read the
+environment and output things to stdout it is usable. Scippts written in
+scripting languages should include the shebang line that indicates which
+interpreter it should use:
 
-A script callback can be any kind of executable, written in any kind of
-language. As long as it is executable, can read the environment and output
-things to stdout, it can be used as a callback.
+    #!/usr/bin/php
+    <?php
+    echo("Hello!");
+    ?>
 
-### <a name="callbacks_validation">Validation</a>
+### <a name="script_validation">Validation</a>
 
 Fields of the form are validated by Scriptform before the script is called.
 Exactly what is validated depends on the options specified in the Form
 Definition. For more info on that, see the *Field Types* section of this
 manual.
 
-### <a name="callbacks_fieldvalues">Field values</a>
+### <a name="script_fieldvalues">Field values</a>
 
 Field values are passed to the script in its environment. For instance, a form
 field definition:
