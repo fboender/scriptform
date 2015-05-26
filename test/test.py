@@ -90,7 +90,6 @@ class FormDefinitionTest(unittest.TestCase):
 
     def testRequired(self):
         fd = self.fc.get_form_def('test_required')
-
         form_values = {}
         errors, values = fd.validate(form_values)
         self.assertIn('string', errors)
@@ -234,12 +233,22 @@ class WebAppTest(unittest.TestCase):
         r = requests.get('http://localhost:8002/')
         self.assertEqual(r.status_code, 401)
 
-    def testAuthFormNoAuth(self):
+    def testAuthFormNoAuthGet(self):
         r = requests.get('http://localhost:8002/form?form_name=admin_only')
         self.assertEqual(r.status_code, 401)
 
-    def testAuthFormWrongAuth(self):
+    def testAuthFormNoAuthPost(self):
+        data = {"form_name": 'admin_only'}
+        r = requests.post('http://localhost:8002/submit', data)
+        self.assertEqual(r.status_code, 401)
+
+    def testAuthFormWrongAuthGet(self):
         r = requests.get('http://localhost:8002/form?form_name=admin_only', auth=self.auth_user)
+        self.assertEqual(r.status_code, 401)
+
+    def testAuthFormWrongAuthPost(self):
+        data = {"form_name": 'admin_only'}
+        r = requests.post('http://localhost:8002/submit', data, auth=self.auth_user)
         self.assertEqual(r.status_code, 401)
 
     def testHidden(self):
@@ -274,6 +283,21 @@ class WebAppTest(unittest.TestCase):
         }
         r = requests.post('http://localhost:8002/submit', data, auth=self.auth_user)
         self.assertIn('string=<foo>', r.text)
+
+    def testUpload(self):
+        import random
+        f = file('data.raw', 'w')
+        for i in range(1024):
+            f.write(chr(random.randint(0, 255)))
+        f.close()
+
+        data = {
+            "form_name": "upload"
+        }
+        files = {'file': open('data.raw', 'rb')}
+        r = requests.post("http://localhost:8002/submit", files=files, data=data, auth=self.auth_user)
+        self.assertIn('SAME', r.text)
+        os.unlink('data.raw')
 
 
 if __name__ == '__main__':

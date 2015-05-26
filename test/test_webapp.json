@@ -125,6 +125,19 @@
                     "extensions": ["csv"]
                 }
             ]
+        },
+        {
+            "name": "upload",
+            "title": "Upload",
+            "description": "Upload",
+            "script": "test_upload.sh",
+            "fields": [
+                {
+                    "name": "file",
+                    "title": "File upload",
+                    "type": "file"
+                }
+            ]
         }
     ]
 }
