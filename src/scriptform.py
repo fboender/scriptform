@@ -865,8 +865,8 @@ class ScriptFormWebApp(WebAppHandler):
                 params['max'] = field.get("max", '')
 
             if field['type'] in ('text'):
-                params['rows'] = field.get("rows", ''),
-                params['cols'] = field.get("cols", ''),
+                params['rows'] = field.get("rows", '')
+                params['cols'] = field.get("cols", '')
 
             if field['type'] == 'radio':
                 if not form_values.get(field['name'], None):

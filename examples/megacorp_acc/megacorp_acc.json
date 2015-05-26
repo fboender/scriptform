@@ -174,7 +174,9 @@
                 {
                     "name": "comment",
                     "title": "Comment",
-                    "type": "text"
+                    "type": "text",
+                    "rows": 10,
+                    "cols": 80
                 }
             ]
         }
