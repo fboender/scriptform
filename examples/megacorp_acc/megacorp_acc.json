@@ -152,7 +152,8 @@
                     "title": "From IP Address",
                     "type": "string",
                     "required": true,
-                    "min_length": 7
+                    "min_length": 7,
+                    "size": 15
                 },
                 {
                     "name": "expire_days",

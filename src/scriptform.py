@@ -633,7 +633,7 @@ class WebAppHandler(BaseHTTPRequestHandler):
 
 class FormRender():
     field_tpl = {
-        "string": u'<input {required} type="text" name="{name}" value="{value}" class="{classes}" />',
+        "string": u'<input {required} type="text" name="{name}" value="{value}" size="{size}" class="{classes}" />',
         "number": u'<input {required} type="number" min="{min}" max="{max}" name="{name}" value="{value}" class="{classes}" />',
         "integer": u'<input {required} type="number" min="{min}" max="{max}" name="{name}" value="{value}" class="{classes}" />',
         "float": u'<input {required} type="number" min="{min}" max="{max}" step="any" name="{name}" value="{value}" class="{classes}" />',
@@ -676,9 +676,9 @@ class FormRender():
         method = getattr(self, method_name, None)
         return method(**params)
 
-    def r_field_string(self, name, value, required=False, classes=[]):
+    def r_field_string(self, name, value, size=50, required=False, classes=[]):
         tpl = self.field_tpl['string']
-        return tpl.format(name=name, value=value, required=required, classes=classes)
+        return tpl.format(name=name, value=value, size=size, required=required, classes=classes)
 
     def r_field_number(self, name, value, min=None, max=None, required=False, classes=[]):
         tpl = self.field_tpl['number']
@@ -854,6 +854,9 @@ class ScriptFormWebApp(WebAppHandler):
 
             if field['type'] not in ('radio', 'checkbox', 'select'):
                 params['required'] = field.get('required', False),
+
+            if field['type'] in ('string'):
+                params['size'] = field.get('size', '')
 
             if field['type'] in ('number', 'integer', 'float', 'password'):
                 params['min'] = field.get("min", '')

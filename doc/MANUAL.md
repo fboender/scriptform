@@ -246,6 +246,7 @@ The `string` field type supports the following additional options:
 
 - **`minlen`**: The minimum allowed length for the field.
 - **`maxlen`**: The maximum allowed length for the field.
+- **`size`**: The size (in characters) of the input field.
 
 ### <a name="field_types_integer">Integer</a>
 
