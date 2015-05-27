@@ -28,15 +28,6 @@
 #    until the next request) to stop the server.
 # 10. The program exits.
 
-# Todo:
-#
-#  - How does script_raw check the exitcode? Document this.
-#  - Default values for input fields.
-#  - If there are errors in the form, its values are empties.
-#  - Send responses using self.send_ if possible
-#  - NOt possible right now to auto prefir dates.
-#  - Visually distinguish required fields.
-#  - Allow custom CSS
 
 import sys
 import optparse
