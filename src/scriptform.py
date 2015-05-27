@@ -411,7 +411,7 @@ class FormDefinition:
         for field in self.fields:
             if 'required' in field and \
                field['required'] is True and \
-               field['name'] not in form_values:
+               (field['name'] not in form_values or form_values[field['name']] == ''):
                 errors.setdefault(field['name'], []).append(
                     "This field is required"
                 )
@@ -943,8 +943,11 @@ class ScriptFormWebApp(WebAppHandler):
         tmp_files = []
         for field_name in form_values:
             field = form_values[field_name]
-            if field.filename:
-                # Field is an uploaded file. Stream it to a temp file
+            if field.filename is not None:
+                # Field is an uploaded file. Stream it to a temp file if
+                # something was actually uploaded
+                if field.filename == '':
+                    continue
                 tmpfile = tempfile.mktemp(prefix="scriptform_")
                 f = file(tmpfile, 'w')
                 while True:
