@@ -800,10 +800,10 @@ class ScriptFormWebApp(WebAppHandler):
         """
         Render a list of available forms.
         """
-        form_config = self.scriptform.get_form_config()
         if not self.auth():
             return
 
+        form_config = self.scriptform.get_form_config()
         h_form_list = []
         for form_def in form_config.get_visible_forms(getattr(self, 'username', None)):
             h_form_list.append(u'''
@@ -833,11 +833,10 @@ class ScriptFormWebApp(WebAppHandler):
         """
         Render a form.
         """
-
-        form_config = self.scriptform.get_form_config()
         if not self.auth():
             return
 
+        form_config = self.scriptform.get_form_config()
         fr = FormRender(None)
 
         def render_field(field, errors):
@@ -923,10 +922,10 @@ class ScriptFormWebApp(WebAppHandler):
         a callback to a script. How the output is
         handled depends on settings in the form definition.
         """
-        form_config = self.scriptform.get_form_config()
         if not self.auth():
             return
 
+        form_config = self.scriptform.get_form_config()
         form_name = form_values.getfirst('form_name', None)
         form_def = form_config.get_form_def(form_name)
         if form_def.allowed_users is not None and \
