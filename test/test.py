@@ -299,6 +299,16 @@ class WebAppTest(unittest.TestCase):
         self.assertIn('SAME', r.text)
         os.unlink('data.raw')
 
+    def testStatic(self):
+        r = requests.get("http://localhost:8002/static?fname=ssh_server.png", auth=self.auth_user)
+        self.assertEquals(r.status_code, 200)
+        f_served = b''
+        for c in r.iter_content():
+            f_served += c
+
+        f_orig = file('static/ssh_server.png', 'rb').read()
+        self.assertEquals(f_orig, f_served)
+
 
 if __name__ == '__main__':
     import coverage
