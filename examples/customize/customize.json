@@ -1,0 +1,20 @@
+{
+    "title": "Customized forms",
+    "custom_css": "custom.css",
+    "forms": [
+        {
+            "name": "custom",
+            "title": "Customized form",
+            "description": "This form is customized using global CSS and inline CSS.<br><br>The form's background has been made lightgray, the input box is green, the submit button is red and the results are wrapped in a scrolling viewport.",
+            "script": "job_customize.sh",
+            "fields": [
+                {
+                    "name": "background",
+                    "title": "Different background color",
+                    "type": "string",
+                    "style": "background-color: #C0FFC0;"
+                }
+            ]
+        }
+    ]
+}

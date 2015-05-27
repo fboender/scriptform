@@ -32,6 +32,8 @@ This is the manual for version %%VERSION%%.
     - [Passwords](#users_passwords)
     - [Form limiting](#users_formlimit)
     - [Security considerations](#users_security)
+1. [Form customization](#cust)
+    - [Custom CSS](#cust_css)
 1. [Security](#security)
 
 ## <a name="invocations">Invocations</a>
@@ -119,6 +121,10 @@ Structurally, they are made up of the following elements:
   served. See also "[Serving static files](#output_static_files)".
   **Optional**, **String**.
 
+- **`custom_css`**: Path to a file containing custom CSS. It will be included
+  in every page's header. See also "[Form customization](#cust)". **Optional**,
+  **String**.
+
 - **`forms`**: A list of dictionaries of form definitions. **Required**, **List
     of dictionaries**.
 
@@ -154,9 +160,6 @@ Structurally, they are made up of the following elements:
       view it, if you know its name. This is useful for other forms to
       redirect to this forms and such.
 
-    - **`style`**: A string of inline CSS which will be applied to the field.
-      **Optional**, **String**.
-
     - **`fields`**: List of fields in the form. Each field is a dictionary.
       **Required**, **List of dictionaries**.
 
@@ -176,6 +179,9 @@ Structurally, they are made up of the following elements:
         - **`hidden`**: If 'true', the input field is hidden. This is useful for
           pre-filled forms which takes it values from the GET request.
           **Optional**, **boolean**, **Default:** `false`.
+
+        - **`style`**: A string of inline CSS which will be applied to the field.
+          **Optional**, **String**.
 
         - **`...`**: Other options, which depend on the type of field.  For
           more information, see [Field types](#field_types). **Optional**.
@@ -524,6 +530,42 @@ For an example, see the [beginning of this chapter](#users).
   you wish to prevent this, you should put Scriptform behind a proxy that
   *does* support HTTPS, such as Apache. For more information on that, see
   the "Invocations" chapter.
+
+## <a name="cust">Form customization</a>
+
+### <a name="cust_css">Custom CSS</a>
+
+You can customize a form input field's style using the **`style`** property of
+the field definition in the form configuration. It takes a string that will be
+put in the generated form's `style=""` HTML attribute. For example:
+
+    "fields": [
+        {
+            "name": "background",
+            "title": "Different background color",
+            "type": "string",
+            "style": "background-color: #C0FFC0;"
+        }
+    ]
+
+The example above will render as:
+
+    <input required="" type="text" name="background" value="" size="" class="" style="background-color: #C0FFC0;">
+
+You can also include a global piece of CSS by specifying the **`custom_css`**
+property in the form definition. For example:
+
+    {
+        "title": "Customized forms",
+        "custom_css": "custom.css",
+        "forms": [
+        ...
+
+`custom.css` is the path to a file which will be included in the rendered HTML
+page in the `<style>` header. If the path is relative, it will be relative to
+the form configuration file's location.
+
+For a good example, see the `examples/customize/` directory in the source.
 
 ## <a name="security">Security</a>
 

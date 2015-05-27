@@ -1,0 +1,12 @@
+form {
+    background-color: #F0F0F0;
+    padding: 20px;
+    border-radius: 10px;
+}
+form li.submit input {
+    background-color: #FF0000;
+}
+div.result pre {
+    font-size: 12px;
+    overflow: scroll;
+}

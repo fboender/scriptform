@@ -28,7 +28,6 @@
 #    until the next request) to stop the server.
 # 10. The program exits.
 
-
 import sys
 import optparse
 import os
@@ -112,6 +111,9 @@ html_header = u'''<html>
     /* Other */
     div.about {{ text-align: center; font-size: 12px; color: #808080; }}
     div.about a {{ text-decoration: none; color: #000000; }}
+
+    /* Custom css */
+    {custom_css}
   </style>
 </head>
 <body>
@@ -139,11 +141,11 @@ html_form = u'''
 <div class="form">
   <h2 class="form-title">{title}</h2>
   <p class="form-description">{description}</p>
-  <form action="submit" method="post" enctype="multipart/form-data">
+  <form id="{name}" action="submit" method="post" enctype="multipart/form-data">
     <input type="hidden" name="form_name" value="{name}" />
     <ul>
         {fields}
-        <li>
+        <li class="submit">
           <input type="submit" class="btn btn-act" value="{submit_title}" />
           <a href="."><button type="button" class="btn btn-lnk" value="Back">Back to the list</button></a>
         </li>
@@ -222,13 +224,16 @@ class ScriptForm:
         config = json.load(file(self.config_file, 'r'))
 
         static_dir = None
-        forms = []
+        custom_css = None
         users = None
+        forms = []
 
-        if 'users' in config:
-            users = config['users']
         if 'static_dir' in config:
             static_dir = config['static_dir']
+        if 'custom_css' in config:
+            custom_css = file(config['custom_css'], 'r').read()
+        if 'users' in config:
+            users = config['users']
         for form in config['forms']:
             form_name = form['name']
             script = form['script']
@@ -248,7 +253,8 @@ class ScriptForm:
             config['title'],
             forms,
             users,
-            static_dir
+            static_dir,
+            custom_css
         )
         self.form_config_singleton = form_config
         return form_config
@@ -285,11 +291,12 @@ class FormConfig:
     file. It holds information (title, users, the form definitions) on the
     form configuration being served by this instance of ScriptForm.
     """
-    def __init__(self, title, forms, users={}, static_dir=None):
+    def __init__(self, title, forms, users={}, static_dir=None, custom_css=None):
         self.title = title
         self.users = users
         self.forms = forms
         self.static_dir = static_dir
+        self.custom_css = custom_css
         self.log = logging.getLogger('FORMCONFIG')
 
         # Validate scripts
@@ -811,7 +818,8 @@ class ScriptFormWebApp(WebAppHandler):
             )
 
         output = html_list.format(
-            header=html_header.format(title=form_config.title),
+            header=html_header.format(title=form_config.title,
+                                      custom_css=form_config.custom_css),
             footer=html_footer,
             form_list=u''.join(h_form_list)
         )
@@ -893,7 +901,8 @@ class ScriptFormWebApp(WebAppHandler):
             html_errors += u'</ul>'
 
         output = html_form.format(
-            header=html_header.format(title=form_config.title),
+            header=html_header.format(title=form_config.title,
+                                      custom_css=form_config.custom_css),
             footer=html_footer,
             title=form_def.title,
             description=form_def.description,
@@ -985,7 +994,8 @@ class ScriptFormWebApp(WebAppHandler):
                         msg = result['stdout'].decode('utf8')
 
                 output = html_submit_response.format(
-                    header=html_header.format(title=form_config.title),
+                    header=html_header.format(title=form_config.title,
+                                              custom_css=form_config.custom_css),
                     footer=html_footer,
                     title=form_def.title,
                     form_name=form_def.name,
