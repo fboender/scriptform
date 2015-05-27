@@ -154,6 +154,9 @@ Structurally, they are made up of the following elements:
       view it, if you know its name. This is useful for other forms to
       redirect to this forms and such.
 
+    - **`style`**: A string of inline CSS which will be applied to the field.
+      **Optional**, **String**.
+
     - **`fields`**: List of fields in the form. Each field is a dictionary.
       **Required**, **List of dictionaries**.
 

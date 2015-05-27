@@ -25,7 +25,8 @@
                 {
                     "name": "email_address",
                     "title": "What's your email address?",
-                    "type": "string"
+                    "type": "string",
+                    "style": "width: 300px;"
                 }
             ]
         },
