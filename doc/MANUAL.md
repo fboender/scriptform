@@ -343,6 +343,9 @@ No additional validatikon is done on the file contents.
 
 ### <a name="output_types">Output types</a>
 
+Scriptform uses the output of the script (stdout, stderr) to display something
+back to the user executing the script.
+
 Scripts can have a few different output types. The output type is specified in
 the **`output`** field of the form definition. For example, the following form
 definition has a `raw` output type.:
@@ -511,7 +514,7 @@ You may specify a `allowed_users` field in a form definition. Only user names
 listed in the field are allowed to see and submit that form. If the user is not
 listed, they won't even see the form as being available.
 
-For an example, see the (beginning of this chapter)[#users].
+For an example, see the [beginning of this chapter](#users).
 
 ### <a name="users_security">Security considerations</a>
 
