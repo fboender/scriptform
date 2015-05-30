@@ -871,7 +871,7 @@ class ScriptFormWebApp(WebAppHandler):
             if field['type'] == 'radio':
                 if not form_values.get(field['name'], None):
                     params['value'] = field['options'][0][0]
-                params['options'] = field['options'],
+                params['options'] = field['options']
 
             if field['type'] in ('radio', 'select'):
                 params['options'] = field['options']
