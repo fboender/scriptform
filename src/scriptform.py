@@ -853,7 +853,7 @@ class ScriptFormWebApp(WebAppHandler):
                 params['value'] = form_values.get(field['name'], '')
 
             if field['type'] not in ('radio', 'checkbox', 'select'):
-                params['required'] = field.get('required', False),
+                params['required'] = field.get('required', False)
 
             if field['type'] in ('string'):
                 params['size'] = field.get('size', '')
