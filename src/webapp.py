@@ -149,7 +149,7 @@ class WebAppHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         """Overrides BaseHTTPRequestHandler which logs to the console. We log
         to our log file instead"""
-        self.scriptform.log.info("{} {}".format(self.address_string(), format%args))
+        self.scriptform.log.info("{} {}".format(self.address_string(), args))
 
     def do_GET(self):
         self._call(*self._parse(self.path))
@@ -189,9 +189,9 @@ class WebAppHandler(BaseHTTPRequestHandler):
                callable(getattr(self, method_name)):
                 method_cb = getattr(self, method_name)
             elif path == '' and hasattr(self, 'index'):
-                method_cb = self.index
+                method_cb = getattr(self, 'index')
             elif hasattr(self, 'default'):
-                method_cb = self.default
+                method_cb = getattr(self, 'default')
             else:
                 self.send_error(404, "Not found")
                 return

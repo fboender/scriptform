@@ -53,7 +53,7 @@ class Daemon:  # pragma: no cover
 
         # Kill the daemon and wait until the process is gone
         os.kill(pid, signal.SIGTERM)
-        for timeout in range(25):  # 5 seconds
+        for _ in range(25):  # 5 seconds
             time.sleep(0.2)
             if not self._pid_running(pid):
                 break
@@ -138,8 +138,8 @@ class Daemon:  # pragma: no cover
 
         return pid
 
-    def _cleanup(self, signal=None, frame=None):
-        self.log.info("Received signal {0}".format(signal))
+    def _cleanup(self, sig=None):
+        self.log.info("Received signal {0}".format(sig))
         if os.path.exists(self.pid_file):
             os.unlink(self.pid_file)
         self.shutdown_cb()

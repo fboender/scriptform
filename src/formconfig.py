@@ -36,8 +36,8 @@ class FormConfig:
         for form_def in self.forms:
             if form_def.name == form_name:
                 return form_def
-        else:
-            raise ValueError("No such form: {0}".format(form_name))
+
+        raise ValueError("No such form: {0}".format(form_name))
 
     def get_visible_forms(self, username=None):
         """

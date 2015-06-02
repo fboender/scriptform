@@ -55,9 +55,12 @@ class ScriptForm:
         self.config_file = config_file
         self.cache = cache
         self.log = logging.getLogger('SCRIPTFORM')
-        self.get_form_config()  # Init form config so it can raise errors about problems.
+        self.form_config_singleton = None
         self.websrv = None
         self.running = False
+        self.httpd = None
+
+        self.get_form_config()  # Init form config so it can raise errors about problems.
 
     def get_form_config(self):
         """
@@ -65,7 +68,7 @@ class ScriptForm:
         instance. If it has already been read, a cached version is returned.
         """
         # Cache
-        if self.cache and hasattr(self, 'form_config_singleton'):
+        if self.cache and self.form_config_singleton is not None:
             return self.form_config_singleton
 
         config = json.load(file(self.config_file, 'r'))
