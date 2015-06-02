@@ -1,6 +1,9 @@
 .PHONY: doc test
 PROG=scriptform
 
+fake:
+	# NOOP
+
 install:
 	cp src/scriptform.py /usr/bin/scriptform
 
