@@ -25,6 +25,11 @@ release_src: doc
 	rm -rf $(PROG)-$(REL_VERSION)
 	mkdir $(PROG)-$(REL_VERSION)
 	cp src/scriptform.py $(PROG)-$(REL_VERSION)/scriptform
+	cp src/daemon.py $(PROG)-$(REL_VERSION)/
+	cp src/formconfig.py $(PROG)-$(REL_VERSION)/
+	cp src/formdefinition.py $(PROG)-$(REL_VERSION)/
+	cp src/formrender.py $(PROG)-$(REL_VERSION)/
+	cp src/webapp.py $(PROG)-$(REL_VERSION)/
 	cp LICENSE $(PROG)-$(REL_VERSION)/
 	cp README.md $(PROG)-$(REL_VERSION)/
 	cp contrib/release_Makefile $(PROG)-$(REL_VERSION)/Makefile
@@ -37,13 +42,11 @@ release_src: doc
 	zip -r $(PROG)-$(REL_VERSION).zip $(PROG)-$(REL_VERSION)
 	tar -vczf $(PROG)-$(REL_VERSION).tar.gz  $(PROG)-$(REL_VERSION)
 
-	# Cleanup
-	rm -rf $(PROG)-$(REL_VERSION)
-
 release_deb: doc
 	@if [ -z "$(REL_VERSION)" ]; then echo "REL_VERSION required"; exit 1; fi
 
 	mkdir -p rel_deb/usr/bin
+	mkdir -p rel_deb/usr/lib/scriptform
 	mkdir -p rel_deb/usr/share/doc/$(PROG)
 	mkdir -p rel_deb/usr/share/man/man1
 
@@ -53,7 +56,14 @@ release_deb: doc
 	cp doc/MANUAL.md rel_deb/usr/share/doc/$(PROG)
 	cp README.html $(PROG)-$(REL_VERSION)/README.html
 	cp doc/MANUAL.html $(PROG)-$(REL_VERSION)/MANUAL.html
-	cp src/scriptform.py rel_deb/usr/bin/scriptform
+	cp src/scriptform.py rel_deb/usr/lib/scriptform/
+	cp src/daemon.py rel_deb/usr/lib/scriptform/
+	cp src/formconfig.py rel_deb/usr/lib/scriptform/
+	cp src/formdefinition.py rel_deb/usr/lib/scriptform/
+	cp src/formrender.py rel_deb/usr/lib/scriptform/
+	cp src/webapp.py rel_deb/usr/lib/scriptform/
+	ln -s /usr/lib/scriptform/scriptform.py rel_deb/usr/bin/scriptform
+
 	cp contrib/scriptform.init.d_debian rel_deb/usr/share/doc/$(PROG)
 	cp contrib/scriptform.init.d_redhat rel_deb/usr/share/doc/$(PROG)
 	cp -ar contrib/debian/DEBIAN rel_deb/
@@ -83,6 +93,9 @@ clean:
 	rm -rf examples/megacorp_acc/.coverage
 	rm -rf examples/megacorp_acc/htmlcov
 	find ./ -name "*.log" -delete
+	find ./ -name "*.pyc" -delete
+	rm -rf $(PROG)-$(REL_VERSION)
+
 
 test:
 	cd test && python ./test.py

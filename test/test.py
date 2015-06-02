@@ -46,8 +46,9 @@ class FormConfigTestCase(unittest.TestCase):
         self.assertRaises(OSError, scriptform.ScriptForm, 'test_formconfig_missingscript.json')
 
     def testNoExec(self):
-        """Non-executable script callbacks should raise an ScriptFormError"""
-        self.assertRaises(scriptform.ScriptFormError, scriptform.ScriptForm, 'test_formconfig_noexec.json')
+        """Non-executable script callbacks should raise an FormConfigError"""
+        from formconfig import FormConfigError
+        self.assertRaises(FormConfigError, scriptform.ScriptForm, 'test_formconfig_noexec.json')
 
     def testHidden(self):
         """Hidden forms should not show up in the list of forms"""
