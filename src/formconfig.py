@@ -14,9 +14,11 @@ class FormConfig:
     file. It holds information (title, users, the form definitions) on the
     form configuration being served by this instance of ScriptForm.
     """
-    def __init__(self, title, forms, users={}, static_dir=None, custom_css=None):
+    def __init__(self, title, forms, users=None, static_dir=None, custom_css=None):
         self.title = title
-        self.users = users
+        self.users = {}
+        if users is not None:
+            self.users = users
         self.forms = forms
         self.static_dir = static_dir
         self.custom_css = custom_css

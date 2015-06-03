@@ -146,10 +146,11 @@ class WebAppHandler(BaseHTTPRequestHandler):
     requests. If no path is set, it dispatches to the 'index' or 'default'
     method.
     """
-    def log_message(self, format, *args):
+    def log_message(self, fmt, *args):
         """Overrides BaseHTTPRequestHandler which logs to the console. We log
         to our log file instead"""
-        self.scriptform.log.info("{} {}".format(self.address_string(), args))
+        fmt = "{} {}"
+        self.scriptform.log.info(fmt.format(self.address_string(), args))
 
     def do_GET(self):
         self._call(*self._parse(self.path))
@@ -167,8 +168,8 @@ class WebAppHandler(BaseHTTPRequestHandler):
         qs = urlparse.parse_qs(url_comp.query)
         # Only return the first value of each query var. E.g. for
         # "?foo=1&foo=2" return '1'.
-        vars = dict([(k, v[0]) for k, v in qs.items()])
-        return (path.strip('/'), vars)
+        var_values = dict([(k, v[0]) for k, v in qs.items()])
+        return (path.strip('/'), var_values)
 
     def _call(self, path, params):
         """
@@ -236,7 +237,7 @@ class ScriptFormWebApp(WebAppHandler):
             authorized = False
             auth_header = self.headers.getheader("Authorization")
             if auth_header is not None:
-                auth_realm, auth_unpw = auth_header.split(' ', 1)
+                auth_unpw = auth_header.split(' ', 1)[1]
                 username, password = base64.decodestring(auth_unpw).split(":")
                 pw_hash = hashlib.sha256(password).hexdigest()
                 # Validate the username and password
@@ -287,10 +288,12 @@ class ScriptFormWebApp(WebAppHandler):
         self.end_headers()
         self.wfile.write(output.encode('utf8'))
 
-    def h_form(self, form_name, errors={}, **form_values):
+    def h_form(self, form_name, errors=None, **form_values):
         """
         Render a form.
         """
+        if errors is None:
+            errors = {}
         if not self.auth():
             return
 
@@ -318,10 +321,10 @@ class ScriptFormWebApp(WebAppHandler):
                 params['size'] = field.get('size', '')
 
             if field['type'] in ('number', 'integer', 'float', 'password'):
-                params['min'] = field.get("min", '')
+                params['minval'] = field.get("min", '')
 
             if field['type'] in ('number', 'integer', 'float'):
-                params['max'] = field.get("max", '')
+                params['maxval'] = field.get("max", '')
 
             if field['type'] in ('text'):
                 params['rows'] = field.get("rows", '')
@@ -340,10 +343,10 @@ class ScriptFormWebApp(WebAppHandler):
                 if field['name'] in form_values and form_values[field['name']] == 'on':
                     params['checked'] = True
 
-            input = fr.r_field(field['type'], **params)
+            h_input = fr.r_field(field['type'], **params)
 
             return fr.r_form_line(field['type'], field['title'],
-                                  input, params['classes'], errors)
+                                  h_input, params['classes'], errors)
 
         # Make sure the user is allowed to access this form.
         form_def = form_config.get_form_def(form_name)

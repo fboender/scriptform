@@ -88,54 +88,54 @@ class FormDefinition:
 
     def validate_integer(self, field_def, form_values):
         value = form_values[field_def['name']]
-        _max = field_def.get('max', None)
-        _min = field_def.get('min', None)
+        maxval = field_def.get('max', None)
+        minval = field_def.get('min', None)
 
         try:
             value = int(value)
         except ValueError:
             raise ValidationError("Must be an integer number")
 
-        if _min is not None and value < int(_min):
-            raise ValidationError("Minimum value is {0}".format(_min))
-        if _max is not None and value > int(_max):
-            raise ValidationError("Maximum value is {0}".format(_max))
+        if minval is not None and value < int(minval):
+            raise ValidationError("Minimum value is {0}".format(minval))
+        if maxval is not None and value > int(maxval):
+            raise ValidationError("Maximum value is {0}".format(maxval))
 
         return int(value)
 
     def validate_float(self, field_def, form_values):
         value = form_values[field_def['name']]
-        _max = field_def.get('max', None)
-        _min = field_def.get('min', None)
+        maxval = field_def.get('max', None)
+        minval = field_def.get('min', None)
 
         try:
             value = float(value)
         except ValueError:
             raise ValidationError("Must be an real (float) number")
 
-        if _min is not None and value < float(_min):
-            raise ValidationError("Minimum value is {0}".format(_min))
-        if _max is not None and value > float(_max):
-            raise ValidationError("Maximum value is {0}".format(_max))
+        if minval is not None and value < float(minval):
+            raise ValidationError("Minimum value is {0}".format(minval))
+        if maxval is not None and value > float(maxval):
+            raise ValidationError("Maximum value is {0}".format(maxval))
 
         return float(value)
 
     def validate_date(self, field_def, form_values):
         value = form_values[field_def['name']]
-        _max = field_def.get('max', None)
-        _min = field_def.get('min', None)
+        maxval = field_def.get('max', None)
+        minval = field_def.get('min', None)
 
         try:
             value = datetime.datetime.strptime(value, '%Y-%m-%d').date()
         except ValueError:
             raise ValidationError("Invalid date, must be in form YYYY-MM-DD")
 
-        if _min is not None:
-            if value < datetime.datetime.strptime(_min, '%Y-%m-%d').date():
-                raise ValidationError("Minimum value is {0}".format(_min))
-        if _max is not None:
-            if value > datetime.datetime.strptime(_max, '%Y-%m-%d').date():
-                raise ValidationError("Maximum value is {0}".format(_max))
+        if minval is not None:
+            if value < datetime.datetime.strptime(minval, '%Y-%m-%d').date():
+                raise ValidationError("Minimum value is {0}".format(minval))
+        if maxval is not None:
+            if value > datetime.datetime.strptime(maxval, '%Y-%m-%d').date():
+                raise ValidationError("Maximum value is {0}".format(maxval))
 
         return value
 
