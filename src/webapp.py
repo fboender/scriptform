@@ -135,6 +135,16 @@ html_submit_response = u'''
 '''
 
 
+class HTTPError(Exception):
+    def __init__(self, status_code, msg, headers=None):
+        if headers is None:
+            headers = {}
+        self.status_code = status_code
+        self.msg = msg
+        self.headers = headers
+        Exception.__init__(self, status_code, msg, headers)
+
+
 class ThreadedHTTPServer(ThreadingMixIn, BaseHTTPServer.HTTPServer):
     pass
 
@@ -194,9 +204,18 @@ class WebAppHandler(BaseHTTPRequestHandler):
             elif hasattr(self, 'default'):
                 method_cb = getattr(self, 'default')
             else:
+                # FIXME: Raise Error
                 self.send_error(404, "Not found")
                 return
             method_cb(**params)
+        except HTTPError, e:
+            if e.status_code not in (401, ):
+                self.scriptform.log.exception(e)
+            self.send_response(e.status_code)
+            for header_k, header_v in e.headers.items():
+                self.send_header(header_k, header_v)
+            self.end_headers()
+            return False
         except Exception, e:
             self.scriptform.log.exception(e)
             self.send_error(500, "Internal server error")
@@ -224,9 +243,9 @@ class ScriptFormWebApp(WebAppHandler):
     def auth(self):
         """
         Verify that the user is authenticated. This is required if the form
-        definition contains a 'users' field. Returns True if the user is
-        validated. Otherwise, returns False and sends 401 HTTP back to the
-        client.
+        definition contains a 'users' field. Returns the username if the user
+        is validated or None if no validation is required.. Otherwise, raises a
+        401 HTTP back to the client.
         """
         form_config = self.scriptform.get_form_config()
         self.username = None
@@ -247,11 +266,10 @@ class ScriptFormWebApp(WebAppHandler):
                     authorized = True
 
             if not authorized:
-                # User is not authenticated. Send authentication request.
-                self.send_response(401)
-                self.send_header("WWW-Authenticate", 'Basic realm="Private Area"')
-                self.end_headers()
-                return False
+                headers = {
+                    "WWW-Authenticate": 'Basic realm="Private Area"'
+                }
+                raise HTTPError(401, 'Authenticate', headers)
         return True
 
     def h_list(self):
@@ -352,6 +370,7 @@ class ScriptFormWebApp(WebAppHandler):
         form_def = form_config.get_form_def(form_name)
         if form_def.allowed_users is not None and \
            self.username not in form_def.allowed_users:
+            # FIXME: Raise HTTPError instead?
             self.send_error(401, "You're not authorized to view this form")
             return
 
@@ -392,6 +411,7 @@ class ScriptFormWebApp(WebAppHandler):
         form_def = form_config.get_form_def(form_name)
         if form_def.allowed_users is not None and \
            self.username not in form_def.allowed_users:
+            # FIXME: Raise HTTPError instead?
             self.send_error(401, "You're not authorized to view this form")
             return
 
@@ -485,15 +505,18 @@ class ScriptFormWebApp(WebAppHandler):
         form_config = self.scriptform.get_form_config()
 
         if not form_config.static_dir:
+            # FIXME: Raise Error
             self.send_error(501, "Static file serving not enabled")
             return
 
         if '..' in fname:
+            # FIXME: Raise Error
             self.send_error(403, "Invalid file name")
             return
 
         path = os.path.join(form_config.static_dir, fname)
         if not os.path.exists(path):
+            # FIXME: Raise Error
             self.send_error(404, "Not found")
             return
 
