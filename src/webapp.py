@@ -204,9 +204,7 @@ class WebAppHandler(BaseHTTPRequestHandler):
             elif hasattr(self, 'default'):
                 method_cb = getattr(self, 'default')
             else:
-                # FIXME: Raise Error
-                self.send_error(404, "Not found")
-                return
+                raise HTTPError(404, "Not found")
             method_cb(**params)
         except HTTPError, e:
             if e.status_code not in (401, ):
