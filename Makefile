@@ -103,4 +103,4 @@ test:
 	@echo "\nFLAKE8\n"
 	cd src && flake8 *.py | grep -v "line too long" || true
 	@echo "\nPYLINT\n"
-	cd src && pylint -dC -dR -rno *.py || true
+	cd src && pylint -dW0142 *.py || true
