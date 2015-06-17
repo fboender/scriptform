@@ -207,12 +207,17 @@ class WebAppHandler(BaseHTTPRequestHandler):
                 raise HTTPError(404, "Not found")
             method_cb(**params)
         except HTTPError, e:
+            # HTTP erors are generally thrown by the webapp on purpose. Send
+            # error to the browser.
             if e.status_code not in (401, ):
                 self.scriptform.log.exception(e)
             self.send_response(e.status_code)
             for header_k, header_v in e.headers.items():
                 self.send_header(header_k, header_v)
             self.end_headers()
+            self.wfile.write("Error {}: {}".format(e.status_code,
+                                                   e.msg))
+            self.wfile.flush()
             return False
         except Exception, e:
             self.scriptform.log.exception(e)
