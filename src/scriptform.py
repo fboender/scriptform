@@ -86,7 +86,13 @@ class ScriptForm:
             users = config['users']
         for form in config['forms']:
             form_name = form['name']
-            script = form['script']
+            if not form['script'].startswith('/'):
+                # Script is relative to the current dir
+                script = os.path.join(os.path.realpath(os.curdir),
+                                      form['script'])
+            else:
+                # Absolute path to the script
+                script = form['script']
             forms.append(
                 FormDefinition(form_name,
                                form['title'],
@@ -124,6 +130,10 @@ class ScriptForm:
         self.running = False
 
     def shutdown(self):
+        """
+        Shutdown the server. This interupts the run() method and must thus be
+        run in a seperate thread.
+        """
         self.log.info("Attempting server shutdown")
 
         def t_shutdown(sf):
