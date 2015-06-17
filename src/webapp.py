@@ -269,9 +269,7 @@ class ScriptFormWebApp(WebAppHandler):
                     authorized = True
 
             if not authorized:
-                headers = {
-                    "WWW-Authenticate": 'Basic realm="Private Area"'
-                }
+                headers = {"WWW-Authenticate": 'Basic realm="Private Area"'}
                 raise HTTPError(401, 'Authenticate', headers)
         return True
 
