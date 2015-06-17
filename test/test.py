@@ -1,3 +1,4 @@
+import logging
 import sys
 import unittest
 from StringIO import StringIO
@@ -243,14 +244,14 @@ class WebAppTest(unittest.TestCase):
         r = requests.post('http://localhost:8002/submit', data)
         self.assertEqual(r.status_code, 401)
 
-    def testAuthFormWrongAuthGet(self):
+    def testAuthFormUnauthorizedGet(self):
         r = requests.get('http://localhost:8002/form?form_name=admin_only', auth=self.auth_user)
-        self.assertEqual(r.status_code, 401)
+        self.assertEqual(r.status_code, 403)
 
-    def testAuthFormWrongAuthPost(self):
+    def testAuthFormUnauthorizedPost(self):
         data = {"form_name": 'admin_only'}
         r = requests.post('http://localhost:8002/submit', data, auth=self.auth_user)
-        self.assertEqual(r.status_code, 401)
+        self.assertEqual(r.status_code, 403)
 
     def testHidden(self):
         """Hidden forms shouldn't appear in the output"""
@@ -312,6 +313,10 @@ class WebAppTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.FATAL,
+                        format='%(asctime)s:%(name)s:%(levelname)s:%(message)s',
+                        filename='test.log',
+                        filemode='a')
     import coverage
     cov = coverage.coverage(omit=['*test*', 'main'])
     cov.start()
