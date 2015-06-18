@@ -1,3 +1,7 @@
+"""
+Provide daemon capabilities via the Daemon class.
+"""
+
 import logging
 import os
 import sys
@@ -8,10 +12,13 @@ import atexit
 
 
 class DaemonError(Exception):
+    """
+    Default error for Daemon class.
+    """
     pass
 
 
-class Daemon:  # pragma: no cover
+class Daemon(object):  # pragma: no cover
     """
     Daemonize the current process (detach it from the console).
     """
@@ -27,17 +34,24 @@ class Daemon:  # pragma: no cover
             self.log_file = log_file
         self.foreground = foreground
 
+        log_fmt = '%(asctime)s:%(name)s:%(levelname)s:%(message)s'
         logging.basicConfig(level=log_level,
-                            format='%(asctime)s:%(name)s:%(levelname)s:%(message)s',
+                            format=log_fmt,
                             filename=self.log_file,
                             filemode='a')
         self.log = logging.getLogger('DAEMON')
-        self.shutdown_cb = None
+        self.shutdown_callback = None
 
-    def register_shutdown_cb(self, cb):
-        self.shutdown_cb = cb
+    def register_shutdown_callback(self, callback):
+        """
+        Register a callback to be executed when the daemon is stopped.
+        """
+        self.shutdown_callback = callback
 
     def start(self):
+        """
+        Start the daemon. Raises a DaemonError if it's already running.
+        """
         self.log.info("Starting")
         if self.is_running():
             self.log.error('Already running')
@@ -46,6 +60,10 @@ class Daemon:  # pragma: no cover
             self._fork()
 
     def stop(self):
+        """
+        Stop the daemon. Raises a DaemonError if the daemon is ot running,
+        which is determined by examaning the PID file.
+        """
         if not self.is_running():
             raise DaemonError("Not running")
 
@@ -101,6 +119,11 @@ class Daemon:  # pragma: no cover
         return True
 
     def _fork(self):
+        """
+        Fork the current process daemon-style. Forks twice, closes file
+        descriptors, etc. A signal handler is also registered to be called if
+        the daemon received a SIGTERM signal.
+        """
         # Fork a child and end the parent (detach from parent)
         pid = os.fork()
         if pid > 0:
@@ -114,9 +137,9 @@ class Daemon:  # pragma: no cover
         pid = os.fork()
         if pid > 0:
             self.log.info("PID = {0}".format(pid))
-            f = file(self.pid_file, 'w')
-            f.write(str(pid))
-            f.close()
+            pidfile = file(self.pid_file, 'w')
+            pidfile.write(str(pid))
+            pidfile.close()
             sys.exit(0)  # End parent
 
         atexit.register(self._cleanup)
@@ -124,9 +147,9 @@ class Daemon:  # pragma: no cover
 
         # Close STDIN, STDOUT and STDERR so we don't tie up the controlling
         # terminal
-        for fd in (0, 1, 2):
+        for fdescriptor in (0, 1, 2):
             try:
-                os.close(fd)
+                os.close(fdescriptor)
             except OSError:
                 pass
 
@@ -139,7 +162,10 @@ class Daemon:  # pragma: no cover
         return pid
 
     def _cleanup(self, sig=None):
+        """
+        Remvoe pid files and call registered shutodnw callbacks.
+        """
         self.log.info("Received signal {0}".format(sig))
         if os.path.exists(self.pid_file):
             os.unlink(self.pid_file)
-        self.shutdown_cb()
+        self.shutdown_callback()

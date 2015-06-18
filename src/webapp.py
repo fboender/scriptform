@@ -1,3 +1,8 @@
+"""
+The webapp part of Scriptform, which takes care of serving requests and
+handling them.
+"""
+
 from SocketServer import ThreadingMixIn
 import BaseHTTPServer
 from BaseHTTPServer import BaseHTTPRequestHandler
@@ -12,7 +17,7 @@ import hashlib
 from formrender import FormRender
 
 
-html_header = u'''<html>
+HTML_HEADER = u'''<html>
 <head>
   <meta charset="UTF-8">
   <style>
@@ -49,7 +54,8 @@ html_header = u'''<html>
     div.form li.hidden {{ display: none; }}
     div.form p.form-field-title {{ margin-bottom: 0px; }}
     div.form p.form-field-input {{ margin-top: 0px; }}
-    div.form li.checkbox p.form-field-input {{ float: left; margin-right: 8px; }}
+    div.form li.checkbox p.form-field-input {{ float: left;
+                                               margin-right: 8px; }}
     select,
     textarea,
     input[type=text],
@@ -82,14 +88,18 @@ html_header = u'''<html>
   <div class="page">
 '''
 
-html_footer = u'''
-  <div class="about">Powered by <a href="https://github.com/fboender/scriptform">Scriptform</a> v%%VERSION%%</div>
+HTML_FOOTER = u'''
+    <div class="about">
+      Powered by
+      <a href="https://github.com/fboender/scriptform">Scriptform</a>
+      v%%VERSION%%
+    </div>
   </div>
 </body>
 </html>
 '''
 
-html_list = u''''
+HTML_LIST = u''''
 {header}
 <div class="list">
   {form_list}
@@ -97,18 +107,23 @@ html_list = u''''
 {footer}
 '''
 
-html_form = u'''
+HTML_FORM = u'''
 {header}
 <div class="form">
   <h2 class="form-title">{title}</h2>
   <p class="form-description">{description}</p>
-  <form id="{name}" action="submit" method="post" enctype="multipart/form-data">
+  <form id="{name}" action="submit" method="post"
+   enctype="multipart/form-data">
     <input type="hidden" name="form_name" value="{name}" />
     <ul>
         {fields}
         <li class="submit">
           <input type="submit" class="btn btn-act" value="{submit_title}" />
-          <a href="."><button type="button" class="btn btn-lnk" value="Back">Back to the list</button></a>
+          <a href=".">
+            <button type="button" class="btn btn-lnk" value="Back">
+              Back to the list
+            </button>
+          </a>
         </li>
     </ul>
   </form>
@@ -116,7 +131,17 @@ html_form = u'''
 {footer}
 '''
 
-html_submit_response = u'''
+HTML_FORM_LIST = u'''
+  <li>
+    <h2 class="form-title">{title}</h2>
+    <p class="form-description">{description}</p>
+    <a class="form-link btn btn-act" href="./form?form_name={name}">
+      {title}
+    </a>
+  </li>
+'''
+
+HTML_SUBMIT_RESPONSE = u'''
 {header}
 <div class="result">
   <h2 class="result-title">{title}</h2>
@@ -136,6 +161,10 @@ html_submit_response = u'''
 
 
 class HTTPError(Exception):
+    """
+    HTTPError may be thrown by routes to indicate HTTP errors such as 404, 301,
+    etc. They are caught by the 'framework' and sent to the client's browser.
+    """
     def __init__(self, status_code, msg, headers=None):
         if headers is None:
             headers = {}
@@ -146,6 +175,9 @@ class HTTPError(Exception):
 
 
 class ThreadedHTTPServer(ThreadingMixIn, BaseHTTPServer.HTTPServer):
+    """
+    Base class for multithreaded HTTP servers.
+    """
     pass
 
 
@@ -163,9 +195,15 @@ class WebAppHandler(BaseHTTPRequestHandler):
         self.scriptform.log.info(fmt.format(self.address_string(), args))
 
     def do_GET(self):
+        """
+        Handle a GET request.
+        """
         self._call(*self._parse(self.path))
 
     def do_POST(self):
+        """
+        Handle a POST request.
+        """
         form_values = cgi.FieldStorage(
             fp=self.rfile,
             headers=self.headers,
@@ -173,12 +211,15 @@ class WebAppHandler(BaseHTTPRequestHandler):
         self._call(self.path.strip('/'), params={'form_values': form_values})
 
     def _parse(self, reqinfo):
+        """
+        Parse information from a request.
+        """
         url_comp = urlparse.urlsplit(reqinfo)
         path = url_comp.path
-        qs = urlparse.parse_qs(url_comp.query)
+        query_vars = urlparse.parse_qs(url_comp.query)
         # Only return the first value of each query var. E.g. for
         # "?foo=1&foo=2" return '1'.
-        var_values = dict([(k, v[0]) for k, v in qs.items()])
+        var_values = dict([(k, v[0]) for k, v in query_vars.items()])
         return (path.strip('/'), var_values)
 
     def _call(self, path, params):
@@ -206,21 +247,21 @@ class WebAppHandler(BaseHTTPRequestHandler):
             else:
                 raise HTTPError(404, "Not found")
             method_cb(**params)
-        except HTTPError, e:
+        except HTTPError, err:
             # HTTP erors are generally thrown by the webapp on purpose. Send
             # error to the browser.
-            if e.status_code not in (401, ):
-                self.scriptform.log.exception(e)
-            self.send_response(e.status_code)
-            for header_k, header_v in e.headers.items():
+            if err.status_code not in (401, ):
+                self.scriptform.log.exception(err)
+            self.send_response(err.status_code)
+            for header_k, header_v in err.headers.items():
                 self.send_header(header_k, header_v)
             self.end_headers()
-            self.wfile.write("Error {}: {}".format(e.status_code,
-                                                   e.msg))
+            self.wfile.write("Error {}: {}".format(err.status_code,
+                                                   err.msg))
             self.wfile.flush()
             return False
-        except Exception, e:
-            self.scriptform.log.exception(e)
+        except Exception, err:
+            self.scriptform.log.exception(err)
             self.send_error(500, "Internal server error")
             raise
 
@@ -236,7 +277,8 @@ class ScriptFormWebApp(WebAppHandler):
         """
         form_config = self.scriptform.get_form_config()
 
-        visible_forms = form_config.get_visible_forms(getattr(self, 'username', None))
+        username = getattr(self, 'username', None)
+        visible_forms = form_config.get_visible_forms(username)
         if len(visible_forms) == 1:
             first_form = visible_forms[0]
             return self.h_form(first_form.name)
@@ -282,24 +324,20 @@ class ScriptFormWebApp(WebAppHandler):
 
         form_config = self.scriptform.get_form_config()
         h_form_list = []
-        for form_def in form_config.get_visible_forms(getattr(self, 'username', None)):
-            h_form_list.append(u'''
-              <li>
-                <h2 class="form-title">{title}</h2>
-                <p class="form-description">{description}</p>
-                <a class="form-link btn btn-act" href="./form?form_name={name}">
-                  {title}
-                </a>
-              </li>
-            '''.format(title=form_def.title,
-                       description=form_def.description,
-                       name=form_def.name)
+        username = getattr(self, 'username', None)
+        for form_def in form_config.get_visible_forms(username):
+            h_form_list.append(
+                HTML_FORM_LIST.format(
+                    title=form_def.title,
+                    description=form_def.description,
+                    name=form_def.name
+                )
             )
 
-        output = html_list.format(
-            header=html_header.format(title=form_config.title,
+        output = HTML_LIST.format(
+            header=HTML_HEADER.format(title=form_config.title,
                                       custom_css=form_config.custom_css),
-            footer=html_footer,
+            footer=HTML_FOOTER,
             form_list=u''.join(h_form_list)
         )
         self.send_response(200)
@@ -317,9 +355,12 @@ class ScriptFormWebApp(WebAppHandler):
             return
 
         form_config = self.scriptform.get_form_config()
-        fr = FormRender(None)
+        fr_inst = FormRender(None)
 
         def render_field(field, errors):
+            """
+            Render a HTML field.
+            """
             params = {
                 'name': field['name'],
                 'classes': [],
@@ -336,7 +377,7 @@ class ScriptFormWebApp(WebAppHandler):
             if field['type'] not in ('radio', 'checkbox', 'select'):
                 params['required'] = field.get('required', False)
 
-            if field['type'] in ('string'):
+            if field['type'] == 'string':
                 params['size'] = field.get('size', '')
 
             if field['type'] in ('number', 'integer', 'float', 'password'):
@@ -345,7 +386,7 @@ class ScriptFormWebApp(WebAppHandler):
             if field['type'] in ('number', 'integer', 'float'):
                 params['maxval'] = field.get("max", '')
 
-            if field['type'] in ('text'):
+            if field['type'] == 'text':
                 params['rows'] = field.get("rows", '')
                 params['cols'] = field.get("cols", '')
 
@@ -359,13 +400,14 @@ class ScriptFormWebApp(WebAppHandler):
 
             if field['type'] == 'checkbox':
                 params['checked'] = False
-                if field['name'] in form_values and form_values[field['name']] == 'on':
+                if field['name'] in form_values and \
+                   form_values[field['name']] == 'on':
                     params['checked'] = True
 
-            h_input = fr.r_field(field['type'], **params)
+            h_input = fr_inst.r_field(field['type'], **params)
 
-            return fr.r_form_line(field['type'], field['title'],
-                                  h_input, params['classes'], errors)
+            return fr_inst.r_form_line(field['type'], field['title'],
+                                       h_input, params['classes'], errors)
 
         # Make sure the user is allowed to access this form.
         form_def = form_config.get_form_def(form_name)
@@ -380,15 +422,18 @@ class ScriptFormWebApp(WebAppHandler):
                 html_errors += u'<li class="error">{0}</li>'.format(error)
             html_errors += u'</ul>'
 
-        output = html_form.format(
-            header=html_header.format(title=form_config.title,
+        output = HTML_FORM.format(
+            header=HTML_HEADER.format(title=form_config.title,
                                       custom_css=form_config.custom_css),
-            footer=html_footer,
+            footer=HTML_FOOTER,
             title=form_def.title,
             description=form_def.description,
             errors=html_errors,
             name=form_def.name,
-            fields=u''.join([render_field(f, errors.get(f['name'], [])) for f in form_def.fields]),
+            fields=u''.join(
+                [render_field(f, errors.get(f['name'], []))
+                 for f in form_def.fields]
+            ),
             submit_title=form_def.submit_title
         )
         self.send_response(200)
@@ -427,18 +472,18 @@ class ScriptFormWebApp(WebAppHandler):
                 # something was actually uploaded
                 if field.filename == '':
                     continue
-                tmpfile = tempfile.mktemp(prefix="scriptform_")
-                f = file(tmpfile, 'w')
+                tmp_fname = tempfile.mktemp(prefix="scriptform_")
+                tmp_file = file(tmp_fname, 'w')
                 while True:
                     buf = field.file.read(1024 * 16)
                     if not buf:
                         break
-                    f.write(buf)
-                f.close()
+                    tmp_file.write(buf)
+                tmp_file.close()
                 field.file.close()
 
-                tmp_files.append(tmpfile)  # For later cleanup
-                values[field_name] = tmpfile
+                tmp_files.append(tmp_fname)  # For later cleanup
+                values[field_name] = tmp_fname
                 values['{0}__name'.format(field_name)] = field.filename
             else:
                 # Field is a normal form field. Store its value.
@@ -455,28 +500,35 @@ class ScriptFormWebApp(WebAppHandler):
 
             # Log the callback and its parameters for auditing purposes.
             log = logging.getLogger('CALLBACK_AUDIT')
+            cwd = os.path.realpath(os.curdir)
+            username = getattr(self.request, 'username', 'None')
             log.info("Calling script: {0}".format(form_def.script))
-            log.info("Current working dir: {0}".format(os.path.realpath(os.curdir)))
-            log.info("User: {0}".format(getattr(self.request, 'username', 'None')))
+            log.info("Current working dir: {0}".format(cwd))
+            log.info("User: {0}".format(username))
             log.info("Variables: {0}".format(dict(form_values.items())))
 
-            result = form_config.callback(form_name, form_values, self.wfile, self.wfile)
+            result = form_config.callback(form_name, form_values, self.wfile,
+                                          self.wfile)
             if form_def.output != 'raw':
                 # Ignore everything if we're doing raw output, since it's the
                 # scripts responsibility.
                 if result['exitcode'] != 0:
-                    msg = u'<span class="error">{0}</span>'.format(cgi.escape(result['stderr'].decode('utf8')))
+                    stderr = cgi.escape(result['stderr'].decode('utf8'))
+                    msg = u'<span class="error">{0}</span>'.format(stderr)
                 else:
                     if form_def.output == 'escaped':
-                        msg = u'<pre>{0}</pre>'.format(cgi.escape(result['stdout'].decode('utf8')))
+                        stdout = cgi.escape(result['stdout'].decode('utf8'))
+                        msg = u'<pre>{0}</pre>'.format(stdout)
                     else:
                         # Non-escaped output (html, usually)
                         msg = result['stdout'].decode('utf8')
 
-                output = html_submit_response.format(
-                    header=html_header.format(title=form_config.title,
-                                              custom_css=form_config.custom_css),
-                    footer=html_footer,
+                output = HTML_SUBMIT_RESPONSE.format(
+                    header=HTML_HEADER.format(
+                        title=form_config.title,
+                        custom_css=form_config.custom_css
+                    ),
+                    footer=HTML_FOOTER,
                     title=form_def.title,
                     form_name=form_def.name,
                     msg=msg,
@@ -512,7 +564,7 @@ class ScriptFormWebApp(WebAppHandler):
         if not os.path.exists(path):
             raise HTTPError(404, "Not found")
 
-        f = file(path, 'r')
+        static_file = file(path, 'r')
         self.send_response(200)
         self.end_headers()
-        self.wfile.write(f.read())
+        self.wfile.write(static_file.read())

@@ -1,12 +1,18 @@
+"""
+FormDefinition holds information about a single form and provides methods for
+validation of the form values.
+"""
+
 import os
 import datetime
 
 
 class ValidationError(Exception):
+    """Default exception for Validation errors"""
     pass
 
 
-class FormDefinition:
+class FormDefinition(object):
     """
     FormDefinition holds information about a single form and provides methods
     for validation of the form values.
@@ -25,6 +31,9 @@ class FormDefinition:
         self.allowed_users = allowed_users
 
     def get_field_def(self, field_name):
+        """
+        Return the field definition for `field_name`.
+        """
         for field in self.fields:
             if field['name'] == field_name:
                 return field
@@ -40,9 +49,11 @@ class FormDefinition:
 
         # First make sure all required fields are there
         for field in self.fields:
-            if 'required' in field and \
-               field['required'] is True and \
-               (field['name'] not in form_values or form_values[field['name']] == ''):
+            field_required = ('required' in field and
+                              field['required'] is True)
+            field_missing = (field['name'] not in form_values or
+                             form_values[field['name']] == '')
+            if field_required and field_missing:
                 errors.setdefault(field['name'], []).append(
                     "This field is required"
                 )
@@ -51,14 +62,15 @@ class FormDefinition:
         for field in self.fields:
             field_name = field['name']
             if field_name in errors:
-                # Skip fields that are required but missing, since they can't be validated
+                # Skip fields that are required but missing, since they can't
+                # be validated
                 continue
             try:
-                v = self._field_validate(field_name, form_values)
-                if v is not None:
-                    values[field_name] = v
-            except ValidationError, e:
-                errors.setdefault(field_name, []).append(str(e))
+                value = self._field_validate(field_name, form_values)
+                if value is not None:
+                    values[field_name] = value
+            except ValidationError, err:
+                errors.setdefault(field_name, []).append(str(err))
 
         return (errors, values)
 
@@ -75,6 +87,9 @@ class FormDefinition:
         return validate_cb(field_def, form_values)
 
     def validate_string(self, field_def, form_values):
+        """
+        Validate a form field of type 'string'.
+        """
         value = form_values[field_def['name']]
         maxlen = field_def.get('maxlen', None)
         minlen = field_def.get('minlen', None)
@@ -87,6 +102,9 @@ class FormDefinition:
         return value
 
     def validate_integer(self, field_def, form_values):
+        """
+        Validate a form field of type 'integer'.
+        """
         value = form_values[field_def['name']]
         maxval = field_def.get('max', None)
         minval = field_def.get('min', None)
@@ -104,6 +122,9 @@ class FormDefinition:
         return int(value)
 
     def validate_float(self, field_def, form_values):
+        """
+        Validate a form field of type 'float'.
+        """
         value = form_values[field_def['name']]
         maxval = field_def.get('max', None)
         minval = field_def.get('min', None)
@@ -121,6 +142,9 @@ class FormDefinition:
         return float(value)
 
     def validate_date(self, field_def, form_values):
+        """
+        Validate a form field of type 'date'.
+        """
         value = form_values[field_def['name']]
         maxval = field_def.get('max', None)
         minval = field_def.get('min', None)
@@ -140,6 +164,9 @@ class FormDefinition:
         return value
 
     def validate_radio(self, field_def, form_values):
+        """
+        Validate a form field of type 'radio'.
+        """
         value = form_values[field_def['name']]
         if not value in [o[0] for o in field_def['options']]:
             raise ValidationError(
@@ -147,6 +174,9 @@ class FormDefinition:
         return value
 
     def validate_select(self, field_def, form_values):
+        """
+        Validate a form field of type 'select'.
+        """
         value = form_values[field_def['name']]
         if not value in [o[0] for o in field_def['options']]:
             raise ValidationError(
@@ -154,6 +184,9 @@ class FormDefinition:
         return value
 
     def validate_checkbox(self, field_def, form_values):
+        """
+        Validate a form field of type 'checkbox'.
+        """
         value = form_values.get(field_def['name'], 'off')
         if not value in ['on', 'off']:
             raise ValidationError(
@@ -161,6 +194,9 @@ class FormDefinition:
         return value
 
     def validate_text(self, field_def, form_values):
+        """
+        Validate a form field of type 'text'.
+        """
         value = form_values[field_def['name']]
         minlen = field_def.get('minlen', None)
         maxlen = field_def.get('maxlen', None)
@@ -174,6 +210,9 @@ class FormDefinition:
         return value
 
     def validate_password(self, field_def, form_values):
+        """
+        Validate a form field of type 'password'.
+        """
         value = form_values[field_def['name']]
         minlen = field_def.get('minlen', None)
 
@@ -183,6 +222,9 @@ class FormDefinition:
         return value
 
     def validate_file(self, field_def, form_values):
+        """
+        Validate a form field of type 'file'.
+        """
         value = form_values[field_def['name']]
         field_name = field_def['name']
         upload_fname = form_values[u'{0}__name'.format(field_name)]
@@ -190,6 +232,7 @@ class FormDefinition:
         extensions = field_def.get('extensions', None)
 
         if extensions is not None and upload_fname_ext not in extensions:
-            raise ValidationError("Only file types allowed: {0}".format(u','.join(extensions)))
+            msg = "Only file types allowed: {0}".format(u','.join(extensions))
+            raise ValidationError(msg)
 
         return value

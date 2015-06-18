@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+#
 # Scriptform roughly works like this:
 #
 # 1. Instantiate a ScriptForm class. This takes care of loading the form config
@@ -18,15 +18,19 @@
 # 5. Depending on the request, a method is called on ScriptFormWebApp. These
 #    methods render HTML to as a response.
 # 6. If a form is submitted, its fields are validated and the script callback
-#    is called. Depending on the output type, the output of the script is either
-#    captured and displayed as HTML to the user or directly streamed to the
-#    browser.
+#    is called. Depending on the output type, the output of the script is
+#    either captured and displayed as HTML to the user or directly streamed to
+#    the browser.
 # 7. GOTO 4.
 # 8. Upon receiving an OS signal (kill, etc) the daemon calls the shutdown
 #    callback.
 # 9. The shutdown callback starts a new thread (otherwise the webserver blocks
 #    until the next request) to stop the server.
 # 10. The program exits.
+
+"""
+Main ScriptForm program
+"""
 
 import sys
 import optparse
@@ -43,10 +47,13 @@ from webapp import ThreadedHTTPServer, ScriptFormWebApp
 
 
 class ScriptFormError(Exception):
+    """
+    Default exception thrown by ScriptForm errors.
+    """
     pass
 
 
-class ScriptForm:
+class ScriptForm(object):
     """
     'Main' class that orchestrates parsing the Form configurations and running
     the webserver.
@@ -60,7 +67,8 @@ class ScriptForm:
         self.running = False
         self.httpd = None
 
-        self.get_form_config()  # Init form config so it can raise errors about problems.
+        # Init form config so it can raise errors about kproblems.
+        self.get_form_config()
 
     def get_form_config(self):
         """
@@ -122,7 +130,8 @@ class ScriptForm:
         is called or something like SystemExit is raised in a handler.
         """
         ScriptFormWebApp.scriptform = self
-        self.httpd = ThreadedHTTPServer((listen_addr, listen_port), ScriptFormWebApp)
+        self.httpd = ThreadedHTTPServer((listen_addr, listen_port),
+                                        ScriptFormWebApp)
         self.httpd.daemon_threads = True
         self.log.info("Listening on {0}:{1}".format(listen_addr, listen_port))
         self.running = True
@@ -136,10 +145,14 @@ class ScriptForm:
         """
         self.log.info("Attempting server shutdown")
 
-        def t_shutdown(sf):
-            sf.log.info(self.websrv)
-            sf.httpd.socket.close()  # Undocumented requirement to shut the server
-            sf.httpd.shutdown()
+        def t_shutdown(scriptform_instance):
+            """
+            Callback for when the server is shutdown.
+            """
+            scriptform_instance.log.info(self.websrv)
+            # Undocumented feature to shutdow the server.
+            scriptform_instance.httpd.socket.close()
+            scriptform_instance.httpd.shutdown()
 
         # We need to spawn a new thread in which the server is shut down,
         # because doing it from the main thread blocks, since the server is
@@ -148,6 +161,9 @@ class ScriptForm:
 
 
 def main():  # pragma: no cover
+    """
+    main method
+    """
     usage = [
         sys.argv[0] + " [option] (--start|--stop) <form_definition.json>",
         "       " + sys.argv[0] + " --generate-pw",
@@ -205,15 +221,16 @@ def main():  # pragma: no cover
         log = logging.getLogger('MAIN')
         try:
             if options.action_start:
-                sf = ScriptForm(args[0], cache=not options.reload)
-                daemon.register_shutdown_cb(sf.shutdown)
+                cache = not options.reload
+                scriptform_instance = ScriptForm(args[0], cache=cache)
+                daemon.register_shutdown_callback(scriptform_instance.shutdown)
                 daemon.start()
-                sf.run(listen_port=options.port)
+                scriptform_instance.run(listen_port=options.port)
             elif options.action_stop:
                 daemon.stop()
                 sys.exit(0)
-        except Exception, e:
-            log.exception(e)
+        except Exception, err:
+            log.exception(err)
             raise
 
 if __name__ == "__main__":  # pragma: no cover

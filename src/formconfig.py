@@ -1,3 +1,9 @@
+"""
+FormConfig is the in-memory representation of a form configuration JSON file.
+It holds information (title, users, the form definitions) on the form
+configuration being served by this instance of ScriptForm.
+"""
+
 import logging
 import stat
 import os
@@ -5,16 +11,20 @@ import subprocess
 
 
 class FormConfigError(Exception):
+    """
+    Default error for FormConfig errors
+    """
     pass
 
 
-class FormConfig:
+class FormConfig(object):
     """
     FormConfig is the in-memory representation of a form configuration JSON
     file. It holds information (title, users, the form definitions) on the
     form configuration being served by this instance of ScriptForm.
     """
-    def __init__(self, title, forms, users=None, static_dir=None, custom_css=None):
+    def __init__(self, title, forms, users=None, static_dir=None,
+                 custom_css=None):
         self.title = title
         self.users = {}
         if users is not None:
@@ -27,7 +37,8 @@ class FormConfig:
         # Validate scripts
         for form_def in self.forms:
             if not stat.S_IXUSR & os.stat(form_def.script)[stat.ST_MODE]:
-                raise FormConfigError("{0} is not executable".format(form_def.script))
+                msg = "{0} is not executable".format(form_def.script)
+                raise FormConfigError(msg)
 
     def get_form_def(self, form_name):
         """
@@ -70,29 +81,33 @@ class FormConfig:
 
         # Validate params
         if form.output == 'raw' and (stdout is None or stderr is None):
-            raise ValueError('stdout and stderr cannot be None if script output is \'raw\'')
+            msg = 'stdout and stderr cannot be none if script output ' \
+                  'is \'raw\''
+            raise ValueError(msg)
 
         # Pass form values to the script through the environment as strings.
         env = os.environ.copy()
-        for k, v in form_values.items():
-            env[k] = str(v)
+        for key, value in form_values.items():
+            env[key] = str(value)
 
         # If the form output type is 'raw', we directly stream the output to
         # the browser. Otherwise we store it for later displaying.
         if form.output == 'raw':
-            p = subprocess.Popen(form.script, shell=True,
-                                 stdout=stdout,
-                                 stderr=stderr,
-                                 env=env)
-            stdout, stderr = p.communicate(input)
-            return p.returncode
+            proc = subprocess.Popen(form.script, shell=True,
+                                    stdout=stdout,
+                                    stderr=stderr,
+                                    env=env)
+            stdout, stderr = proc.communicate(input)
+            return proc.returncode
         else:
-            p = subprocess.Popen(form.script, shell=True, stdin=subprocess.PIPE,
-                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                 env=env)
-            stdout, stderr = p.communicate()
+            proc = subprocess.Popen(form.script, shell=True,
+                                    stdin=subprocess.PIPE,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE,
+                                    env=env)
+            stdout, stderr = proc.communicate()
             return {
                 'stdout': stdout,
                 'stderr': stderr,
-                'exitcode': p.returncode
+                'exitcode': proc.returncode
             }
