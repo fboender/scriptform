@@ -1,5 +1,10 @@
 #!/bin/sh
 
+if [ -z "$csv_file" ]; then
+    echo "No file specified" >&2
+    exit 1
+fi
+
 {
     echo ".separator ,"
     echo ".import $csv_file employee"
