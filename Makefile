@@ -101,6 +101,6 @@ test:
 	@echo "\nTESTS\n"
 	cd test && python ./test.py
 	@echo "\nFLAKE8\n"
-	cd src && flake8 *.py | grep -v "line too long" || true
+	cd src && flake8 *.py || true
 	@echo "\nPYLINT\n"
-	cd src && pylint -dW0142 *.py || true
+	cd src && pylint --reports=n -dR -dW0142 *.py || true
