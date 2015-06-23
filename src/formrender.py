@@ -30,10 +30,11 @@ class FormRender(object):
     field_tpl = {
         "string": u'<input {required} type="text" name="{name}" '
                   u'value="{value}" size="{size}" '
-                  u'class="{classes}" style="{style}" />',
+                  u'class="{classes}" style="{style}" minlength="{minlen}" '
+                  u' maxlength="{maxlen}" />',
         "number": u'<input {required} type="number" min="{minval}" '
-                  u'max="{maxval}" name="{name}" value="{value}" '
-                  u'class="{classes}" style="{style}" />',
+                  u'max="{maxval}" step="any" name="{name}" '
+                  u'value="{value}" class="{classes}" style="{style}" />',
         "integer": u'<input {required} type="number" min="{minval}" '
                    u'max="{maxval}" name="{name}" value="{value}" '
                    u'class="{classes}" style="{style}" />',
@@ -97,16 +98,17 @@ class FormRender(object):
         method = getattr(self, method_name, None)
         return method(**params)
 
-    def r_field_string(self, name, value, size=50, required=False,
-                       classes=None, style=""):
+    def r_field_string(self, name, value, minlen=None, maxlen=None, size=50,
+                       required=False, classes=None, style=""):
         """
         Render a string field to HTML.
         """
         if classes is None:
             classes = []
         tpl = self.field_tpl['string']
-        return tpl.format(name=name, value=value, size=size, required=required,
-                          classes=classes, style=style)
+        return tpl.format(name=name, value=value, minlen=minlen, maxlen=maxlen,
+                          size=size, required=required, classes=classes,
+                          style=style)
 
     def r_field_number(self, name, value, minval=None, maxval=None,
                        required=False, classes=None, style=""):
@@ -137,7 +139,7 @@ class FormRender(object):
         """
         if classes is None:
             classes = []
-        tpl = self.field_tpl['integer']
+        tpl = self.field_tpl['float']
         return tpl.format(name=name, value=value, minval=minval, maxval=maxval,
                           required=required, classes=classes, style=style)
 
