@@ -39,6 +39,7 @@ import json
 import logging
 import thread
 import hashlib
+import socket
 
 from daemon import Daemon
 from formdefinition import FormDefinition
@@ -229,6 +230,13 @@ def main():  # pragma: no cover
             elif options.action_stop:
                 daemon.stop()
                 sys.exit(0)
+        except socket.error, err:
+            log.exception(err)
+            sys.stderr.write("Cannot bind to port {}: {}\n".format(
+                options.port,
+                str(err)
+            ))
+            sys.exit(2)
         except Exception, err:
             log.exception(err)
             raise
