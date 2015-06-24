@@ -45,7 +45,7 @@ class FormRender(object):
                 u'class="{classes}" style="{style}" />',
         "file": u'<input {required} type="file" name="{name}" '
                 u'class="{classes}" style="{style}" />',
-        "password": u'<input {required} type="password" min="{minval}" '
+        "password": u'<input {required} type="password" minlength="{minlen}" '
                     u'name="{name}" value="{value}" class="{classes}" '
                     u'style="{style}" />',
         "text": u'<textarea {required} name="{name}" rows="{rows}" '
@@ -164,7 +164,7 @@ class FormRender(object):
         return tpl.format(name=name, required=required, classes=classes,
                           style=style)
 
-    def r_field_password(self, name, value, minval=None, required=False,
+    def r_field_password(self, name, value, minlen=None, required=False,
                          classes=None, style=""):
         """
         Render a password field to HTML.
@@ -172,7 +172,7 @@ class FormRender(object):
         if classes is None:
             classes = []
         tpl = self.field_tpl['password']
-        return tpl.format(name=name, value=value, minval=minval,
+        return tpl.format(name=name, value=value, minlen=minlen,
                           required=required, classes=classes, style=style)
 
     def r_field_text(self, name, value, rows=4, cols=80, required=False,

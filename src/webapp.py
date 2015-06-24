@@ -371,6 +371,7 @@ class ScriptFormWebApp(WebAppHandler):
 
             params["style"] = field.get("style", "")
 
+            # Get field-specific parameters
             if field['type'] not in ('file', 'checkbox'):
                 params['value'] = form_values.get(field['name'], '')
 
@@ -379,13 +380,15 @@ class ScriptFormWebApp(WebAppHandler):
 
             if field['type'] == 'string':
                 params['size'] = field.get('size', '')
+
+            if field['type'] in ('string', 'password'):
                 params['minlen'] = field.get('minlen', '')
+
+            if field['type'] in ('string'):
                 params['maxlen'] = field.get('maxlen', '')
 
-            if field['type'] in ('number', 'integer', 'float', 'password'):
-                params['minval'] = field.get("min", '')
-
             if field['type'] in ('number', 'integer', 'float'):
+                params['minval'] = field.get("min", '')
                 params['maxval'] = field.get("max", '')
 
             if field['type'] == 'text':
