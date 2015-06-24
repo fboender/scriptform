@@ -49,8 +49,8 @@ class FormRender(object):
                     u'name="{name}" value="{value}" class="{classes}" '
                     u'style="{style}" />',
         "text": u'<textarea {required} name="{name}" rows="{rows}" '
-                u'cols="{cols}" style="{style}" '
-                u'class="{classes}">{value}</textarea>',
+                u'cols="{cols}" minlength="{minlen}" maxlength="{maxlen}" '
+                u'style="{style}" class="{classes}">{value}</textarea>',
         "radio_option": u'<input {checked} type="radio" name="{name}" '
                         u'value="{value}" class="{classes} '
                         u'style="{style}"">{label}<br/>',
@@ -175,8 +175,8 @@ class FormRender(object):
         return tpl.format(name=name, value=value, minlen=minlen,
                           required=required, classes=classes, style=style)
 
-    def r_field_text(self, name, value, rows=4, cols=80, required=False,
-                     classes=None, style=""):
+    def r_field_text(self, name, value, rows=4, cols=80, minlen=None,
+                     maxlen=None, required=False, classes=None, style=""):
         """
         Render a text field to HTML.
         """
@@ -184,7 +184,8 @@ class FormRender(object):
             classes = []
         tpl = self.field_tpl['text']
         return tpl.format(name=name, value=value, rows=rows, cols=cols,
-                          required=required, classes=classes, style=style)
+                          minlen=minlen, maxlen=maxlen, required=required,
+                          classes=classes, style=style)
 
     def r_field_radio(self, name, value, options, classes=None, style=""):
         """

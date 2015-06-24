@@ -381,10 +381,10 @@ class ScriptFormWebApp(WebAppHandler):
             if field['type'] == 'string':
                 params['size'] = field.get('size', '')
 
-            if field['type'] in ('string', 'password'):
+            if field['type'] in ('string', 'password', 'text'):
                 params['minlen'] = field.get('minlen', '')
 
-            if field['type'] in ('string'):
+            if field['type'] in ('string', 'text'):
                 params['maxlen'] = field.get('maxlen', '')
 
             if field['type'] in ('number', 'integer', 'float'):
