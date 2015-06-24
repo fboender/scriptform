@@ -391,6 +391,10 @@ class ScriptFormWebApp(WebAppHandler):
                 params['minval'] = field.get("min", '')
                 params['maxval'] = field.get("max", '')
 
+            if field['type'] in ('date'):
+                params['min'] = field.get('min', '')
+                params['max'] = field.get('max', '')
+
             if field['type'] == 'text':
                 params['rows'] = field.get("rows", '')
                 params['cols'] = field.get("cols", '')

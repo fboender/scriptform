@@ -42,7 +42,7 @@ class FormRender(object):
                  u'max="{maxval}" step="any" name="{name}" '
                  u'value="{value}" class="{classes}" style="{style}" />',
         "date": u'<input {required} type="date" name="{name}" value="{value}" '
-                u'class="{classes}" style="{style}" />',
+                u'min="{min}" max="{max}" class="{classes}" style="{style}" />',
         "file": u'<input {required} type="file" name="{name}" '
                 u'class="{classes}" style="{style}" />',
         "password": u'<input {required} type="password" minlength="{minlen}" '
@@ -143,16 +143,16 @@ class FormRender(object):
         return tpl.format(name=name, value=value, minval=minval, maxval=maxval,
                           required=required, classes=classes, style=style)
 
-    def r_field_date(self, name, value, required=False, classes=None,
-                     style=""):
+    def r_field_date(self, name, value, min='', max='', required=False,
+                      classes=None, style=""):
         """
         Render a date field to HTML.
         """
         if classes is None:
             classes = []
         tpl = self.field_tpl['date']
-        return tpl.format(name=name, value=value, required=required,
-                          classes=classes, style=style)
+        return tpl.format(name=name, value=value, min=min, max=max,
+                          required=required, classes=classes, style=style)
 
     def r_field_file(self, name, required=False, classes=None, style=""):
         """
