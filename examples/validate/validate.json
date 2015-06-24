@@ -10,15 +10,22 @@
             "fields": [
                 {
                     "name": "string",
-                    "title": "A string between 5 and 7 characters.",
+                    "title": "A string of at least 5 and at most 7 characters.",
                     "type": "string",
                     "required": true,
                     "minlen": 5,
                     "maxlen": 7
                 },
                 {
+                    "name": "string_nr",
+                    "title": "A non-required string of at least 5 and at most 7 characters.",
+                    "type": "string",
+                    "minlen": 5,
+                    "maxlen": 7
+                },
+                {
                     "name": "integer",
-                    "title": "An integer between 10 and 20",
+                    "title": "An integer (min 10, max 20)",
                     "type": "integer",
                     "required": true,
                     "min": 10,
@@ -26,7 +33,7 @@
                 },
                 {
                     "name": "float",
-                    "title": "A real number between 0.5 and 1",
+                    "title": "A real number (min 0.5, max 1.0)",
                     "type": "float",
                     "required": true,
                     "min": 0.5,
@@ -34,7 +41,7 @@
                 },
                 {
                     "name": "date",
-                    "title": "A date",
+                    "title": "A date (in the month 2015-01)",
                     "type": "date",
                     "required": true,
                     "min": "2015-01-01",
@@ -53,7 +60,7 @@
                 },
                 {
                     "name": "text",
-                    "title": "A text input field",
+                    "title": "A text input field (min 10 chars, max 100 chars)",
                     "type": "text",
                     "required": true,
                     "rows": 2,
@@ -63,7 +70,7 @@
                 },
                 {
                     "name": "password",
-                    "title": "A password input field",
+                    "title": "A password input field of at least 5 chars",
                     "type": "password",
                     "required": true,
                     "minlen": 5
