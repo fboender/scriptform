@@ -428,10 +428,18 @@ interpreter it should use:
 
 ### <a name="script_validation">Validation</a>
 
-Fields of the form are validated by Scriptform before the script is called.
+Fields of the form are validated by the Scriptform backend before the script is
+called. If you have a HTML5 capable browser, the form will also be validated in
+the browser before you submit it.
+
 Exactly what is validated depends on the options specified in the Form
 Definition. For more info on that, see the *Field Types* section of this
 manual.
+
+Form validation is somewhat limited. For example, you can force a string's
+minimum and maximum length, but you cannot do more advanced validation such as
+checking if it starts with a certain value. If you wish to do that, you will
+have to do the validation in the script callback for a form.
 
 ### <a name="script_fieldvalues">Field values</a>
 
