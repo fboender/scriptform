@@ -5,7 +5,7 @@
         {
             "name": "custom",
             "title": "Customized form",
-            "description": "This form is customized using global CSS and inline CSS.<br><br>The form's background has been made lightgray, the input box is green, the submit button is red and the results are wrapped in a scrolling viewport.",
+            "description": "This form is customized using global CSS and inline CSS.<br><br>The form's background has been made lightgray, the submit button is red and the results are wrapped in a scrolling viewport. This was achieved using a global <code>\"custom_css\": \"custom.css\",</code> form configuration option.<br><br>The background of the input box has been turned green. This is done using the <code>style</code> option for the fom field.",
             "script": "job_customize.sh",
             "fields": [
                 {
