@@ -1,3 +1,5 @@
+# -*- coding: utf8 -*-
+
 """
 FormRender takes care of the rendering of forms to HTML.
 """
@@ -21,6 +23,8 @@ HTML_FIELD_CHECKBOX = u'''
     </p>
   </li>
 '''
+
+HTML_REQUIRED = u'''{} <abbr title="This field is required" class="required">•</span>'''
 
 
 class FormRender(object):
@@ -96,7 +100,12 @@ class FormRender(object):
         params = self.cast_params(kwargs)
         method_name = 'r_field_{0}'.format(field_type)
         method = getattr(self, method_name, None)
-        return method(**params)
+        field = method(**params)
+
+        if 'required' in kwargs and kwargs['required'] is True:
+            return HTML_REQUIRED.format(field)
+        else:
+            return field
 
     def r_field_string(self, name, value, minlen=None, maxlen=None, size=50,
                        required=False, classes=None, style=""):

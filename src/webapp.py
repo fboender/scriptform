@@ -56,6 +56,7 @@ HTML_HEADER = u'''<html>
     div.form p.form-field-input {{ margin-top: 0px; }}
     div.form li.checkbox p.form-field-input {{ float: left;
                                                margin-right: 8px; }}
+    div.form li.required abbr {{ color: #FF0000; }}
     select,
     textarea,
     input[type=text],
@@ -368,6 +369,9 @@ class ScriptFormWebApp(WebAppHandler):
 
             if field.get('hidden', None):
                 params['classes'].append('hidden')
+
+            if field.get('required', None):
+                params['classes'].append('required')
 
             params["style"] = field.get("style", "")
 
