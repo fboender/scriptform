@@ -9,6 +9,7 @@ import thread
 import time
 import requests
 import StringIO
+import re
 
 base_config = {
     "title": "test",
@@ -279,6 +280,31 @@ class WebAppTest(unittest.TestCase):
         self.assertIn('Validated form', r.text)
         self.assertIn('This form is heavily validated', r.text)
         self.assertIn('name="string"', r.text)
+
+    def testValidateCorrectData(self):
+        data = {
+            "form_name": 'validate',
+            "string": "12345",
+            "integer": "12",
+            "float": "0.6",
+            "date": "2015-01-02",
+            "text": "1234567890",
+            "password": "12345",
+            "radio": "One"
+        }
+
+        import random
+        f = file('data.csv', 'w')
+        for i in range(1024):
+            f.write(chr(random.randint(0, 255)))
+        f.close()
+
+        files = {'file': open('data.csv', 'rb')}
+        r = requests.post("http://localhost:8002/submit", data=data, files=files, auth=self.auth_user)
+
+        r_error = '<span class="error">(.*)</span>'
+        for match in re.findall(r_error, r.text):
+            self.assertEquals(match, u'')
 
     def testOutputEscaped(self):
         """Form with 'escaped' output should have HTML entities escaped"""
