@@ -232,6 +232,10 @@ class WebAppTest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.sf.shutdown()
+        while True:
+            time.sleep(0.1)
+            if not cls.sf.running:
+                break
 
     def testError404(self):
         r = requests.get('http://localhost:8002/nosuchurl')
