@@ -202,10 +202,10 @@ class FormDefinition(object):
         maxlen = field_def.get('maxlen', None)
 
         if minlen is not None and len(value) < int(minlen):
-            raise ValidationError("minimum length is {0}".format(minlen))
+            raise ValidationError("Minimum length is {0}".format(minlen))
 
         if maxlen is not None and len(value) > int(maxlen):
-            raise ValidationError("maximum length is {0}".format(maxlen))
+            raise ValidationError("Maximum length is {0}".format(maxlen))
 
         return value
 
@@ -217,7 +217,7 @@ class FormDefinition(object):
         minlen = field_def.get('minlen', None)
 
         if minlen is not None and len(value) < int(minlen):
-            raise ValidationError("minimum length is {0}".format(minlen))
+            raise ValidationError("Minimum length is {0}".format(minlen))
 
         return value
 
