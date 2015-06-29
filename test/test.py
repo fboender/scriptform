@@ -78,6 +78,13 @@ class FormConfigTestCase(unittest.TestCase):
         self.assertTrue(exitcode == 33)
         self.assertTrue('stdout' in stdout.read())
 
+    def testCallbackMissingParams(self):
+        """
+        """
+        sf = scriptform.ScriptForm('test_formconfig_callback.json')
+        fc = sf.get_form_config()
+        self.assertRaises(ValueError, fc.callback, 'test_raw', {})
+
 class FormDefinitionTest(unittest.TestCase):
     """
     Form Definition tests. Mostly directly testing if validations work.
