@@ -306,6 +306,36 @@ class WebAppTest(unittest.TestCase):
         for match in re.findall(r_error, r.text):
             self.assertEquals(match, u'')
 
+    def testValidateIncorrectData(self):
+        data = {
+            "form_name": 'validate',
+            "string": "12345678",
+            "integer": "9",
+            "float": "1.1",
+            "date": "2015-02-02",
+            "radio": "Ten",
+            "text": "123456789",
+            "password": "1234",
+        }
+
+        import random
+        f = file('data.txt', 'w')
+        for i in range(1024):
+            f.write(chr(random.randint(0, 255)))
+        f.close()
+
+        files = {'file': open('data.txt', 'rb')}
+        r = requests.post("http://localhost:8002/submit", data=data, files=files, auth=self.auth_user)
+
+        self.assertIn('Maximum length is 7', r.text)
+        self.assertIn('Minimum value is 10', r.text)
+        self.assertIn('Maximum value is 1.0', r.text)
+        self.assertIn('Maximum value is 2015-02-01', r.text)
+        self.assertIn('Invalid value for radio button: Ten', r.text)
+        self.assertIn('Minimum length is 10', r.text)
+        self.assertIn('Minimum length is 5', r.text)
+        self.assertIn('Only file types allowed: csv', r.text)
+
     def testOutputEscaped(self):
         """Form with 'escaped' output should have HTML entities escaped"""
         data = {
