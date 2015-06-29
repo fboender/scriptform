@@ -183,6 +183,9 @@ Structurally, they are made up of the following elements:
         - **`style`**: A string of inline CSS which will be applied to the field.
           **Optional**, **String**.
 
+        - **`classes`**: A string of optional CSS classes to add to this field.
+          **Optional**, **String**.
+
         - **`...`**: Other options, which depend on the type of field.  For
           more information, see [Field types](#field_types). **Optional**.
 

@@ -12,7 +12,8 @@
                     "name": "background",
                     "title": "Different background color",
                     "type": "string",
-                    "style": "background-color: #C0FFC0;"
+                    "style": "background-color: #C0FFC0;",
+                    "classes": "foo bar"
                 }
             ]
         }

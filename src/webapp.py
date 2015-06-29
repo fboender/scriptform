@@ -373,6 +373,8 @@ class ScriptFormWebApp(WebAppHandler):
             if field.get('required', None):
                 params['classes'].append('required')
 
+            params['classes'].extend(field.get('classes', '').split())
+
             params["style"] = field.get("style", "")
 
             # Get field-specific parameters
