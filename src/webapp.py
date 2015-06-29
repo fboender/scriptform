@@ -314,18 +314,16 @@ class ScriptFormWebApp(WebAppHandler):
             if not authorized:
                 headers = {"WWW-Authenticate": 'Basic realm="Private Area"'}
                 raise HTTPError(401, 'Authenticate', headers)
-        return True
+        return self.username
 
     def h_list(self):
         """
         Render a list of available forms.
         """
-        if not self.auth():
-            return
+        username = self.auth()
 
         form_config = self.scriptform.get_form_config()
         h_form_list = []
-        username = getattr(self, 'username', None)
         for form_def in form_config.get_visible_forms(username):
             h_form_list.append(
                 HTML_FORM_LIST.format(
@@ -350,14 +348,6 @@ class ScriptFormWebApp(WebAppHandler):
         """
         Render a form.
         """
-        if errors is None:
-            errors = {}
-        if not self.auth():
-            return
-
-        form_config = self.scriptform.get_form_config()
-        fr_inst = FormRender(None)
-
         def render_field(field, errors):
             """
             Render a HTML field.
@@ -424,10 +414,18 @@ class ScriptFormWebApp(WebAppHandler):
             return fr_inst.r_form_line(field['type'], field['title'],
                                        h_input, params['classes'], errors)
 
+        if errors is None:
+            errors = {}
+
+        username = self.auth()
+
+        form_config = self.scriptform.get_form_config()
+        fr_inst = FormRender(None)
+
         # Make sure the user is allowed to access this form.
         form_def = form_config.get_form_def(form_name)
         if form_def.allowed_users is not None and \
-           self.username not in form_def.allowed_users:
+           username not in form_def.allowed_users:
             raise HTTPError(403, "You're not authorized to view this form")
 
         html_errors = u''
@@ -462,14 +460,13 @@ class ScriptFormWebApp(WebAppHandler):
         a callback to a script. How the output is
         handled depends on settings in the form definition.
         """
-        if not self.auth():
-            return
+        username = self.auth()
 
         form_config = self.scriptform.get_form_config()
         form_name = form_values.getfirst('form_name', None)
         form_def = form_config.get_form_def(form_name)
         if form_def.allowed_users is not None and \
-           self.username not in form_def.allowed_users:
+           username not in form_def.allowed_users:
             raise HTTPError(403, "You're not authorized to view this form")
 
         # Convert FieldStorage to a simple dict, because we're not allowd to
@@ -518,7 +515,7 @@ class ScriptFormWebApp(WebAppHandler):
             cwd = os.path.realpath(os.curdir)
             log.info("Calling script: {0}".format(form_def.script))
             log.info("Current working dir: {0}".format(cwd))
-            log.info("User: {0}".format(self.username))
+            log.info("User: {0}".format(username))
             log.info("Variables: {0}".format(dict(form_values.items())))
 
             result = form_config.callback(form_name, form_values, self.wfile,
@@ -563,8 +560,7 @@ class ScriptFormWebApp(WebAppHandler):
 
     def h_static(self, fname):
         """Serve static files"""
-        if not self.auth():
-            return
+        self.auth()
 
         form_config = self.scriptform.get_form_config()
 
