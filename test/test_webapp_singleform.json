@@ -1,0 +1,12 @@
+{
+    "title": "single form test",
+    "forms": [
+        {
+            "name": "only_form",
+            "title": "Only form",
+            "description": "Only form",
+            "script": "test.sh",
+            "fields": []
+        }
+    ]
+}

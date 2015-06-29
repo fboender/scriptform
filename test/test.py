@@ -323,6 +323,39 @@ class WebAppTest(unittest.TestCase):
         self.assertEquals(f_orig, f_served)
 
 
+class WebAppSingleTest(unittest.TestCase):
+    """
+    Test that Scriptform doesn't show us a list of forms, but directly shows us
+    the form is there's only one.
+    """
+    @classmethod
+    def setUpClass(cls):
+        def server_thread(sf):
+            sf.run(listen_port=8002)
+        cls.sf = scriptform.ScriptForm('test_webapp_singleform.json')
+        thread.start_new_thread(server_thread, (cls.sf, ))
+        # Wait until the webserver is ready
+        while True:
+            time.sleep(0.1)
+            if cls.sf.running:
+                break
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.sf.shutdown()
+        while True:
+            time.sleep(0.1)
+            if not cls.sf.running:
+                break
+
+    def testSingleForm(self):
+        """
+        Ensure that Scriptform directly shows the form if there is only one.
+        """
+        r = requests.get("http://localhost:8002/")
+        self.assertIn('only_form', r.text)
+
+
 if __name__ == '__main__':
     logging.basicConfig(level=logging.FATAL,
                         format='%(asctime)s:%(name)s:%(levelname)s:%(message)s',
