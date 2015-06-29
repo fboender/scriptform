@@ -139,6 +139,20 @@
                     "type": "file"
                 }
             ]
+        },
+        {
+            "name": "hidden_field",
+            "title": "Hidden field",
+            "description": "Hidden field",
+            "script": "test.sh",
+            "fields": [
+                {
+                    "name": "Hidden class",
+                    "title": "This field has a 'hidden' class.",
+                    "type": "string",
+                    "hidden": true
+                }
+            ]
         }
     ]
 }

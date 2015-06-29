@@ -322,6 +322,10 @@ class WebAppTest(unittest.TestCase):
         f_orig = file('static/ssh_server.png', 'rb').read()
         self.assertEquals(f_orig, f_served)
 
+    def testHiddenField(self):
+        r = requests.get('http://localhost:8002/form?form_name=hidden_field', auth=self.auth_user)
+        self.assertIn('class="hidden"', r.text)
+
 
 class WebAppSingleTest(unittest.TestCase):
     """
