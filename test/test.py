@@ -353,6 +353,15 @@ class WebAppTest(unittest.TestCase):
         r = requests.post('http://localhost:8002/submit', data, auth=self.auth_user)
         self.assertIn('string=<foo>', r.text)
 
+    def testOutputHTML(self):
+        data = {
+            "form_name": 'output_html',
+            "string": '<foo>'
+        }
+        r = requests.post('http://localhost:8002/submit', data, auth=self.auth_user)
+        print r.text
+        self.assertIn('string=<foo>', r.text)
+
     def testUpload(self):
         import random
         f = file('data.raw', 'w')

@@ -52,6 +52,20 @@
             ]
         },
         {
+            "name": "output_html",
+            "title": "Output html",
+            "description": "Output html",
+            "script": "test.sh",
+            "output": "html",
+            "fields": [
+                {
+                    "name": "string",
+                    "title": "This string should be unescaped in the output",
+                    "type": "string"
+                }
+            ]
+        },
+        {
             "name": "validate",
             "title": "Validated form",
             "description": "This form is heavily validated",
