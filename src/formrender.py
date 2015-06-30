@@ -108,100 +108,82 @@ class FormRender(object):
             return field
 
     def r_field_string(self, name, value, minlen=None, maxlen=None, size=50,
-                       required=False, classes=None, style=""):
+                       required=False, classes='', style=""):
         """
         Render a string field to HTML.
         """
-        if classes is None:
-            classes = []
         tpl = self.field_tpl['string']
         return tpl.format(name=name, value=value, minlen=minlen, maxlen=maxlen,
                           size=size, required=required, classes=classes,
                           style=style)
 
     def r_field_number(self, name, value, minval=None, maxval=None,
-                       required=False, classes=None, style=""):
+                       required=False, classes='', style=""):
         """
         Render a number field to HTML.
         """
-        if classes is None:
-            classes = []
         tpl = self.field_tpl['number']
         return tpl.format(name=name, value=value, minval=minval, maxval=maxval,
                           required=required, classes=classes, style=style)
 
     def r_field_integer(self, name, value, minval=None, maxval=None,
-                        required=False, classes=None, style=""):
+                        required=False, classes='', style=""):
         """
         Render a integer field to HTML.
         """
-        if classes is None:
-            classes = []
         tpl = self.field_tpl['integer']
         return tpl.format(name=name, value=value, minval=minval, maxval=maxval,
                           required=required, classes=classes, style=style)
 
     def r_field_float(self, name, value, minval=None, maxval=None,
-                      required=False, classes=None, style=""):
+                      required=False, classes='', style=""):
         """
         Render a float field to HTML.
         """
-        if classes is None:
-            classes = []
         tpl = self.field_tpl['float']
         return tpl.format(name=name, value=value, minval=minval, maxval=maxval,
                           required=required, classes=classes, style=style)
 
     def r_field_date(self, name, value, min='', max='', required=False,
-                      classes=None, style=""):
+                      classes='', style=""):
         """
         Render a date field to HTML.
         """
-        if classes is None:
-            classes = []
         tpl = self.field_tpl['date']
         return tpl.format(name=name, value=value, min=min, max=max,
                           required=required, classes=classes, style=style)
 
-    def r_field_file(self, name, required=False, classes=None, style=""):
+    def r_field_file(self, name, required=False, classes='', style=""):
         """
         Render a file field to HTML.
         """
-        if classes is None:
-            classes = []
         tpl = self.field_tpl['file']
         return tpl.format(name=name, required=required, classes=classes,
                           style=style)
 
     def r_field_password(self, name, value, minlen=None, required=False,
-                         classes=None, style=""):
+                         classes='', style=""):
         """
         Render a password field to HTML.
         """
-        if classes is None:
-            classes = []
         tpl = self.field_tpl['password']
         return tpl.format(name=name, value=value, minlen=minlen,
                           required=required, classes=classes, style=style)
 
     def r_field_text(self, name, value, rows=4, cols=80, minlen=None,
-                     maxlen=None, required=False, classes=None, style=""):
+                     maxlen=None, required=False, classes='', style=""):
         """
         Render a text field to HTML.
         """
-        if classes is None:
-            classes = []
         tpl = self.field_tpl['text']
         return tpl.format(name=name, value=value, rows=rows, cols=cols,
                           minlen=minlen, maxlen=maxlen, required=required,
                           classes=classes, style=style)
 
-    def r_field_radio(self, name, value, options, classes=None, style=""):
+    def r_field_radio(self, name, value, options, classes='', style=""):
         """
         Render a radio field to HTML.
         """
-        if classes is None:
-            classes = []
         tpl_option = self.field_tpl['radio_option']
         radio_elems = []
         for o_value, o_label in options:
@@ -217,18 +199,14 @@ class FormRender(object):
         """
         Render a checkbox field to HTML.
         """
-        if classes is None:
-            classes = []
         tpl = self.field_tpl['checkbox']
         return tpl.format(name=name, checked=checked, classes=classes,
                           style=style)
 
-    def r_field_select(self, name, value, options, classes=None, style=""):
+    def r_field_select(self, name, value, options, classes='', style=""):
         """
         Render a select field to HTML.
         """
-        if classes is None:
-            classes = []
         tpl_option = self.field_tpl['select_option']
         select_elems = []
         for o_value, o_label in options:
