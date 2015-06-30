@@ -86,6 +86,7 @@ class FormConfigTestCase(unittest.TestCase):
         fc = sf.get_form_config()
         self.assertRaises(ValueError, fc.callback, 'test_raw', {})
 
+
 class FormDefinitionTest(unittest.TestCase):
     """
     Form Definition tests. Mostly directly testing if validations work.
@@ -390,6 +391,13 @@ class WebAppTest(unittest.TestCase):
     def testHiddenField(self):
         r = requests.get('http://localhost:8002/form?form_name=hidden_field', auth=self.auth_user)
         self.assertIn('class="hidden"', r.text)
+
+    def testCallbackFail(self):
+        data = {
+            "form_name": "callback_fail"
+        }
+        r = requests.post("http://localhost:8002/submit", data=data, auth=self.auth_user)
+        self.assertIn('<span class="error">stderr output\n</span>', r.text)
 
 
 class WebAppSingleTest(unittest.TestCase):

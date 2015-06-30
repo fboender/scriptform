@@ -167,6 +167,14 @@
                     "hidden": true
                 }
             ]
+        },
+        {
+            "name": "callback_fail",
+            "title": "callback fail",
+            "description": "Callback fail",
+            "script": "test_webapp_cb_fail.sh",
+            "fields": [
+            ]
         }
     ]
 }
