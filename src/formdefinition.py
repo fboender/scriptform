@@ -227,8 +227,9 @@ class FormDefinition(object):
         """
         try:
             value = form_values[field_def['name']]
-        except KeyError:
-            return None
+        except KeyError, err:
+            raise ValidationError("Invalid file upload")
+
         field_name = field_def['name']
         upload_fname = form_values[u'{0}__name'.format(field_name)]
         upload_fname_ext = os.path.splitext(upload_fname)[-1].lstrip('.')
