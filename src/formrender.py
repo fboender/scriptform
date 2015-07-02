@@ -36,9 +36,6 @@ class FormRender(object):
                   u'value="{value}" size="{size}" '
                   u'class="{classes}" style="{style}" minlength="{minlen}" '
                   u' maxlength="{maxlen}" />',
-        "number": u'<input {required} type="number" min="{minval}" '
-                  u'max="{maxval}" step="any" name="{name}" '
-                  u'value="{value}" class="{classes}" style="{style}" />',
         "integer": u'<input {required} type="number" min="{minval}" '
                    u'max="{maxval}" name="{name}" value="{value}" '
                    u'class="{classes}" style="{style}" />',
@@ -116,15 +113,6 @@ class FormRender(object):
         return tpl.format(name=name, value=value, minlen=minlen, maxlen=maxlen,
                           size=size, required=required, classes=classes,
                           style=style)
-
-    def r_field_number(self, name, value, minval=None, maxval=None,
-                       required=False, classes='', style=""):
-        """
-        Render a number field to HTML.
-        """
-        tpl = self.field_tpl['number']
-        return tpl.format(name=name, value=value, minval=minval, maxval=maxval,
-                          required=required, classes=classes, style=style)
 
     def r_field_integer(self, name, value, minval=None, maxval=None,
                         required=False, classes='', style=""):
