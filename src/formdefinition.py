@@ -227,7 +227,7 @@ class FormDefinition(object):
         """
         try:
             value = form_values[field_def['name']]
-        except KeyError, err:
+        except KeyError:
             raise ValidationError("Invalid file upload")
 
         field_name = field_def['name']

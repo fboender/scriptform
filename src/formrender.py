@@ -24,7 +24,8 @@ HTML_FIELD_CHECKBOX = u'''
   </li>
 '''
 
-HTML_REQUIRED = u'''{} <abbr title="This field is required" class="required">•</span>'''
+HTML_REQUIRED = u'{} <abbr title="This field is required" \
+                u"class="required">•</span>'
 
 
 class FormRender(object):
@@ -43,7 +44,8 @@ class FormRender(object):
                  u'max="{maxval}" step="any" name="{name}" '
                  u'value="{value}" class="{classes}" style="{style}" />',
         "date": u'<input {required} type="date" name="{name}" value="{value}" '
-                u'min="{min}" max="{max}" class="{classes}" style="{style}" />',
+                u'min="{min}" max="{max}" class="{classes}" '
+                u'style="{style}" />',
         "file": u'<input {required} type="file" name="{name}" '
                 u'class="{classes}" style="{style}" />',
         "password": u'<input {required} type="password" minlength="{minlen}" '
@@ -133,7 +135,7 @@ class FormRender(object):
                           required=required, classes=classes, style=style)
 
     def r_field_date(self, name, value, min='', max='', required=False,
-                      classes='', style=""):
+                     classes='', style=""):
         """
         Render a date field to HTML.
         """
