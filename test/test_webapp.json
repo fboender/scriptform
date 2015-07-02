@@ -133,6 +133,11 @@
                     "minlen": 5
                 },
                 {
+                    "name": "checkbox",
+                    "title": "A checkbox input field",
+                    "type": "checkbox"
+                },
+                {
                     "name": "file",
                     "title": "A file upload field",
                     "type": "file",

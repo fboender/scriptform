@@ -69,6 +69,60 @@
                     "max": "2015-03-05" 
                 }
             ]
+        },
+        {
+            "name": "test_val_select",
+            "title": "title",
+            "description": "description",
+            "script": "test.sh",
+            "fields": [
+                {
+                    "name": "val_select",
+                    "type": "select",
+                    "options": [
+                        ["option_a", "Option A"],
+                        ["option_b", "Option B"]
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "test_val_checkbox",
+            "title": "title",
+            "description": "description",
+            "script": "test.sh",
+            "fields": [
+                {
+                    "name": "val_checkbox",
+                    "type": "checkbox"
+                }
+            ]
+        },
+        {
+            "name": "test_val_text",
+            "title": "title",
+            "description": "description",
+            "script": "test.sh",
+            "fields": [
+                {
+                    "name": "val_text",
+                    "type": "text",
+                    "minlen": 5,
+                    "maxlen": 10
+                }
+            ]
+        },
+        {
+            "name": "test_val_file",
+            "title": "title",
+            "description": "description",
+            "script": "test.sh",
+            "fields": [
+                {
+                    "name": "val_file",
+                    "type": "file"
+                }
+            ]
         }
     ]
 }

@@ -212,6 +212,61 @@ class FormDefinitionTest(unittest.TestCase):
         self.assertNotIn('val_date', errors)
         self.assertEquals(values['val_date'], datetime.date(2015, 3, 3))
 
+    def testValidateSelectValue(self):
+        fd = self.fc.get_form_def('test_val_select')
+        form_values = {"val_select": 'option_a'}
+        errors, values = fd.validate(form_values)
+        self.assertNotIn('val_select', errors)
+        self.assertEquals(values['val_select'], 'option_a')
+
+    def testValidateSelectInvalid(self):
+        fd = self.fc.get_form_def('test_val_select')
+        form_values = {"val_select": 'option_c'}
+        errors, values = fd.validate(form_values)
+        self.assertIn('val_select', errors)
+        self.assertIn('Invalid value', errors['val_select'][0])
+
+    def testValidateCheckbox(self):
+        fd = self.fc.get_form_def('test_val_checkbox')
+        form_values = {"val_checkbox": 'on'}
+        errors, values = fd.validate(form_values)
+        self.assertNotIn('val_checkbox', errors)
+        self.assertEquals(values['val_checkbox'], 'on')
+
+    def testValidateCheckboxInvalid(self):
+        fd = self.fc.get_form_def('test_val_checkbox')
+        form_values = {"val_checkbox": 'true'}
+        errors, values = fd.validate(form_values)
+        self.assertIn('val_checkbox', errors)
+        self.assertIn('Invalid value', errors['val_checkbox'][0])
+
+    def testValidateTextMin(self):
+        fd = self.fc.get_form_def('test_val_text')
+        form_values = {"val_text": '1234'}
+        errors, values = fd.validate(form_values)
+        self.assertIn('val_text', errors)
+        self.assertIn('Minimum', errors['val_text'][0])
+
+    def testValidateTextMax(self):
+        fd = self.fc.get_form_def('test_val_text')
+        form_values = {"val_text": '12345678901'}
+        errors, values = fd.validate(form_values)
+        self.assertIn('val_text', errors)
+        self.assertIn('Maximum', errors['val_text'][0])
+
+    def testValidateFileMissingFile(self):
+        fd = self.fc.get_form_def('test_val_file')
+        form_values = {}
+        errors, values = fd.validate(form_values)
+        self.assertIn('val_file', errors)
+        self.assertIn('Invalid', errors['val_file'][0])
+
+    def testValidateFileMissingFileName(self):
+        fd = self.fc.get_form_def('test_val_file')
+        form_values = {'val_file': 'foo'}
+        self.assertRaises(KeyError, fd.validate, form_values)
+
+
 class WebAppTest(unittest.TestCase):
     """
     Test the web app by actually running the server and making web calls to it.
@@ -291,7 +346,8 @@ class WebAppTest(unittest.TestCase):
             "date": "2015-01-02",
             "text": "1234567890",
             "password": "12345",
-            "radio": "One"
+            "radio": "One",
+            "checkbox": "on",
         }
 
         import random
@@ -303,9 +359,14 @@ class WebAppTest(unittest.TestCase):
         files = {'file': open('data.csv', 'rb')}
         r = requests.post("http://localhost:8002/submit", data=data, files=files, auth=self.auth_user)
 
-        r_error = '<span class="error">(.*)</span>'
-        for match in re.findall(r_error, r.text):
-            self.assertEquals(match, u'')
+        self.assertIn('string=12345', r.text)
+        self.assertIn('integer=12', r.text)
+        self.assertIn('float=0.6', r.text)
+        self.assertIn('date=2015-01-02', r.text)
+        self.assertIn('text=1234567890', r.text)
+        self.assertIn('password=12345', r.text)
+        self.assertIn('radio=One', r.text)
+        self.assertIn('checkbox=on', r.text)
 
     def testValidateIncorrectData(self):
         data = {
@@ -317,6 +378,7 @@ class WebAppTest(unittest.TestCase):
             "radio": "Ten",
             "text": "123456789",
             "password": "1234",
+            "checkbox": "invalidvalue",
         }
 
         import random
@@ -336,6 +398,7 @@ class WebAppTest(unittest.TestCase):
         self.assertIn('Minimum length is 10', r.text)
         self.assertIn('Minimum length is 5', r.text)
         self.assertIn('Only file types allowed: csv', r.text)
+        self.assertIn('Invalid value', r.text)
 
     def testOutputEscaped(self):
         """Form with 'escaped' output should have HTML entities escaped"""
@@ -360,7 +423,6 @@ class WebAppTest(unittest.TestCase):
             "string": '<foo>'
         }
         r = requests.post('http://localhost:8002/submit', data, auth=self.auth_user)
-        print r.text
         self.assertIn('string=<foo>', r.text)
 
     def testUpload(self):
@@ -378,7 +440,7 @@ class WebAppTest(unittest.TestCase):
         self.assertIn('SAME', r.text)
         os.unlink('data.raw')
 
-    def testStatic(self):
+    def testStaticValid(self):
         r = requests.get("http://localhost:8002/static?fname=ssh_server.png", auth=self.auth_user)
         self.assertEquals(r.status_code, 200)
         f_served = b''
@@ -387,6 +449,14 @@ class WebAppTest(unittest.TestCase):
 
         f_orig = file('static/ssh_server.png', 'rb').read()
         self.assertEquals(f_orig, f_served)
+
+    def testStaticInvalidFilename(self):
+        r = requests.get("http://localhost:8002/static?fname=../../ssh_server.png", auth=self.auth_user)
+        self.assertEquals(r.status_code, 403)
+
+    def testStaticInvalidNotFound(self):
+        r = requests.get("http://localhost:8002/static?fname=nosuchfile.png", auth=self.auth_user)
+        self.assertEquals(r.status_code, 404)
 
     def testHiddenField(self):
         r = requests.get('http://localhost:8002/form?form_name=hidden_field', auth=self.auth_user)
@@ -431,6 +501,12 @@ class WebAppSingleTest(unittest.TestCase):
         """
         r = requests.get("http://localhost:8002/")
         self.assertIn('only_form', r.text)
+
+    def testStaticDisabled(self):
+        """
+        """
+        r = requests.get("http://localhost:8002/static?fname=nosuchfile.png")
+        self.assertEquals(r.status_code, 501)
 
 
 if __name__ == '__main__':
