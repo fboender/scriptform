@@ -30,6 +30,20 @@ class FormDefinition(object):
         self.submit_title = submit_title
         self.allowed_users = allowed_users
 
+        self.validate_field_defs(self.fields)
+
+    def validate_field_defs(self, fields):
+        """
+        Make sure all required properties are present when loading a field
+        definition.
+        """
+        required = ['name', 'title', 'type']
+        for field in fields:
+            for prop_name in required:
+                if not prop_name in field:
+                    raise KeyError("Missing required property '{}' for field "
+                                   "'{}'".format(prop_name, str(field)))
+
     def get_field_def(self, field_name):
         """
         Return the field definition for `field_name`.
