@@ -44,7 +44,7 @@ class FormRender(object):
                  u'max="{maxval}" step="any" name="{name}" '
                  u'value="{value}" class="{classes}" style="{style}" />',
         "date": u'<input {required} type="date" name="{name}" value="{value}" '
-                u'min="{min}" max="{max}" class="{classes}" '
+                u'min="{minval}" max="{maxval}" class="{classes}" '
                 u'style="{style}" />',
         "file": u'<input {required} type="file" name="{name}" '
                 u'class="{classes}" style="{style}" />',
@@ -134,13 +134,13 @@ class FormRender(object):
         return tpl.format(name=name, value=value, minval=minval, maxval=maxval,
                           required=required, classes=classes, style=style)
 
-    def r_field_date(self, name, value, min='', max='', required=False,
+    def r_field_date(self, name, value, minval='', maxval='', required=False,
                      classes='', style=""):
         """
         Render a date field to HTML.
         """
         tpl = self.field_tpl['date']
-        return tpl.format(name=name, value=value, min=min, max=max,
+        return tpl.format(name=name, value=value, minval=minval, maxval=maxval,
                           required=required, classes=classes, style=style)
 
     def r_field_file(self, name, required=False, classes='', style=""):
