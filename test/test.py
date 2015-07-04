@@ -261,6 +261,13 @@ class FormDefinitionTest(unittest.TestCase):
         self.assertRaises(KeyError, fd.validate, form_values)
 
 
+class FormDefinitionFieldMissingProperty(unittest.TestCase):
+    """
+    """
+    def testMissing(self):
+        self.assertRaises(KeyError, scriptform.ScriptForm, 'test_formdefinition_missing_title.json')
+
+
 class WebAppTest(unittest.TestCase):
     """
     Test the web app by actually running the server and making web calls to it.
