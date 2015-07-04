@@ -294,27 +294,29 @@ class ScriptFormWebApp(WebAppHandler):
         401 HTTP back to the client.
         """
         form_config = self.scriptform.get_form_config()
-        self.username = None
+        username = None
 
         # If a 'users' element was present in the form configuration file, the
         # user must be authenticated.
         if form_config.users:
-            authorized = False
             auth_header = self.headers.getheader("Authorization")
             if auth_header is not None:
+                # Validate the username and password
                 auth_unpw = auth_header.split(' ', 1)[1]
                 username, password = base64.decodestring(auth_unpw).split(":")
                 pw_hash = hashlib.sha256(password).hexdigest()
-                # Validate the username and password
+
                 if username in form_config.users and \
                    pw_hash == form_config.users[username]:
-                    self.username = username
-                    authorized = True
+                    # Valid username and password. Return the username.
+                    return username
 
-            if not authorized:
-                headers = {"WWW-Authenticate": 'Basic realm="Private Area"'}
-                raise HTTPError(401, 'Authenticate', headers)
-        return self.username
+            # Authentication needed, but not provided or wrong username/pw.
+            headers = {"WWW-Authenticate": 'Basic realm="Private Area"'}
+            raise HTTPError(401, 'Authenticate', headers)
+
+        # No authentication required. Return None as the username.
+        return None
 
     def h_list(self):
         """
