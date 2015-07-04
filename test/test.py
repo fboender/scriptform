@@ -30,7 +30,7 @@ class FormConfigTestCase(unittest.TestCase):
         fc = sf.get_form_config()
         self.assertRaises(ValueError, fc.get_form_def, 'nonexisting')
 
-    def testMissing(self):
+    def testMissingScript(self):
         """Missing script callbacks should raise an OSError"""
         self.assertRaises(OSError, scriptform.ScriptForm, 'test_formconfig_missingscript.json')
 
