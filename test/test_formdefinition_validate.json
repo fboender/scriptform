@@ -3,12 +3,13 @@
     "forms": [
         {
             "name": "test_required",
-            "title": "title",
+            "title": "test_required",
             "description": "description",
             "script": "test.sh",
             "fields": [
                 {
                     "name": "string",
+                    "title": "field",
                     "type": "string",
                     "required": true
                 }
@@ -16,12 +17,13 @@
         },
         {
             "name": "test_val_string",
-            "title": "title",
+            "title": "test_val_string",
             "description": "description",
             "script": "test.sh",
             "fields": [
                 {
                     "name": "val_string",
+                    "title": "field",
                     "type": "string",
                     "minlen": 4,
                     "maxlen": 6
@@ -30,12 +32,13 @@
         },
         {
             "name": "test_val_integer",
-            "title": "title",
+            "title": "test_val_integer",
             "description": "description",
             "script": "test.sh",
             "fields": [
                 {
                     "name": "val_integer",
+                    "title": "field",
                     "type": "integer",
                     "min": 4,
                     "max": 6
@@ -44,12 +47,13 @@
         },
         {
             "name": "test_val_float",
-            "title": "title",
+            "title": "test_val_float",
             "description": "description",
             "script": "test.sh",
             "fields": [
                 {
                     "name": "val_float",
+                    "title": "field",
                     "type": "float",
                     "min": 2.1,
                     "max": 2.3 
@@ -58,12 +62,13 @@
         },
         {
             "name": "test_val_date",
-            "title": "title",
+            "title": "test_val_date",
             "description": "description",
             "script": "test.sh",
             "fields": [
                 {
                     "name": "val_date",
+                    "title": "field",
                     "type": "date",
                     "min": "2015-03-02",
                     "max": "2015-03-05" 
@@ -72,12 +77,13 @@
         },
         {
             "name": "test_val_select",
-            "title": "title",
+            "title": "test_val_select",
             "description": "description",
             "script": "test.sh",
             "fields": [
                 {
                     "name": "val_select",
+                    "title": "field",
                     "type": "select",
                     "options": [
                         ["option_a", "Option A"],
@@ -88,12 +94,13 @@
         },
         {
             "name": "test_val_checkbox",
-            "title": "title",
+            "title": "test_val_checkbox",
             "description": "description",
             "script": "test.sh",
             "fields": [
                 {
                     "name": "val_checkbox",
+                    "title": "field",
                     "type": "checkbox"
                 }
             ]
@@ -114,12 +121,13 @@
         },
         {
             "name": "test_val_text",
-            "title": "title",
+            "title": "test_val_text",
             "description": "description",
             "script": "test.sh",
             "fields": [
                 {
                     "name": "val_text",
+                    "title": "field",
                     "type": "text",
                     "minlen": 5,
                     "maxlen": 10
@@ -128,12 +136,13 @@
         },
         {
             "name": "test_val_file",
-            "title": "title",
+            "title": "test_val_file",
             "description": "description",
             "script": "test.sh",
             "fields": [
                 {
                     "name": "val_file",
+                    "title": "field",
                     "type": "file"
                 }
             ]
