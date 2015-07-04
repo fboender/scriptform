@@ -99,6 +99,20 @@
             ]
         },
         {
+            "name": "test_val_checkbox_on",
+            "title": "test_val_checkbox_on",
+            "description": "description",
+            "script": "test.sh",
+            "fields": [
+                {
+                    "name": "val_checkbox",
+                    "title": "field",
+                    "type": "checkbox",
+                    "value": true
+                }
+            ]
+        },
+        {
             "name": "test_val_text",
             "title": "title",
             "description": "description",

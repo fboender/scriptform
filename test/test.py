@@ -220,6 +220,13 @@ class FormDefinitionTest(unittest.TestCase):
         self.assertNotIn('val_checkbox', errors)
         self.assertEquals(values['val_checkbox'], 'on')
 
+    def testValidateCheckboxDefaultOn(self):
+        fd = self.fc.get_form_def('test_val_checkbox_on')
+        form_values = {"val_checkbox_on": 'off'}
+        errors, values = fd.validate(form_values)
+        self.assertNotIn('val_checkbox_on', errors)
+        self.assertEquals(values['val_checkbox_on'], 'off')
+
     def testValidateCheckboxInvalid(self):
         fd = self.fc.get_form_def('test_val_checkbox')
         form_values = {"val_checkbox": 'true'}
