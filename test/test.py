@@ -11,19 +11,6 @@ import requests
 import StringIO
 import re
 
-base_config = {
-    "title": "test",
-    "forms": [
-        {
-            "name": "test",
-            "title": "title",
-            "description": "description",
-            "script": "test.sh",
-            "fields": [],
-        }
-    ]
-}
-
 
 class FormConfigTestCase(unittest.TestCase):
     """
