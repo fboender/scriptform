@@ -405,6 +405,40 @@ class WebAppTest(unittest.TestCase):
         self.assertIn('Invalid value for radio button', r.text)
         self.assertIn('Invalid value for dropdown', r.text)
 
+    def testValidateRefill(self):
+        """
+        Ensure that field values are properly repopulated if there were any
+        errors in validation.
+        """
+        data = {
+            "form_name": 'validate',
+            "string": "123",
+            "integer": "12",
+            "float": "0.6",
+            "date": "2015-01-02",
+            "text": "1234567890",
+            "password": "12345",
+            "radio": "One",
+            "checkbox": "on",
+            "select": "option_b",
+        }
+
+        import random
+        f = file('data.txt', 'w')
+        for i in range(1024):
+            f.write(chr(random.randint(0, 255)))
+        f.close()
+
+        files = {'file': open('data.txt', 'rb')}
+        r = requests.post("http://localhost:8002/submit", data=data, files=files, auth=self.auth_user)
+        self.assertIn('value="123"', r.text)
+        self.assertIn('value="12"', r.text)
+        self.assertIn('value="0.6"', r.text)
+        self.assertIn('value="2015-01-02"', r.text)
+        self.assertIn('>1234567890<', r.text)
+        self.assertIn('value="12345"', r.text)
+        self.assertIn('value="on"', r.text)
+        self.assertIn('selected>Option B', r.text)
 
     def testOutputEscaped(self):
         """Form with 'escaped' output should have HTML entities escaped"""

@@ -133,6 +133,15 @@
                     "minlen": 5
                 },
                 {
+                    "name": "select",
+                    "title": "A select input field",
+                    "type": "select",
+                    "options": [
+                        ["option_a", "Option A"],
+                        ["option_b", "Option B"]
+                    ]
+                },
+                {
                     "name": "checkbox",
                     "title": "A checkbox input field",
                     "type": "checkbox"
