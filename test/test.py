@@ -349,6 +349,7 @@ class WebAppTest(unittest.TestCase):
             "password": "12345",
             "radio": "One",
             "checkbox": "on",
+            "select": "option_a",
         }
 
         import random
@@ -368,6 +369,7 @@ class WebAppTest(unittest.TestCase):
         self.assertIn('password=12345', r.text)
         self.assertIn('radio=One', r.text)
         self.assertIn('checkbox=on', r.text)
+        self.assertIn('select=option_a', r.text)
 
     def testValidateIncorrectData(self):
         data = {
@@ -380,6 +382,7 @@ class WebAppTest(unittest.TestCase):
             "text": "123456789",
             "password": "1234",
             "checkbox": "invalidvalue",
+            "select": "invalidvalue",
         }
 
         import random
@@ -399,7 +402,9 @@ class WebAppTest(unittest.TestCase):
         self.assertIn('Minimum length is 10', r.text)
         self.assertIn('Minimum length is 5', r.text)
         self.assertIn('Only file types allowed: csv', r.text)
-        self.assertIn('Invalid value', r.text)
+        self.assertIn('Invalid value for radio button', r.text)
+        self.assertIn('Invalid value for dropdown', r.text)
+
 
     def testOutputEscaped(self):
         """Form with 'escaped' output should have HTML entities escaped"""
