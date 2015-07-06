@@ -103,4 +103,4 @@ test:
 	@echo "\nFLAKE8\n"
 	cd src && flake8 *.py || true
 	@echo "\nPYLINT\n"
-	cd src && pylint --reports=n -dR -dW0142 *.py || true
+	cd src && pylint --reports=n -dR -d star-args -d no-member *.py || true
