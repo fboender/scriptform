@@ -55,8 +55,8 @@ class FormRender(object):
                 u'cols="{cols}" minlength="{minlen}" maxlength="{maxlen}" '
                 u'style="{style}" class="{classes}">{value}</textarea>',
         "radio_option": u'<input {checked} type="radio" name="{name}" '
-                        u'value="{value}" class="{classes} '
-                        u'style="{style}"">{label}<br/>',
+                        u'value="{value}" class="{classes}" '
+                        u'style="{style}">{label}<br/>',
         "select_option": u'<option value="{value}" style="{style}" '
                          u'{selected}>{label}</option>',
         "select": u'<select name="{name}" class="{classes}" '
