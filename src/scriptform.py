@@ -12,8 +12,8 @@
 # 3. Start the ScriptForm server. This listens on a port for incoming HTTP
 #    connections.
 # 4. If a request comes in, it is dispatched to the ScriptFormWebApp request
-#    handler.ScriptFormWebApp inherits from the WebAppHandler class. The
-#    WebAppHandler determines which method of ScriptFormWebApp the request
+#    handler.ScriptFormWebApp inherits from the webserver.RequestHandler class.
+#    The WebAppHandler determines which method of ScriptFormWebApp the request
 #    should be dispatched to.
 # 5. Depending on the request, a method is called on ScriptFormWebApp. These
 #    methods render HTML to as a response.
@@ -72,7 +72,7 @@ class ScriptForm(object):
         self.running = False
         self.httpd = None
 
-        # Init form config so it can raise errors about kproblems.
+        # Init form config so it can raise errors about problems.
         self.get_form_config()
 
     def get_form_config(self):
