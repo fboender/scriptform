@@ -96,7 +96,8 @@ class FormConfig(object):
             proc = subprocess.Popen(form.script, shell=True,
                                     stdout=stdout,
                                     stderr=stderr,
-                                    env=env)
+                                    env=env,
+                                    close_fds=True)
             stdout, stderr = proc.communicate(input)
             return proc.returncode
         else:
@@ -104,7 +105,8 @@ class FormConfig(object):
                                     stdin=subprocess.PIPE,
                                     stdout=subprocess.PIPE,
                                     stderr=subprocess.PIPE,
-                                    env=env)
+                                    env=env,
+                                    close_fds=True)
             stdout, stderr = proc.communicate()
             return {
                 'stdout': stdout,
