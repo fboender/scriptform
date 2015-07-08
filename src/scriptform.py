@@ -47,7 +47,8 @@ import socket
 from daemon import Daemon
 from formdefinition import FormDefinition
 from formconfig import FormConfig
-from webapp import ThreadedHTTPServer, ScriptFormWebApp
+from webserver import ThreadedHTTPServer
+from webapp import ScriptFormWebApp
 
 
 class ScriptFormError(Exception):
