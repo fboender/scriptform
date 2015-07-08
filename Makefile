@@ -42,7 +42,7 @@ release_src: doc
 	zip -r $(PROG)-$(REL_VERSION).zip $(PROG)-$(REL_VERSION)
 	tar -vczf $(PROG)-$(REL_VERSION).tar.gz  $(PROG)-$(REL_VERSION)
 
-release_deb: doc
+release_deb: release_src doc
 	@if [ -z "$(REL_VERSION)" ]; then echo "REL_VERSION required"; exit 1; fi
 
 	mkdir -p rel_deb/usr/bin
@@ -77,6 +77,7 @@ release_deb: doc
 
 	# Cleanup
 	rm -rf rel_deb
+	rm -rf $(PROG)-$(REL_VERSION)
 
 release_rpm: release_deb
 	alien -r scriptform-$(REL_VERSION).deb
