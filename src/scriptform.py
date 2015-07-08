@@ -160,7 +160,7 @@ class ScriptForm(object):
 
         # We need to spawn a new thread in which the server is shut down,
         # because doing it from the main thread blocks, since the server is
-        # wainting for connections..
+        # waiting for connections..
         thread.start_new_thread(t_shutdown, (self, ))
 
 
