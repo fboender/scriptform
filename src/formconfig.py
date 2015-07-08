@@ -68,7 +68,7 @@ class FormConfig(object):
                 form_list.append(form_def)
         return form_list
 
-    def callback(self, form_name, form_values, stdout=None, stderr=None):
+    def run_script(self, form_name, form_values, stdout=None, stderr=None):
         """
         Perform a callback for the form `form_name`. This calls a script.
         `form_values` is a dictionary of validated values as returned by

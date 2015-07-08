@@ -410,8 +410,8 @@ class ScriptFormWebApp(RequestHandler):
             log.info("User: {0}".format(username))
             log.info("Variables: {0}".format(dict(form_values.items())))
 
-            result = form_config.callback(form_name, form_values, self.wfile,
-                                          self.wfile)
+            result = form_config.run_script(form_name, form_values, self.wfile,
+                                            self.wfile)
             if form_def.output != 'raw':
                 # Ignore everything if we're doing raw output, since it's the
                 # scripts responsibility.
