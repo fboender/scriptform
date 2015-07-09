@@ -63,7 +63,8 @@
                 {
                     "name": "check_products",
                     "title": "Product news",
-                    "type": "checkbox"
+                    "type": "checkbox",
+                    "checked": true
                 }
             ]
         },
