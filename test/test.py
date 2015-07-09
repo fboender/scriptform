@@ -371,6 +371,8 @@ class WebAppTest(unittest.TestCase):
         self.assertIn('checkbox=on', r.text)
         self.assertIn('select=option_a', r.text)
 
+        os.unlink('data.csv')
+
     def testValidateIncorrectData(self):
         data = {
             "form_name": 'validate',
@@ -404,6 +406,8 @@ class WebAppTest(unittest.TestCase):
         self.assertIn('Only file types allowed: csv', r.text)
         self.assertIn('Invalid value for radio button', r.text)
         self.assertIn('Invalid value for dropdown', r.text)
+
+        os.unlink('data.txt')
 
     def testValidateRefill(self):
         """
@@ -439,6 +443,8 @@ class WebAppTest(unittest.TestCase):
         self.assertIn('value="12345"', r.text)
         self.assertIn('value="on"', r.text)
         self.assertIn('selected>Option B', r.text)
+
+        os.unlink('data.txt')
 
     def testOutputEscaped(self):
         """Form with 'escaped' output should have HTML entities escaped"""
