@@ -39,13 +39,13 @@ This is the manual for version %%VERSION%%.
 ## <a name="invocations">Invocations</a>
 
 Upon starting Scriptform, it will change the working directory to the path
-containing the form definition you've sepcified. It will read the form
+containing the form definition you've specified. It will read the form
 definition and perform some basic sanity checks to see if, for instance, the
 scripts you specified exist and are executable.
 
 There are multiple ways of running ScriptForm. This chapter outlines the
 various methods. They are listed in the order of least to most
-pruduction-ready.
+production ready.
 
 ### <a name="invocations_foreground">Shell foreground</a>
 
@@ -66,7 +66,7 @@ by `--pid-file`. A log file will be written a .log file in the current
 directory, or to the file specified by the `--log-file` option.
 
 To stop the daemon, invoke the command with the `--stop` option. You must
-specifiy at least the `--pid-file` option, if the daemon was started with one.
+specify at least the `--pid-file` option, if the daemon was started with one.
 
     $ /usr/bin/scriptform --pid-file /var/run/scriptform.pid --stop
 
@@ -190,7 +190,7 @@ Structurally, they are made up of the following elements:
           more information, see [Field types](#field_types). **Optional**.
 
 - **`users`**: A dictionary of users where the key is the username and the
-  value is the plaintext password. This field is not required. **Dictionary**.
+  value is the plain text password. This field is not required. **Dictionary**.
 
 For example, here's a form config file that contains two forms:
 
@@ -262,7 +262,7 @@ The `string` field type supports the following additional options:
 
 ### <a name="field_types_integer">Integer</a>
 
-The `integer` field type presents the user with an input box in wich they may
+The `integer` field type presents the user with an input box in which they may
 enter an integer number. Depending on the browser's support for HTML5 forms,
 the input field may have spin-buttons to increase and decrease the value.
 
@@ -344,7 +344,7 @@ The `file` field type supports the following additional options:
 - **`extensions`**: A list of extensions (minus leading dot) that are accepted
   for file uploads. For example: `"extensions": ["csv", "tsv"]`
 
-No additional validatikon is done on the file contents.
+No additional validation is done on the file contents.
 
 ## <a name="output">Output</a>
 
@@ -415,12 +415,12 @@ out themselves.
 
 ## <a name="script_executing">Script execution</a>
 
-When the user submits the form, scriptform will validate the provided values.
+When the user submits the form, Scriptform will validate the provided values.
 If they check out, the specified script for the form will be executed.
 
 A script can be any kind of executable, written in any kind of language,
 including scripting languages. As long as it is executable, can read the
-environment and output things to stdout it is usable. Scippts written in
+environment and output things to stdout it is usable. Scripts written in
 scripting languages should include the shebang line that indicates which
 interpreter it should use:
 
@@ -480,7 +480,7 @@ The contents of the file is available in a shell script as:
     ROWS=$(wc -l $csv_file)
     echo "The CSV file has $(expr $ROWS - 1) rows"
 
-These temporary files are automatically cleaned up after the script's exeuction
+These temporary files are automatically cleaned up after the script's execution
 ends. 
 
 Examples of file uploads can be found in the `examples/simple` and
@@ -535,12 +535,12 @@ For an example, see the [beginning of this chapter](#users).
 
 ### <a name="users_security">Security considerations</a>
 
-- Passwords have no salt. This makes them slightly easier to bruteforce en-mass.
+- Passwords have no salt. This makes them slightly easier to brute-force en-mass.
 - Scriptform does not natively support secure HTTPS connections. This means
-  usernames and passwords are transmitted over the line in nearly plaintext. If
-  you wish to prevent this, you should put Scriptform behind a proxy that
-  *does* support HTTPS, such as Apache. For more information on that, see
-  the "Invocations" chapter.
+  usernames and passwords are transmitted over the line in nearly plain text.
+  If you wish to prevent this, you should put Scriptform behind a proxy that
+  *does* support HTTPS, such as Apache. For more information on that, see the
+  "Invocations" chapter.
 
 ## <a name="cust">Form customization</a>
 
@@ -585,11 +585,12 @@ There are a few security issues to take into consideration when deploying Script
 - You should limit harmful forms to specific users. See the [Users](#users)
   chapter for more information.
 
-- User passwords have no salt. This makes them slightly easier to bruteforce
+- User passwords have no salt. This makes them slightly easier to brute-force
   en-mass.
 
 - Scriptform does not natively support secure HTTPS connections. This means
-  usernames and passwords are transmitted over the line in nearly plaintext. If
+  usernames and passwords are transmitted over the line in nearly plain text.
+  If
   you wish to prevent this, you should put Scriptform behind a proxy that
   *does* support HTTPS, such as Apache. For more information on that, see
   the "Invocations" chapter.
