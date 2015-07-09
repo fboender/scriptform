@@ -4,6 +4,7 @@ This is the manual for version %%VERSION%%.
 
 ## Table of Contents
 
+1. [Terminology](#terminology)
 1. [Invocations](#invocations)
     - [Shell foreground](#invocations_foreground)
     - [Daemon](#invocations_daemon)
@@ -35,6 +36,23 @@ This is the manual for version %%VERSION%%.
 1. [Form customization](#cust)
     - [Custom CSS](#cust_css)
 1. [Security](#security)
+
+## <a name="terminology">Terminology</a>
+
+Scriptform uses various terminology to distinguish between different components
+of the application.
+
+* **Form configuration**: The form configuration is the JSON file you write
+  that describes your forms. A single JSON file contains some global
+  properties (such as the title), the forms you want to define and their fields.
+* **Form definition**: A form definition describes a single form. Multiple form
+  definitions can be given in a single form configuration. They are defined in
+  the "forms" property of the form configuration. This "forms" property is a
+  list of dictionaries.
+* **Form field**: Form definitions can contain one of more form fields. These
+  are the fields in which users can enter information. Scriptform supports a
+  variety of different field types, such as 'string', 'integer', 'date', etc.
+
 
 ## <a name="invocations">Invocations</a>
 
