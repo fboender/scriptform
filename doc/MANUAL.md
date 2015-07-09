@@ -4,7 +4,8 @@ This is the manual for version %%VERSION%%.
 
 ## Table of Contents
 
-1. [Terminology](#terminology)
+1. [Introduction](#introduction)
+    - [Terminology](#terminology)
 1. [Invocations](#invocations)
     - [Shell foreground](#invocations_foreground)
     - [Daemon](#invocations_daemon)
@@ -37,7 +38,18 @@ This is the manual for version %%VERSION%%.
     - [Custom CSS](#cust_css)
 1. [Security](#security)
 
-## <a name="terminology">Terminology</a>
+## <a name="intro">Introduction</a>
+
+Scriptform is a stand-alone webserver that automatically generates forms from
+JSON to serve as frontends to scripts.
+
+ScriptForm takes a JSON file which contains form definitions. It then
+constructs web forms from this JSON and serves these to users over HTTP. The
+user can select a form and fill it out. When the user submits the form, it is
+validated and the associated script is called. Data entered in the form is
+passed to the script through the environment.
+
+### <a name="intro_terminology">Terminology</a>
 
 Scriptform uses various terminology to distinguish between different components
 of the application.
@@ -71,6 +83,11 @@ Sriptform can be run directly from the shell in the foreground with the `-f`
 (`--foreground`) option. This is most useful for testing and development:
 
     $ /usr/bin/scriptform -p8000 -f ./formdef.json
+
+You can specify the `-r` option to automatically reload the JSON file upon each
+request:
+
+    $ /usr/bin/scriptform -p8000 -r -f ./formdef.json
 
 ### <a name="invocations_daemon">Daemon</a>
 
@@ -108,6 +125,12 @@ Finally, start it:
     sudo /etc/init.d/scriptform start
 
 ### <a name="invocations_apache">Behind Apache</a>
+
+Scriptform does not support HTTPS / SSL, so for production environments you
+might want to run it behind an Apache server that has SSL enabled. To do so,
+you start Scriptform as a daemon and then forward requests to it from Apache:
+
+    $ sudo /etc/init.d/scriptform start
 
 Enable Apache modules mod_proxy and mod_proxy_http:
 
@@ -248,16 +271,19 @@ For example, here's a form config file that contains two forms:
               "name": "username",
               "title": "Username",
               "type": "string"
+              "required": true
             },
             {
               "name": "password1",
               "title": "Password",
-              "type": "password"
+              "type": "password",
+              "required": true
             },
             {
               "name": "password2",
               "title": "Password (Repear)",
-              "type": "password"
+              "type": "password",
+              "required": true
             }
           ]
         }
@@ -268,6 +294,10 @@ Many more examples can be found in the `examples` directory in the source code.
 
 ## <a name="field_types">Field types</a>
 
+Scriptform supports multiple field types. Field types determine what users may
+enter in the field, how they are validated and how they are passed to callback
+scripts.
+
 ### <a name="field_types_string">String</a>
 
 The `string` field type presents the user with a single line input field.
@@ -277,6 +307,21 @@ The `string` field type supports the following additional options:
 - **`minlen`**: The minimum allowed length for the field.
 - **`maxlen`**: The maximum allowed length for the field.
 - **`size`**: The size (in characters) of the input field.
+
+For example:
+
+    ...
+    "fields": [
+        {
+          "name": "my_string",
+          "title": "My string",
+          "type": "string",
+          "minlen": 12,
+          "maxlen": 30,
+          "size": 30
+        }
+    ]
+    ...
 
 ### <a name="field_types_integer">Integer</a>
 
@@ -289,6 +334,20 @@ The `integer` field type supports the following additional options:
 - **`min`**: The minimum allowed value for the field.
 - **`max`**: The maximum allowed value for the field.
 
+For example:
+
+    ...
+    "fields": [
+        {
+          "name": "uid",
+          "title": "UID",
+          "type": "integer",
+          "min": 1000,
+          "max": 2000
+        }
+    ]
+    ...
+
 ### <a name="field_types_float">Float</a>
 
 The `float` field type presents the user with an input box in which they enter
@@ -299,9 +358,24 @@ The `float` field type supports the following additional options:
 - **`min`**: The minimum allowed value for the field.
 - **`max`**: The maximum allowed value for the field.
 
+For example:
+
+    ...
+    "fields": [
+        {
+          "name": "ammount",
+          "title": "Ammount",
+          "type": "float",
+          "min": 10.0,
+          "max": 2000.0 
+        }
+    ]
+    ...
+
 Please note that some real numbers cannot be represented exactly by a computer
-and validation may thus be approximate. E.g. 0.499999999999999 will pass the
-test for a maximum value of 0.5.
+and validation may thus be approximate. E.g. 0.500000000001 might pass the
+test for a maximum value of 0.5. Whether it does depends on the value given,
+the platform, your browser, and many other factors.
 
 ### <a name="field_types_date">Date</a>
 
@@ -317,6 +391,20 @@ The `date` field type supports the following additional options:
 - **`min`**: The minimum allowed date (format: a string YYYY-MM-DD)
 - **`max`**: The maximum allowed date (format: a string YYYY-MM-DD)
 
+For Example:
+
+    ...
+    "fields": [
+        {
+          "name": "birthdate",
+          "title": "Birthdate",
+          "type": "date",
+          "min": "1900-01-01",
+          "max": "2015-01-01",
+        }
+    ]
+    ...
+
 ### <a name="field_types_radio">Radio</a>
 
 ### <a name="field_types_checkbox">Checkbox</a>
@@ -328,6 +416,23 @@ If the checkbox was checked, the value '`on`' is passed to the script.
 Otherwise, '`off`' is passed. Unlike HTML forms, which send no value to the
 server if the checkbox was not checked, Scriptform always sends either 'on' or
 'off'.
+
+The `checkbox` field type supports the following additional options:
+
+- **`checked`**: Whether the checkbox should be checked by default (boolean)
+
+For Example:
+
+    ...
+    "fields": [
+        {
+          "name": "receive_newsletter",
+          "title": "Do you want to receive our newsletter?",
+          "type": "checkbox",
+          "checked": true
+        }
+    ]
+    ...
 
 ### <a name="field_types_select">Select</a>
 
