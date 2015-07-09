@@ -297,10 +297,17 @@ class ScriptFormWebApp(RequestHandler):
                 params['options'] = field['options']
 
             if field['type'] == 'checkbox':
+                # Set default value from field definition
                 params['checked'] = False
-                if field['name'] in form_values and \
-                   form_values[field['name']] == 'on':
+                if 'checked' in field and field['checked']:
                     params['checked'] = True
+
+                # Set value from submitted form if applicable
+                if field['name'] in form_values:
+                    if form_values[field['name']] == 'on':
+                        params['checked'] = True
+                    else:
+                        params['checked'] = False
 
             h_input = fr_inst.r_field(field['type'], **params)
 
