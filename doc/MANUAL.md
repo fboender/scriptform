@@ -4,8 +4,8 @@ This is the manual for version %%VERSION%%.
 
 ## Table of Contents
 
-1. [Introduction](#introduction)
-    - [Terminology](#terminology)
+1. [Introduction](#intro)
+    - [Terminology](#intro_terminology)
 1. [Invocations](#invocations)
     - [Shell foreground](#invocations_foreground)
     - [Daemon](#invocations_daemon)
@@ -391,7 +391,7 @@ The `date` field type supports the following additional options:
 - **`min`**: The minimum allowed date (format: a string YYYY-MM-DD)
 - **`max`**: The maximum allowed date (format: a string YYYY-MM-DD)
 
-For Example:
+For example:
 
     ...
     "fields": [
@@ -407,6 +407,28 @@ For Example:
 
 ### <a name="field_types_radio">Radio</a>
 
+The `radio` field type lets the user pick one option from a list of options. 
+
+The `radio` field type supports the following additional options:
+
+- **`options`**: The options available to the user. (list of lists, **required**)
+
+For example:
+
+    ...
+    "fields": [
+        {
+            "name": "network",
+            "title": "To which network",
+            "type": "radio",
+            "options": [
+                ["intra", "Whole intranet"],
+                ["machine", "Acceptance machine"]
+            ]
+        }
+    ]
+    ...
+
 ### <a name="field_types_checkbox">Checkbox</a>
 
 The `checkbox` field type represents the user with a toggleble checkbox that
@@ -421,7 +443,7 @@ The `checkbox` field type supports the following additional options:
 
 - **`checked`**: Whether the checkbox should be checked by default (boolean)
 
-For Example:
+For example:
 
     ...
     "fields": [
@@ -448,6 +470,23 @@ The `text` field type supports the following additional options:
 - **`minlen`**: The minimum allowed length for the field.
 - **`maxlen`**: The maximum allowed length for the field.
 
+For example:
+
+    ...
+    "fields": [
+        {
+          "name": "complaint",
+          "title": "Please write down your complaint",
+          "type": "text",
+          "rows": 6,
+          "cols": 60,
+          "minlen": 1,
+          "maxlen": 5
+        }
+    ]
+    ...
+
+
 ### <a name="field_types_password">Password</a>
 
 - **`minlen`**: The minimum allowed length for the field.
@@ -468,6 +507,19 @@ The `file` field type supports the following additional options:
   for file uploads. For example: `"extensions": ["csv", "tsv"]`
 
 No additional validation is done on the file contents.
+
+For example:
+
+    ...
+    "fields": [
+        {
+          "name": "new_users",
+          "title": "CSV file of new users",
+          "type": "file",
+          "extensions": ["csv"]
+        }
+    ]
+    ...
 
 ## <a name="output">Output</a>
 
