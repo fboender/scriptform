@@ -39,7 +39,7 @@ class RequestHandler(BaseHTTPRequestHandler):
     def log_message(self, fmt, *args):
         """Overrides BaseHTTPRequestHandler which logs to the console. We log
         to our log file instead"""
-        fmt = "{} {}"
+        fmt = "{0} {1}"
         self.scriptform.log.info(fmt.format(self.address_string(), args))
 
     def do_GET(self):
