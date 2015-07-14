@@ -24,12 +24,8 @@ release_src: doc
 	# Prepare source
 	rm -rf $(PROG)-$(REL_VERSION)
 	mkdir $(PROG)-$(REL_VERSION)
-	cp src/scriptform.py $(PROG)-$(REL_VERSION)/scriptform
-	cp src/daemon.py $(PROG)-$(REL_VERSION)/
-	cp src/formconfig.py $(PROG)-$(REL_VERSION)/
-	cp src/formdefinition.py $(PROG)-$(REL_VERSION)/
-	cp src/formrender.py $(PROG)-$(REL_VERSION)/
-	cp src/webapp.py $(PROG)-$(REL_VERSION)/
+	cp src/*.py $(PROG)-$(REL_VERSION)/
+	mv $(PROG)-$(REL_VERSION)/scriptform.py $(PROG)-$(REL_VERSION)/scriptform
 	cp LICENSE $(PROG)-$(REL_VERSION)/
 	cp README.md $(PROG)-$(REL_VERSION)/
 	cp contrib/release_Makefile $(PROG)-$(REL_VERSION)/Makefile
@@ -56,12 +52,7 @@ release_deb: release_src doc
 	cp doc/MANUAL.md rel_deb/usr/share/doc/$(PROG)
 	cp README.html $(PROG)-$(REL_VERSION)/README.html
 	cp doc/MANUAL.html $(PROG)-$(REL_VERSION)/MANUAL.html
-	cp src/scriptform.py rel_deb/usr/lib/scriptform/
-	cp src/daemon.py rel_deb/usr/lib/scriptform/
-	cp src/formconfig.py rel_deb/usr/lib/scriptform/
-	cp src/formdefinition.py rel_deb/usr/lib/scriptform/
-	cp src/formrender.py rel_deb/usr/lib/scriptform/
-	cp src/webapp.py rel_deb/usr/lib/scriptform/
+	cp src/*.py rel_deb/usr/lib/scriptform/
 	ln -s /usr/lib/scriptform/scriptform.py rel_deb/usr/bin/scriptform
 
 	cp contrib/scriptform.init.d_debian rel_deb/usr/share/doc/$(PROG)
