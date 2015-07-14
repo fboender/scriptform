@@ -84,7 +84,7 @@ class FormDefinition(object):
                 value = self._field_validate(field_name, form_values)
                 if value is not None:
                     values[field_name] = value
-            except ValidationError, err:
+            except ValidationError as err:
                 errors.setdefault(field_name, []).append(str(err))
 
         return (errors, values)

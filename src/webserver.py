@@ -95,7 +95,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             else:
                 raise HTTPError(404, "Not found")
             method_cb(**params)
-        except HTTPError, err:
+        except HTTPError as err:
             # HTTP erors are generally thrown by the webapp on purpose. Send
             # error to the browser.
             if err.status_code not in (401, ):
@@ -108,7 +108,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                                                    err.msg))
             self.wfile.flush()
             return False
-        except Exception, err:
+        except Exception as err:
             self.scriptform.log.exception(err)
             self.send_error(500, "Internal server error")
             raise

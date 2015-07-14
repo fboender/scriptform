@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # Scriptform roughly works like this:
@@ -234,14 +234,14 @@ def main():  # pragma: no cover
             elif options.action_stop:
                 daemon.stop()
                 sys.exit(0)
-        except socket.error, err:
+        except socket.error as err:
             log.exception(err)
             sys.stderr.write("Cannot bind to port {}: {}\n".format(
                 options.port,
                 str(err)
             ))
             sys.exit(2)
-        except Exception, err:
+        except Exception as err:
             log.exception(err)
             raise
 
