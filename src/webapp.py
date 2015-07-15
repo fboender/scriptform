@@ -97,7 +97,7 @@ HTML_FOOTER = u'''
 </html>
 '''
 
-HTML_LIST = u''''
+HTML_LIST = u'''
 {header}
 <div class="list">
   {form_list}
