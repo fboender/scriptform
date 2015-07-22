@@ -2,15 +2,27 @@
 
 This is the manual for version %%VERSION%%.
 
+
+
+
 ## Table of Contents
 
 1. [Introduction](#intro)
     - [Terminology](#intro_terminology)
+1. [Installation](#inst)
+    - [Debian / Ubuntu](#inst_debian)
+    - [Redhat / Centos](#inst_redhat)
+    - [Other](#inst_other)
 1. [Invocations](#invocations)
     - [Shell foreground](#invocations_foreground)
     - [Daemon](#invocations_daemon)
     - [Init script](#invocations_init)
+        * [Debian / Ubuntu](#invocations_init_debian)
+        * [RedHat / Centos](#invocations_init_redhat)
     - [Behind Apache](#invocations_apache)
+1. [Tutorial](#tutorial)
+    - [Your first form](#tutorial_firstform)
+    - [Output types](#tutorial_output)
 1. [Form config (JSON) files](#form_config)
 1. [Field types](#field_types)
     - [String](#field_types_string)
@@ -38,6 +50,10 @@ This is the manual for version %%VERSION%%.
     - [Custom CSS](#cust_css)
 1. [Security](#security)
 
+
+
+
+
 ## <a name="intro">Introduction</a>
 
 Scriptform is a stand-alone webserver that automatically generates forms from
@@ -48,6 +64,74 @@ constructs web forms from this JSON and serves these to users over HTTP. The
 user can select a form and fill it out. When the user submits the form, it is
 validated and the associated script is called. Data entered in the form is
 passed to the script through the environment.
+
+
+
+
+
+## <a name="inst">Installation and configuration</a>
+
+### <a name="inst_requirements">Requirements</a>
+
+ScriptForm requires:
+
+* Python 2.6+
+
+No other libraries are required. Python v2.6+ is generally available by default
+on almost every major linux distribution. For other platforms Python is almost
+certainly available.
+
+### <a name="inst_debian">Debian / Ubuntu</a>
+
+Download the .deb package from:
+
+https://github.com/fboender/scriptform/releases
+
+Either double-click the package in a file browser or open up a terminal and type:
+
+    $ cd Downloads/
+    $ sudo dpkg -i scriptform-*.deb
+
+Scriptform is now installed. For the next steps, see:
+
+* The tutorial on how to write form configuration files.
+* Invocations for how to run Scriptform and how to start it at boot time
+
+### <a name="inst_redhat">RedHat / Centos</a>
+
+Download the .rpm package from:
+
+https://github.com/fboender/scriptform/releases
+
+Open up a terminal and type:
+
+    $ cd Downloads/
+    $ sudo rpm -i scriptform-*.rpm
+
+Scriptform is now installed. For the next steps, see:
+
+* The tutorial on how to write form configuration files.
+* Invocations for how to run Scriptform and how to start it at boot time
+
+### <a name="inst_other">Other Unix-like Operating Systems</a>
+
+Install Python v2.6+.
+
+Download the .tar.gz package from:
+
+https://github.com/fboender/scriptform/releases
+
+Open up a terminal and type:
+
+    $ cd Downloads/
+    $ tar -vxzf scriptform-*.tar.gz
+    $ cd scriptform-X.Y
+    $ sudo make install
+
+Scriptform is now installed. For the next steps, see:
+
+* The tutorial on how to write form configuration files.
+* Invocations for how to run Scriptform and how to start it at boot time
 
 ### <a name="intro_terminology">Terminology</a>
 
@@ -64,6 +148,9 @@ of the application.
 * **Form field**: Form definitions can contain one of more form fields. These
   are the fields in which users can enter information. Scriptform supports a
   variety of different field types, such as 'string', 'integer', 'date', etc.
+
+
+
 
 
 ## <a name="invocations">Invocations</a>
@@ -107,6 +194,8 @@ specify at least the `--pid-file` option, if the daemon was started with one.
 
 ### <a name="invocations_init">Init script</a>
 
+#### <a name="invocations_init_debian">Debian / Ubuntu</a>
+
 An example init script is provided in the *contrib* directory. For the Debian
 package, you can find it in `/usr/share/doc/scriptform/`. To install it on
 Debian-derived systems:
@@ -123,6 +212,30 @@ Then, edit the init script and set the FORM_CONFIG variable.
 Finally, start it:
 
     sudo /etc/init.d/scriptform start
+
+#### <a name="invocations_init_redhat">RedHat / CentOs</a>
+
+Install the init script:
+
+    sudo cp /usr/share/doc/scriptform/scriptform.init.d_redhat /etc/init.d/scriptform
+    sudo chmod 755 /etc/init.d/scriptform
+
+Then, edit the init script so it points to your form configuration file:
+
+    sudo vi /etc/init.d/scriptform
+    FORM_CONFIG="/usr/local/scriptform/myscript/myscript.json
+
+Finally, enable the init script to run at boot time:
+
+    sudo chkconfig --add scriptform
+    sudo chkconfig scriptform on
+
+Now we can start it:
+
+    sudo /etc/init.d/scriptform start
+    Starting scriptform: 
+
+
 
 ### <a name="invocations_apache">Behind Apache</a>
 
@@ -147,6 +260,140 @@ Make sure the path ends in a slash! (That's what the redirect is for).
 Otherwise, you may encounter the following error:
 
     +  TypeError: index() got an unexpected keyword argument 'form_name'
+
+
+
+
+## <a name="tutorial">Tutorial</a>
+
+### <a name="tutorial_firstform">Your first form</a>
+
+This tutorial assumes you've already installed Scriptform on your system.
+
+Let's start off by creating a new form configuration file. Create a directory:
+
+    $ mkdir sf_tutorial
+    $ cd sf_tutorial
+
+Edit a new file called `sf_tutorial.json` in your favorite editor and put the
+following in:
+
+
+    {
+      "title": "Tutorial",
+      "forms": [
+        {
+          "name": "System information",
+          "title": "System information",
+          "description": "Show information about the operating system",
+          "script": "job_sysinfo.sh",
+          "fields": []
+        }
+      ]
+    }
+
+This is a form configuration with a single form definition "System
+information". The form has no fields; we'll get to that later. First, let's
+implement the `job_sysinfo.sh` script so we can perform a form callback.
+
+Edit a new file in the same directory called `job_sysinfo.sh`:
+
+    #!/bin/sh
+    
+    HOSTNAME=$(hostname -f)
+    MEM=$(free -h)
+    DISK=$(df -h)
+    
+    cat << END_OF_TEXT
+    Hostname
+    ========
+    
+    $HOSTNAME
+    
+    
+    Memory
+    ======
+    
+    $MEM
+    
+    
+    Disk
+    ====
+    
+    $DISK
+    END_OF_TEXT
+
+Fix the permisions so it is executable:
+
+    $ chmod 755 ./job_sysinfo.sh
+
+Now start Scriptform with our newly created form configuration file:
+
+    $ scriptform -p8000 -f -r ./sf_tutorial.json
+
+This starts the built-in webserver which will serve the form on port 8000. When
+you open it in your browser (http://127.0.0.1:8000/) you will immediately see
+the form. If we had multiple forms in this form configuration, you would first
+see a list of all the forms.
+
+The `-p` option controls the port on which Scriptform will listen. Normally,
+Scriptform would go into the background and run as a daemon. We can surpress
+this with the `-f` (foreground) switch, which makes it easier to stop
+Scriptform by pressing Ctrl-c. The `-r` option tells Scriptform to reload the
+form configuration file on each request. This makes development much easier,
+since you won't have to stop and restart Scriptform whenever you make a change.
+
+
+### <a name="tutorial_output">Output types</a>
+
+The output of our first form isn't exactly good-looking. We can change that by
+changing the output type of our form. There are three types: escaped, html and
+raw. Let's change our output to HTML.
+
+Open the `sf_tutorial.json` file and add an `output` property to the form:
+
+    ...
+    "script": "job_sysinfo.sh",
+    "output": "html",
+    "fields": []
+    ...
+
+Now modify the `job_sysinfo.sh` script to output HTML instead of plain text:
+
+    cat << END_OF_TEXT
+    <h3>Hostname</h3>
+    <pre>$HOSTNAME</pre>
+    
+    <h3>Memory</h3>
+    <pre>$MEM</pre>
+    
+    <h3>Disk</h3>
+    <pre>$DISK</pre>
+    END_OF_TEXT
+
+Open http://127.0.0.1:8000 in your browser and submit the form. That looks a
+little better, doesn't it? The `html` output type lets you embed HTML in the
+output of the script. The default output type is `escaped`, which escaped any
+HTML and just outputs plain text wrapped in a Scriptform response header and
+footer. The last output type is `raw`, in which case Scriptform will send the
+*exact* output of your script directly to the browser. This means your script
+should not just output a result, but also the required HTTP headers to properly
+display it. This lets your send binary files (images, downloads, etc) to the
+browser.
+
+### <a name="tutorial_fields">Fields</a>
+
+As you've seen, we've kept the `fields` option empty in the previous examples.
+The `fields` option lets us specify input fields that will appear in the form.
+Every field has at least a `name`, `title` and `type`. Many fields support
+additional options for validation, etc.
+
+The simplest is the `string` field. This field type simply lets the user enter
+a value. Put the following in the `sf_tutorial.json` file, replacing the
+original content:
+
+
+
 
 ## <a name="form_config">Form config (JSON) files</a>
 
@@ -291,6 +538,9 @@ For example, here's a form config file that contains two forms:
     }
 
 Many more examples can be found in the `examples` directory in the source code.
+
+
+
 
 ## <a name="field_types">Field types</a>
 
@@ -458,6 +708,33 @@ For example:
 
 ### <a name="field_types_select">Select</a>
 
+The `select` field presents the user with a dropdown list from which they can
+pick a value.
+
+The `select` field type supports the following additional options:
+
+- **`options`**: A list of available options from which the user can choose.
+  Each item in the list is itself a list of two values: the value and the
+  title.
+
+For example
+
+    ...
+    "fields": [
+        {
+          "name": "source_sql",
+          "title": "Load which kind of database?",
+          "type": "select",
+          "options": [
+            ["empty", "Empty database"],
+            ["dev", "Development test database"],
+            ["ua", "Acceptance database"]
+          ]
+        }
+    ]
+    ...
+
+
 ### <a name="field_types_text">Text</a>
 
 The `text` field presents the user with a field in which they can enter
@@ -520,6 +797,9 @@ For example:
         }
     ]
     ...
+
+
+
 
 ## <a name="output">Output</a>
 
@@ -587,6 +867,9 @@ it will be relative to the form configuration (.json) file you're running.
 Scriptform does not provide the browser with a content-type of the file, since
 it is impossible to guess.  Generally, browsers do a decent job at figuring it
 out themselves.
+
+
+
 
 ## <a name="script_executing">Script execution</a>
 
@@ -662,6 +945,8 @@ Examples of file uploads can be found in the `examples/simple` and
 `examples/megacorp` directories.
 
 
+
+
 ## <a name="users">Users</a>
 
 ScriptForm supports basic htauth user authentication. Users can be defined, and
@@ -717,6 +1002,9 @@ For an example, see the [beginning of this chapter](#users).
   *does* support HTTPS, such as Apache. For more information on that, see the
   "Invocations" chapter.
 
+
+
+
 ## <a name="cust">Form customization</a>
 
 ### <a name="cust_css">Custom CSS</a>
@@ -753,6 +1041,9 @@ the form configuration file's location.
 
 For a good example, see the `examples/customize/` directory in the source.
 
+
+
+
 ## <a name="security">Security</a>
 
 There are a few security issues to take into consideration when deploying Scriptform:
@@ -765,10 +1056,9 @@ There are a few security issues to take into consideration when deploying Script
 
 - Scriptform does not natively support secure HTTPS connections. This means
   usernames and passwords are transmitted over the line in nearly plain text.
-  If
-  you wish to prevent this, you should put Scriptform behind a proxy that
-  *does* support HTTPS, such as Apache. For more information on that, see
-  the "Invocations" chapter.
+  If you wish to prevent this, you should put Scriptform behind a proxy that
+  *does* support HTTPS, such as Apache. For more information on that, see the
+  "Invocations" chapter.
 
 - Scriptform logs the invocation of scripts and variables to the log file for
   auditing purposes.
