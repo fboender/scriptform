@@ -8,7 +8,16 @@ import logging
 import stat
 import os
 import subprocess
+import pwd
+import grp
 
+
+def run_as(uid, gid, groups):
+    def set_acc():
+        os.setgroups(groups)
+        os.setgid(gid)
+        os.setuid(uid)
+    return set_acc
 
 class FormConfigError(Exception):
     """
@@ -77,6 +86,7 @@ class FormConfig(object):
         callback should be written. The output of the script is hooked up to
         the output, depending on the output type.
         """
+        # FIXME: This doesn't really belong in FormCOnfig.
         form = self.get_form_def(form_name)
 
         # Validate params
@@ -90,26 +100,54 @@ class FormConfig(object):
         for key, value in form_values.items():
             env[key] = str(value)
 
+        # Get the user uid, gid and groups we should run as
+        pw = pwd.getpwnam(form.run_as)
+        gr = grp.getgrgid(pw.pw_gid)
+        groups = [g.gr_gid for g in grp.getgrall() if pw.pw_name in g.gr_mem]
+        uid = pw.pw_uid
+        gid = pw.pw_gid
+        msg = "Running script as user={0}, gid={1}, groups={2}"
+        self.log.info(msg.format(pw.pw_name, gr.gr_name, str(groups)))
+        if os.getuid() != 0:
+            self.log.error("Not running as root! Running as different user "
+                           "will probably fail!")
+
         # If the form output type is 'raw', we directly stream the output to
         # the browser. Otherwise we store it for later displaying.
         if form.output == 'raw':
-            proc = subprocess.Popen(form.script, shell=True,
-                                    stdout=stdout,
-                                    stderr=stderr,
-                                    env=env,
-                                    close_fds=True)
-            stdout, stderr = proc.communicate(input)
-            return proc.returncode
+            try:
+                proc = subprocess.Popen(form.script, shell=True,
+                                        stdout=stdout,
+                                        stderr=stderr,
+                                        env=env,
+                                        close_fds=True,
+                                        preexec_fn = run_as(uid, gid, groups))
+                stdout, stderr = proc.communicate(input)
+                return proc.returncode
+            except OSError as err:
+                self.log.exception(err)
+                stderr.write(str(err) + '. Please see the log file.')
+                return -1
         else:
-            proc = subprocess.Popen(form.script, shell=True,
-                                    stdin=subprocess.PIPE,
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE,
-                                    env=env,
-                                    close_fds=True)
-            stdout, stderr = proc.communicate()
-            return {
-                'stdout': stdout,
-                'stderr': stderr,
-                'exitcode': proc.returncode
-            }
+            try:
+                proc = subprocess.Popen(form.script, shell=True,
+                                        stdin=subprocess.PIPE,
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE,
+                                        env=env,
+                                        close_fds=True,
+                                        preexec_fn = run_as(uid, gid, groups))
+                stdout, stderr = proc.communicate()
+                return {
+                    'stdout': stdout,
+                    'stderr': stderr,
+                    'exitcode': proc.returncode
+                }
+            except OSError as err:
+                self.log.exception(err)
+                return {
+                    'stdout': '',
+                    'stderr': 'Internal error: {0}. Please see the log ' \
+                              'file.'.format(str(err)),
+                    'exitcode': -1
+                }
