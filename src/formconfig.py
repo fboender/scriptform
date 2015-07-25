@@ -13,7 +13,10 @@ import grp
 
 
 def run_as(uid, gid, groups):
+    """Closure that changes the current running user and groups. Called before
+    executing scripts by Subprocess."""
     def set_acc():
+        """Change user and groups"""
         os.setgroups(groups)
         os.setgid(gid)
         os.setuid(uid)
@@ -104,23 +107,27 @@ class FormConfig(object):
         # Get the user uid, gid and groups we should run as. If the current
         # user is root, we run as the given user or 'nobody' if no user was
         # specified. Otherwise, we run as the user we already are.
-        run_as_uid = None
         if os.getuid() == 0:
             if form.run_as is not None:
-                pw = pwd.getpwnam(form.run_as)
+                runas_pw = pwd.getpwnam(form.run_as)
             else:
                 # Run as nobody
-                pw = pwd.getpwnam('nobody')
-            gr = grp.getgrgid(pw.pw_gid)
-            groups = [g.gr_gid for g in grp.getgrall() if pw.pw_name in g.gr_mem]
+                runas_pw = pwd.getpwnam('nobody')
+            runas_gr = grp.getgrgid(runas_pw.pw_gid)
+            groups = [
+                g.gr_gid
+                for g in grp.getgrall()
+                if runas_pw.pw_name in g.gr_mem
+            ]
             msg = "Running script as user={0}, gid={1}, groups={2}"
-            run_as_fn = run_as(pw.pw_uid, pw.pw_gid, groups)
-            self.log.info(msg.format(pw.pw_name, gr.gr_name, str(groups)))
+            run_as_fn = run_as(runas_pw.pw_uid, runas_pw.pw_gid, groups)
+            self.log.info(msg.format(runas_pw.pw_name, runas_gr.gr_name,
+                                     str(groups)))
         else:
             run_as_fn = None
             if form.run_as is not None:
-                self.log.critical("Not running as root, so we can't run the script"
-                                  "as user '{0}'".format(form.run_as))
+                self.log.critical("Not running as root, so we can't run the "
+                                  "script as user '{0}'".format(form.run_as))
 
         # If the form output type is 'raw', we directly stream the output to
         # the browser. Otherwise we store it for later displaying.
@@ -157,7 +164,7 @@ class FormConfig(object):
                 self.log.exception(err)
                 return {
                     'stdout': '',
-                    'stderr': 'Internal error: {0}. Please see the log ' \
+                    'stderr': 'Internal error: {0}. Please see the log '
                               'file.'.format(str(err)),
                     'exitcode': -1
                 }
