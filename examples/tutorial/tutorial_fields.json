@@ -1,0 +1,18 @@
+{
+  "title": "Tutorial step 3",
+  "forms": [
+    {
+      "name": "hello_world",
+      "title": "Hello, world!",
+      "description": "Greetings",
+      "script": "job_helloworld.py",
+      "fields": [
+        {
+          "name": "name",
+          "title": "Name",
+          "type": "string"
+        }
+      ]
+    }
+  ]
+}

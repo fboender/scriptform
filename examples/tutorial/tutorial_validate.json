@@ -1,0 +1,27 @@
+{
+  "title": "Tutorial step 4: Uploads",
+  "forms": [
+    {
+      "name": "hello_world",
+      "title": "Hello, world!",
+      "description": "Greetings",
+      "script": "job_upload.sh",
+      "fields": [
+        {
+          "name": "name",
+          "title": "Name",
+          "type": "string",
+          "minlen": 2,
+          "maxlen": 10
+        },
+        {
+          "name": "upload",
+          "title": "Upload a file",
+          "type": "file",
+          "required": true,
+          "extensions": ["txt"]
+        }
+      ]
+    }
+  ]
+}

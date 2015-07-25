@@ -23,6 +23,9 @@ This is the manual for version %%VERSION%%.
 1. [Tutorial](#tutorial)
     - [Your first form](#tutorial_firstform)
     - [Output types](#tutorial_output)
+    - [Fields](#tutorial_fields)
+    - [Uploads](#tutorial_uploads)
+    - [Validation](#tutorial_validation)
 1. [Form config (JSON) files](#form_config)
 1. [Field types](#field_types)
     - [String](#field_types_string)
@@ -382,6 +385,8 @@ should not just output a result, but also the required HTTP headers to properly
 display it. This lets your send binary files (images, downloads, etc) to the
 browser.
 
+Read more about output types in the '[Output types](#output_types)' section.
+
 ### <a name="tutorial_fields">Fields</a>
 
 As you've seen, we've kept the `fields` option empty in the previous examples.
@@ -389,9 +394,190 @@ The `fields` option lets us specify input fields that will appear in the form.
 Every field has at least a `name`, `title` and `type`. Many fields support
 additional options for validation, etc.
 
+There are fields available for many types: strings, numbers, dates, dropdown
+boxes, file uploads, etc. For a full list see the [Field types](#field_types)
+section of the user manual.
+
 The simplest is the `string` field. This field type simply lets the user enter
 a value. Put the following in the `sf_tutorial.json` file, replacing the
-original content:
+original content (or create a new json file):
+
+    {
+      "title": "Tutorial step 3",
+      "forms": [
+        {
+          "name": "hello_world",
+          "title": "Hello, world!",
+          "description": "Greetings",
+          "script": "job_helloworld.sh",
+          "fields": [
+            {
+              "name": "name",
+              "title": "Name",
+              "type": "string"
+            }
+          ]
+        }
+      ]
+    }
+
+Create the `job_helloworld.sh` script:
+
+    #!/bin/sh
+    
+    if [ -z "$name" ]; then
+        name="world"
+    fi
+    
+    echo "Hello, $name!"
+
+Make it executable:
+
+    $ chmod 755 job_helloworld.sh
+
+And start Scriptform (not required if it's still running and you're using the
+same .json file):
+
+    $ scriptform -p8000 -f -r ./sf_tutorial.json
+
+Point your browser to http://127.0.0.01:8000. Try submitting the form with and
+without entering a name. 
+
+As you can see, Scriptform makes form values available to scripts through the
+environment. This makes it easy to implement scripts in any language you'd
+like. For example, this is what a script implemented in Python would look like:
+
+    #!/usr/bin/env python
+    
+    import os
+    
+    name = os.environ['name']
+    if not name:
+        name = "world"
+    
+    print "Hello, {0}!".format(name)
+
+### <a name="tutorial_upload">Upload</a>
+
+Let's extend our form with a file upload. Modify `sf_tutorial.json` and add an upload field:
+
+    ...
+    {
+      "name": "upload",
+      "title": "Upload a file",
+      "type": "file"
+    }
+    ...
+
+We'll also change it to run a different script:
+
+    ...
+    "script": "job_upload.py",
+    ...
+
+The entire file now looks like this:
+
+    {
+      "title": "Tutorial step 4: Uploads",
+      "forms": [
+        {
+          "name": "hello_world",
+          "title": "Hello, world!",
+          "description": "Greetings",
+          "script": "job_upload.sh",
+          "fields": [
+            {
+              "name": "name",
+              "title": "Name",
+              "type": "string"
+            },
+            {
+              "name": "upload",
+              "title": "Upload a file",
+              "type": "file"
+            }
+          ]
+        }
+      ]
+    }
+
+We'll make the script output the size of the file in bytes. `job_upload.sh`:
+
+    #!/bin/sh
+    
+    if [ -z "$name" ]; then
+        name="stranger"
+    fi
+    echo "Hello, $name!"
+    
+    if [ -z "$upload" ]; then
+        echo "Looks like you didn't upload a file!"
+    else
+        FILE_SIZE=$(wc -c $upload | cut -d " " -f1)
+        echo "The size in bytes of $upload__name is $FILE_SIZE"
+    fi
+
+When we submit the form with a file uploaded, the results look like this:
+
+    Hello, stranger!
+    The size in bytes of README.md is 146
+
+Scriptform will stream the uploaded file to a temporary file (usually something
+like `/tmp/scriptform_e4CAXk`) and put the received file name in the
+`XXXX__name` variable. Temporary files are automatically removed when the
+script is done running, so if you want to keep it around, you should move it do
+a different directory.
+
+### <a name="tutorial_validation">Validation</a>
+
+Scriptform offers a simple way to validate form values before executing
+scripts. This saves you the trouble of having to do all the validation in your
+script. Validation is achieved by speciying additional field definition
+parameters. 
+
+Let's modify the previous upload example and add some validation to it. We'll
+make the `name` field have a minimum and maximum length:
+
+    {
+      "name": "name",
+      "title": "Name",
+      "type": "string",
+      "minlen": 2,
+      "maxlen": 10
+    },
+
+We'll change the `upload` field so it's required and you're only allowed to
+upload '.txt' files:
+
+
+    {
+      "name": "upload",
+      "title": "Upload a file",
+      "type": "file",
+      "required": true,
+      "extensions": ["txt"]
+    }
+
+Try the validation out by submitting the form with some right and wrong values
+and by uploading no file or a file with a wrong extension. You'll see that
+Scriptform validates the submitted form before the script is executed. If any
+validations fail, the form is shown again.
+
+More details on validation and other additional options that can be supplied to
+field definitions can be found in the '[Field types](#field_types)' chapter.
+
+### <a name="tutorial_further">Further reading</a>
+
+This concludes the tutorial for Scriptform, although it has a lot more to
+offer. Some suggestions on further reading materials:
+
+* [Script execution](#script_execution): Details on how scripts are executed.
+* [Users](#users): Scriptform can do user management.
+* [Form customization](#cust): Learn how to customize your forms.
+
+And finally, **please read** the [Security](#security) section for important
+information regarding Scriptform's security.
+
 
 
 
@@ -523,7 +709,7 @@ For example, here's a form config file that contains two forms:
             {
               "name": "username",
               "title": "Username",
-              "type": "string"
+              "type": "string",
               "required": true
             },
             {

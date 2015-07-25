@@ -1,0 +1,13 @@
+{
+    "title": "Tutorial",
+    "forms": [
+        {
+            "name": "System information",
+            "title": "System information",
+            "description": "Show information about the operating system",
+            "script": "job_sysinfo_output.sh",
+            "output": "html",
+            "fields": []
+        }
+    ]
+}
