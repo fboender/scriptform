@@ -2,11 +2,20 @@
     "title": "Run as",
     "forms": [
         {
-            "name": "run_as",
-            "title": "Run as...",
+            "name": "run_as_man",
+            "title": "Run as user 'man' (if we're root)",
             "description": "",
             "submit_title": "Run",
             "run_as": "man",
+            "script": "/tmp/test/job_run_as.py",
+            "fields": [
+            ]
+        },
+        {
+            "name": "run_as_nobody",
+            "title": "Run as default user ('nobody if we're root)",
+            "description": "",
+            "submit_title": "Run",
             "script": "/tmp/test/job_run_as.py",
             "fields": [
             ]
