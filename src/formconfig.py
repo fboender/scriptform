@@ -19,6 +19,7 @@ def run_as(uid, gid, groups):
         os.setuid(uid)
     return set_acc
 
+
 class FormConfigError(Exception):
     """
     Default error for FormConfig errors
@@ -100,17 +101,26 @@ class FormConfig(object):
         for key, value in form_values.items():
             env[key] = str(value)
 
-        # Get the user uid, gid and groups we should run as
-        pw = pwd.getpwnam(form.run_as)
-        gr = grp.getgrgid(pw.pw_gid)
-        groups = [g.gr_gid for g in grp.getgrall() if pw.pw_name in g.gr_mem]
-        uid = pw.pw_uid
-        gid = pw.pw_gid
-        msg = "Running script as user={0}, gid={1}, groups={2}"
-        self.log.info(msg.format(pw.pw_name, gr.gr_name, str(groups)))
-        if os.getuid() != 0:
-            self.log.error("Not running as root! Running as different user "
-                           "will probably fail!")
+        # Get the user uid, gid and groups we should run as. If the current
+        # user is root, we run as the given user or 'nobody' if no user was
+        # specified. Otherwise, we run as the user we already are.
+        run_as_uid = None
+        if os.getuid() == 0:
+            if form.run_as is not None:
+                pw = pwd.getpwnam(form.run_as)
+            else:
+                # Run as nobody
+                pw = pwd.getpwnam('nobody')
+            gr = grp.getgrgid(pw.pw_gid)
+            groups = [g.gr_gid for g in grp.getgrall() if pw.pw_name in g.gr_mem]
+            msg = "Running script as user={0}, gid={1}, groups={2}"
+            run_as_fn = run_as(pw.pw_uid, pw.pw_gid, groups)
+            self.log.info(msg.format(pw.pw_name, gr.gr_name, str(groups)))
+        else:
+            run_as_fn = None
+            if form.run_as is not None:
+                self.log.critical("Not running as root, so we can't run the script"
+                                  "as user '{0}'".format(form.run_as))
 
         # If the form output type is 'raw', we directly stream the output to
         # the browser. Otherwise we store it for later displaying.
@@ -121,7 +131,7 @@ class FormConfig(object):
                                         stderr=stderr,
                                         env=env,
                                         close_fds=True,
-                                        preexec_fn = run_as(uid, gid, groups))
+                                        preexec_fn=run_as_fn)
                 stdout, stderr = proc.communicate(input)
                 return proc.returncode
             except OSError as err:
@@ -136,7 +146,7 @@ class FormConfig(object):
                                         stderr=subprocess.PIPE,
                                         env=env,
                                         close_fds=True,
-                                        preexec_fn = run_as(uid, gid, groups))
+                                        preexec_fn=run_as_fn)
                 stdout, stderr = proc.communicate()
                 return {
                     'stdout': stdout,

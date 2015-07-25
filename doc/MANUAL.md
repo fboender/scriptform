@@ -42,6 +42,7 @@ This is the manual for version %%VERSION%%.
 1. [Script execution](#script_execution)
     - [Validation](#script_validation)
     - [Field Values](#script_fieldvalues)
+    - [Execution security policy](#script_runas)
 1. [Users](#users)
     - [Passwords](#users_passwords)
     - [Form limiting](#users_formlimit)
@@ -447,6 +448,11 @@ Structurally, they are made up of the following elements:
     - **`hidden`**: If 'true', don't show the form in the list. You can still
       view it, if you know its name. This is useful for other forms to
       redirect to this forms and such.
+
+    - **`run_as`**: Change to this user (and its groups) before running the
+      script. Only works if Scriptform is running as `root`. See also
+      [Execution security policy](#script_runas) **Optional**, **String**,
+      **Default:** `nobody`.
 
     - **`fields`**: List of fields in the form. Each field is a dictionary.
       **Required**, **List of dictionaries**.
@@ -871,7 +877,7 @@ out themselves.
 
 
 
-## <a name="script_executing">Script execution</a>
+## <a name="script_execution">Script execution</a>
 
 When the user submits the form, Scriptform will validate the provided values.
 If they check out, the specified script for the form will be executed.
@@ -943,6 +949,18 @@ ends.
 
 Examples of file uploads can be found in the `examples/simple` and
 `examples/megacorp` directories.
+
+### <a name="script_runas">Execution security policy</a>
+
+Running arbitrary scripts from Scriptform poses somewhat of a security risk.
+Scriptform tries to mitigate this risk by running scripts as a different user
+in some cases:
+
+* If Scriptform itelf is running as root:
+    - By default, scripts will be run as user 'nobody'.
+    - If a form specifies as `run_as` field, scripts will be executed as that user.
+* If Scriptform itself is running as a non-root user, scripts will be executed
+  as that user.
 
 
 

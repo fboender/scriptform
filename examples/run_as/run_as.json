@@ -1,0 +1,15 @@
+{
+    "title": "Run as",
+    "forms": [
+        {
+            "name": "run_as",
+            "title": "Run as...",
+            "description": "",
+            "submit_title": "Run",
+            "run_as": "man",
+            "script": "/tmp/test/job_run_as.py",
+            "fields": [
+            ]
+        }
+    ]
+}

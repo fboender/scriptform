@@ -19,7 +19,7 @@ class FormDefinition(object):
     """
     def __init__(self, name, title, description, fields, script,
                  output='escaped', hidden=False, submit_title="Submit",
-                 allowed_users=None, run_as='nobody'):
+                 allowed_users=None, run_as=None):
         self.name = name
         self.title = title
         self.description = description
