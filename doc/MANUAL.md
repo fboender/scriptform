@@ -26,6 +26,7 @@ This is the manual for version %%VERSION%%.
     - [Fields](#tutorial_fields)
     - [Uploads](#tutorial_uploads)
     - [Validation](#tutorial_validation)
+    - [Further reading](#tutorial_further)
 1. [Form config (JSON) files](#form_config)
 1. [Field types](#field_types)
     - [String](#field_types_string)
@@ -574,6 +575,8 @@ offer. Some suggestions on further reading materials:
 * [Script execution](#script_execution): Details on how scripts are executed.
 * [Users](#users): Scriptform can do user management.
 * [Form customization](#cust): Learn how to customize your forms.
+* Check the `examples` directory for many interesting examples on how to use
+  Scriptform.
 
 And finally, **please read** the [Security](#security) section for important
 information regarding Scriptform's security.
