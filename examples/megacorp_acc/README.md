@@ -2,5 +2,12 @@ Extensive example of all kinds of jobs for the fictional Acceptance environment 
 
 Usernames:
 
+HtAuth
+
 * username: admin
 * password: password
+
+Restart acceptance services password:
+
+* password: 123foobar
+
