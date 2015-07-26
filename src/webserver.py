@@ -104,8 +104,8 @@ class RequestHandler(BaseHTTPRequestHandler):
             for header_k, header_v in err.headers.items():
                 self.send_header(header_k, header_v)
             self.end_headers()
-            self.wfile.write("Error {}: {}".format(err.status_code,
-                                                   err.msg))
+            self.wfile.write("Error {0}: {1}".format(err.status_code,
+                                                     err.msg))
             self.wfile.flush()
             return False
         except Exception as err:

@@ -24,7 +24,7 @@ HTML_FIELD_CHECKBOX = u'''
   </li>
 '''
 
-HTML_REQUIRED = u'{} <abbr title="This field is required" \
+HTML_REQUIRED = u'{0} <abbr title="This field is required" \
                 u"class="required">•</span>'
 
 

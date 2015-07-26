@@ -42,8 +42,8 @@ class FormDefinition(object):
         for field in fields:
             for prop_name in required:
                 if not prop_name in field:
-                    raise KeyError("Missing required property '{}' for field "
-                                   "'{}'".format(prop_name, str(field)))
+                    raise KeyError("Missing required property '{0}' for field "
+                                   "'{1}'".format(prop_name, str(field)))
 
     def get_field_def(self, field_name):
         """

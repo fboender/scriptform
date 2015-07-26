@@ -237,7 +237,7 @@ def main():  # pragma: no cover
                 sys.exit(0)
         except socket.error as err:
             log.exception(err)
-            sys.stderr.write("Cannot bind to port {}: {}\n".format(
+            sys.stderr.write("Cannot bind to port {0}: {1}\n".format(
                 options.port,
                 str(err)
             ))
