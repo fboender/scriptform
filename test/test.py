@@ -253,7 +253,7 @@ class FormDefinitionTest(unittest.TestCase):
         form_values = {}
         errors, values = fd.validate(form_values)
         self.assertIn('val_file', errors)
-        self.assertIn('Invalid', errors['val_file'][0])
+        self.assertIn('required', errors['val_file'][0])
 
     def testValidateFileMissingFileName(self):
         fd = self.fc.get_form_def('test_val_file')

@@ -143,6 +143,7 @@
                 {
                     "name": "val_file",
                     "title": "field",
+                    "required": true,
                     "type": "file"
                 }
             ]
