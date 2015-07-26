@@ -255,7 +255,7 @@ class FormDefinition(object):
             value = form_values[field_def['name']]
         except KeyError:
             # Field is missing. Check if it's required.
-            if 'required' in field_def and field_def['required'] == True:
+            if 'required' in field_def and field_def['required'] is True:
                 raise ValidationError("Invalid file upload")
             else:
                 return ''
