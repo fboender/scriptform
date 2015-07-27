@@ -116,7 +116,7 @@ class ScriptForm(object):
                                hidden=form.get('hidden', False),
                                submit_title=form.get('submit_title', 'Submit'),
                                allowed_users=form.get('allowed_users', None),
-                               run_as=form.get('run_as', 'nobody'))
+                               run_as=form.get('run_as', None))
             )
 
         form_config = FormConfig(
