@@ -29,6 +29,7 @@ Packages are available for:
 - Scripts can produce normal output, HTML output or stream their own HTTP
   response to the client. The last one lets you stream images or binaries to
   the browser.
+- Run scripts as different users without requiring sudo.
 
 ## Use-cases
 
