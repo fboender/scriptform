@@ -140,6 +140,7 @@ class FormConfig(object):
                                         close_fds=True,
                                         preexec_fn=run_as_fn)
                 stdout, stderr = proc.communicate(input)
+                self.log.info("Exit code: {0}".format(proc.returncode))
                 return proc.returncode
             except OSError as err:
                 self.log.exception(err)
@@ -155,6 +156,7 @@ class FormConfig(object):
                                         close_fds=True,
                                         preexec_fn=run_as_fn)
                 stdout, stderr = proc.communicate()
+                self.log.info("Exit code: {0}".format(proc.returncode))
                 return {
                     'stdout': stdout,
                     'stderr': stderr,
