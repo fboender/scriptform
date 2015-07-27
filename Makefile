@@ -13,8 +13,13 @@ uninstall:
 release: release_src release_deb release_rpm
 
 doc:
-	markdown_py doc/MANUAL.md > doc/MANUAL.html
-	markdown_py README.md > README.html
+	cat doc/header.html > doc/MANUAL.html
+	markdown_py doc/MANUAL.md >> doc/MANUAL.html
+	cat doc/footer.html >> doc/MANUAL.html
+
+	cat doc/header.html > README.html
+	markdown_py README.md >> README.html
+	cat doc/footer.html >> README.html
 
 release_src: doc
 	@echo "Making release for version $(REL_VERSION)"

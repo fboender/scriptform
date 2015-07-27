@@ -4,7 +4,7 @@
 *.deb
 *.tar.gz
 *.zip
-doc/*.html
+doc/MANUAL.html
 README.html
 examples/native/htaccess
 examples/simple/htaccess
