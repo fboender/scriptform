@@ -172,6 +172,18 @@ your user with the `--generate-pw` option:
 You can paste the generated password into the password field. For more
 information, see the User Manual.
 
+## Documentation
+
+The [User Manual](doc/MANUAL.md) is the main source for all your documentation
+needs:
+
+* Read the [tutorial](doc/MANUAL.md#tutorial) to quickly get aquinted with
+  Scriptform.
+* Read about [form configurations](doc/MANUAL.md#form_config) to learn all the
+  configuration options for Scriptform and your forms.
+* The [field types](doc/MANUAL.md#field_types) chapter lists all the possible
+  fields and which options they take.
+
 ## Security
 
 ScriptForm is only as secure as you write your scripts. Although form values
