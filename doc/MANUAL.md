@@ -70,6 +70,23 @@ user can select a form and fill it out. When the user submits the form, it is
 validated and the associated script is called. Data entered in the form is
 passed to the script through the environment.
 
+### <a name="intro_terminology">Terminology</a>
+
+Scriptform uses various terminology to distinguish between different components
+of the application.
+
+* **Form configuration**: The form configuration is the JSON file you write
+  that describes your forms. A single JSON file contains some global
+  properties (such as the title), the forms you want to define and their fields.
+* **Form definition**: A form definition describes a single form. Multiple form
+  definitions can be given in a single form configuration. They are defined in
+  the "forms" property of the form configuration. This "forms" property is a
+  list of dictionaries.
+* **Form field**: Form definitions can contain one of more form fields. These
+  are the fields in which users can enter information. Scriptform supports a
+  variety of different field types, such as 'string', 'integer', 'date', etc.
+
+
 
 
 
@@ -138,21 +155,6 @@ Scriptform is now installed. For the next steps, see:
 * The tutorial on how to write form configuration files.
 * Invocations for how to run Scriptform and how to start it at boot time
 
-### <a name="intro_terminology">Terminology</a>
-
-Scriptform uses various terminology to distinguish between different components
-of the application.
-
-* **Form configuration**: The form configuration is the JSON file you write
-  that describes your forms. A single JSON file contains some global
-  properties (such as the title), the forms you want to define and their fields.
-* **Form definition**: A form definition describes a single form. Multiple form
-  definitions can be given in a single form configuration. They are defined in
-  the "forms" property of the form configuration. This "forms" property is a
-  list of dictionaries.
-* **Form field**: Form definitions can contain one of more form fields. These
-  are the fields in which users can enter information. Scriptform supports a
-  variety of different field types, such as 'string', 'integer', 'date', etc.
 
 
 
