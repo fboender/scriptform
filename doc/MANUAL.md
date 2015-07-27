@@ -1,4 +1,4 @@
-# Scriptform Manual
+# <a name="manual">Scriptform Manual</a>
 
 This is the manual for version %%VERSION%%.
 
@@ -572,6 +572,7 @@ field definitions can be found in the '[Field types](#field_types)' chapter.
 This concludes the tutorial for Scriptform, although it has a lot more to
 offer. Some suggestions on further reading materials:
 
+* [Full user manual](#manual): Everything you need to know.
 * [Script execution](#script_execution): Details on how scripts are executed.
 * [Users](#users): Scriptform can do user management.
 * [Form customization](#cust): Learn how to customize your forms.

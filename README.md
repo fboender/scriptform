@@ -1,8 +1,5 @@
 # ScriptForm
 
-
-## About
-
 A stand-alone webserver that automatically generates forms from JSON to serve
 as frontends to scripts.
 
@@ -12,7 +9,13 @@ user can select a form and fill it out. When the user submits the form, it is
 validated and the associated script is called. Data entered in the form is
 passed to the script through the environment.
 
-### Features
+Packages are available for:
+
+* [Debian / Ubuntu](https://github.com/fboender/scriptform/releases)
+* [RedHat / Centos](https://github.com/fboender/scriptform/releases)
+* [Other operating systems](https://github.com/fboender/scriptform/releases)
+
+## Features
 
 - Very rapidly construct forms with backends.
 - Completely standalone HTTP server; only requires Python.
@@ -27,7 +30,7 @@ passed to the script through the environment.
   response to the client. The last one lets you stream images or binaries to
   the browser.
 
-### Use-cases
+## Use-cases
 
 Scriptform is very flexible and as such serves many use-cases. Most of these
 revolve around giving non-technical users a user friendly way to safely run
