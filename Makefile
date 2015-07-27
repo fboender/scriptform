@@ -55,8 +55,9 @@ release_deb: release_src doc
 	cp LICENSE rel_deb/usr/share/doc/$(PROG)
 	cp README.md rel_deb/usr/share/doc/$(PROG)
 	cp doc/MANUAL.md rel_deb/usr/share/doc/$(PROG)
-	cp README.html $(PROG)-$(REL_VERSION)/README.html
-	cp doc/MANUAL.html $(PROG)-$(REL_VERSION)/MANUAL.html
+	cp README.html rel_deb/usr/share/doc/$(PROG)
+	cp doc/MANUAL.html rel_deb/usr/share/doc/$(PROG)
+	cp -ar examples rel_deb/usr/share/doc/$(PROG)
 	cp src/*.py rel_deb/usr/lib/scriptform/
 	ln -s /usr/lib/scriptform/scriptform.py rel_deb/usr/bin/scriptform
 
