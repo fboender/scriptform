@@ -1035,8 +1035,12 @@ The following output types are supported:
 
 ### <a name="output_exitcodes">Exit codes</a>
 
-If the script's exit code is 0, the output of the script (stdout) is captured
-and shown to the user in the browser.
+Exit codes are handled by Scriptform if the output type is not `raw`. Otherwise
+it is the script's responsibility to properly handle exit codes of subscripts
+and showing errors.
+
+If the output type is `escaped` or `html` and the script's exit code is 0, the
+output of the script (stdout) is captured and shown to the user in the browser.
 
 If a script's exit code is not 0, it is assumed an error occured. Scriptform
 will show the script's stderr output (in red) to the user instead of stdin.
