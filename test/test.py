@@ -49,7 +49,8 @@ class FormConfigTestCase(unittest.TestCase):
         """Test a callback that returns output in strings"""
         sf = scriptform.ScriptForm('test_formconfig_callback.json')
         fc = sf.get_form_config()
-        res = fc.run_script('test_store', {})
+        fd = fc.get_form_def('test_store')
+        res = runscript.run_script(fd, {})
         self.assertEquals(res['exitcode'], 33)
         self.assertTrue('stdout' in res['stdout'])
         self.assertTrue('stderr' in res['stderr'])
@@ -58,9 +59,10 @@ class FormConfigTestCase(unittest.TestCase):
         """Test a callback that returns raw output"""
         sf = scriptform.ScriptForm('test_formconfig_callback.json')
         fc = sf.get_form_config()
+        fd = fc.get_form_def('test_raw')
         stdout = file('tmp_stdout', 'w+') # can't use StringIO
         stderr = file('tmp_stderr', 'w+')
-        exitcode = fc.run_script('test_raw', {}, stdout, stderr)
+        exitcode = runscript.run_script(fd, {}, stdout, stderr)
         stdout.seek(0)
         stderr.seek(0)
         self.assertTrue(exitcode == 33)
@@ -71,7 +73,8 @@ class FormConfigTestCase(unittest.TestCase):
         """
         sf = scriptform.ScriptForm('test_formconfig_callback.json')
         fc = sf.get_form_config()
-        self.assertRaises(ValueError, fc.run_script, 'test_raw', {})
+        fd = fc.get_form_def('test_raw')
+        self.assertRaises(ValueError, runscript.run_script, fd, {})
 
 
 class FormDefinitionTest(unittest.TestCase):
@@ -566,6 +569,7 @@ if __name__ == '__main__':
 
     sys.path.insert(0, '../src')
     import scriptform
+    import runscript
     unittest.main(exit=False)
 
     cov.stop()
