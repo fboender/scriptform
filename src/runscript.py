@@ -12,6 +12,7 @@ import subprocess
 
 log = logging.getLogger('RUNSCRIPT')
 
+
 def run_as(uid, gid, groups):
     """Closure that changes the current running user and groups. Called before
     executing scripts by Subprocess."""
@@ -21,6 +22,7 @@ def run_as(uid, gid, groups):
         os.setgid(gid)
         os.setuid(uid)
     return set_acc
+
 
 def run_script(form_def, form_values, stdout=None, stderr=None):
     """
@@ -60,12 +62,12 @@ def run_script(form_def, form_values, stdout=None, stderr=None):
         msg = "Running script as user={0}, gid={1}, groups={2}"
         run_as_fn = run_as(runas_pw.pw_uid, runas_pw.pw_gid, groups)
         log.info(msg.format(runas_pw.pw_name, runas_gr.gr_name,
-                                 str(groups)))
+                            str(groups)))
     else:
         run_as_fn = None
         if form_def.run_as is not None:
             log.critical("Not running as root, so we can't run the "
-                              "script as user '{0}'".format(form_def.run_as))
+                         "script as user '{0}'".format(form_def.run_as))
 
     # If the form output type is 'raw', we directly stream the output to
     # the browser. Otherwise we store it for later displaying.

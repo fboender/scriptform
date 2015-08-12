@@ -420,7 +420,7 @@ class ScriptFormWebApp(RequestHandler):
 
             form_def = form_config.get_form_def(form_name)
             result = runscript.run_script(form_def, form_values, self.wfile,
-                                            self.wfile)
+                                          self.wfile)
             if form_def.output != 'raw':
                 # Ignore everything if we're doing raw output, since it's the
                 # scripts responsibility.
