@@ -93,7 +93,8 @@ clean:
 	find ./ -name "*.log" -delete
 	find ./ -name "*.pyc" -delete
 	rm -rf $(PROG)-$(REL_VERSION)
-
+	rm -f test/data.csv
+	rm -f test/data.raw
 
 test:
 	@echo "\nTESTS\n"
