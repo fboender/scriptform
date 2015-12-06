@@ -181,7 +181,7 @@ def main():  # pragma: no cover
                       action="store_true", default=False,
                       help="Generate password")
     parser.add_option("-p", "--port", dest="port", action="store", type="int",
-                      default=80, help="Port to listen on")
+                      default=80, help="Port to listen on (default=80)")
     parser.add_option("-f", "--foreground", dest="foreground",
                       action="store_true", default=False,
                       help="Run in foreground (debugging)")
