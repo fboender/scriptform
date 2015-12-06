@@ -123,6 +123,52 @@ No other libraries are required. Python v2.6+ is generally available by default
 on almost every major linux distribution. For other platforms Python is almost
 certainly available.
 
+### Installation
+
+Get the package for your operating system from the [Github releases page](https://github.com/fboender/scriptform/releases). 
+
+For **Debian / Ubuntu** systems:
+
+    sudo dpkg -i scriptform*.deb
+
+For **Redhat / Centos** systems:
+
+    sudo yum install scriptform*.rpm
+
+For **Other** systems:
+
+    tar -vxzf scriptform*.tar.gz
+    cd scriptform*
+    sudo make install
+
+### Configuration
+
+Scriptform provides init script to automatically start Scriptform at boot time.
+These are not installed by default. You can find init scripts for Debian /
+Ubuntu at `/usr/share/doc/scriptform/scriptform.init_d.debian` and for Redhat /
+Centos at `/usr/share/doc/scriptform/scriptform.init_d.redhat`. 
+
+To install the init script:
+
+For **Debian / Ubuntu** systems:
+
+    sudo cp /usr/share/doc/scriptform/scriptform.init_d.debian /etc/init.d/scriptform
+    sudo chmod 755 /etc/init.d/scriptform
+    sudo update-rc.d scriptform defaults
+
+Then edit `/etc/init.d/scriptform` and change the `FORM_CONFIG` setting to
+point at the form configuration JSON file you'd like to use.
+
+For **RedHat / Centos** systems:
+
+    sudo cp /usr/share/doc/scriptform/scriptform.init.d_redhat /etc/init.d/scriptform
+    sudo chmod 755 /etc/init.d/scriptform
+    sudo chkconfig --add scriptform
+    sudo chkconfig scriptform on
+
+Then edit `/etc/init.d/scriptform` and change the `FORM_CONFIG` setting to
+point at the form configuration JSON file you'd like to use.
+
 ## Usage
 
 Usage:
