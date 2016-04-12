@@ -564,7 +564,7 @@ if __name__ == '__main__':
                         filename='test.log',
                         filemode='a')
     import coverage
-    cov = coverage.coverage(omit=['*test*', 'main'])
+    cov = coverage.coverage(omit=['*test*', 'main', '*/lib/python*'])
     cov.start()
 
     sys.path.insert(0, '../src')
