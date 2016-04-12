@@ -570,7 +570,7 @@ if __name__ == '__main__':
     sys.path.insert(0, '../src')
     import scriptform
     import runscript
-    unittest.main(exit=False)
+    unittest.main(exit=True)
 
     cov.stop()
     cov.save()
