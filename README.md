@@ -143,10 +143,10 @@ For **Other** systems:
 
 ### Configuration
 
-Scriptform provides init script to automatically start Scriptform at boot time.
-These are not installed by default. You can find init scripts for Debian /
-Ubuntu at `/usr/share/doc/scriptform/scriptform.init.d_debian` and for Redhat /
-Centos at `/usr/share/doc/scriptform/scriptform.init.d_debian`. 
+Scriptform provides init scripts to automatically start Scriptform at boot
+time.  These are not installed by default. You can find init scripts for
+Debian / Ubuntu at `/usr/share/doc/scriptform/scriptform.init.d_debian` and
+for Redhat / Centos at `/usr/share/doc/scriptform/scriptform.init.d_debian`. 
 
 To install the init script:
 
