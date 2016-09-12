@@ -224,14 +224,14 @@ information, see the User Manual.
 
 ## Documentation
 
-The [User Manual](doc/MANUAL.md) is the main source for all your documentation
+The [User Manual](https://github.com/fboender/scriptform/blob/master/doc/MANUAL.md) is the main source for all your documentation
 needs:
 
-* Read the [tutorial](doc/MANUAL.md#tutorial) to quickly get aquinted with
+* Read the [tutorial](https://github.com/fboender/scriptform/blob/master/doc/MANUAL.md#tutorial) to quickly get aquinted with
   Scriptform.
-* Read about [form configurations](doc/MANUAL.md#form_config) to learn all the
+* Read about [form configurations](https://github.com/fboender/scriptform/blob/master/doc/MANUAL.md#form_config) to learn all the
   configuration options for Scriptform and your forms.
-* The [field types](doc/MANUAL.md#field_types) chapter lists all the possible
+* The [field types](https://github.com/fboender/scriptform/blob/master/doc/doc/MANUAL.md#field_types) chapter lists all the possible
   fields and which options they take.
 
 ## Security
