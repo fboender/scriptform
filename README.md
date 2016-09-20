@@ -1,13 +1,12 @@
 # ScriptForm
 
+![Status: Stable](https://img.shields.io/badge/status-stable-green.svg)
+![Build Status](http://git.electricmonk.nl/job/scriptform/shield)
+![Activity: Active development](https://img.shields.io/badge/activity-active%20development-green.svg)
+![License: GPLv3](https://img.shields.io/badge/license-GPLv3-blue.svg)
+
 A stand-alone webserver that automatically generates forms from JSON to serve
 as frontends to scripts.
-
-
-foo
-
-bar
-
 
 ScriptForm takes a JSON file which contains form definitions. It then
 constructs web forms from this JSON and serves these to users over HTTP. The
