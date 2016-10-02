@@ -41,7 +41,7 @@ class FormDefinition(object):
         required = ['name', 'title', 'type']
         for field in fields:
             for prop_name in required:
-                if not prop_name in field:
+                if prop_name not in field:
                     raise KeyError("Missing required property '{0}' for field "
                                    "'{1}'".format(prop_name, str(field)))
 
@@ -190,7 +190,7 @@ class FormDefinition(object):
         Validate a form field of type 'radio'.
         """
         value = form_values[field_def['name']]
-        if not value in [o[0] for o in field_def['options']]:
+        if value not in [o[0] for o in field_def['options']]:
             raise ValidationError(
                 "Invalid value for radio button: {0}".format(value))
         return value
@@ -200,7 +200,7 @@ class FormDefinition(object):
         Validate a form field of type 'select'.
         """
         value = form_values[field_def['name']]
-        if not value in [o[0] for o in field_def['options']]:
+        if value not in [o[0] for o in field_def['options']]:
             raise ValidationError(
                 "Invalid value for dropdown: {0}".format(value))
         return value
@@ -210,7 +210,7 @@ class FormDefinition(object):
         Validate a form field of type 'checkbox'.
         """
         value = form_values.get(field_def['name'], 'off')
-        if not value in ['on', 'off']:
+        if value not in ['on', 'off']:
             raise ValidationError(
                 "Invalid value for checkbox: {0}".format(value))
         return value
