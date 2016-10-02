@@ -203,7 +203,7 @@ def main():  # pragma: no cover
         # Generate a password for use in the `users` section
         import getpass
         plain_pw = getpass.getpass()
-        if not plain_pw == getpass.getpass('Repeat password: '):
+        if plain_pw != getpass.getpass('Repeat password: '):
             sys.stderr.write("Passwords do not match.\n")
             sys.exit(1)
         sys.stdout.write(hashlib.sha256(plain_pw).hexdigest() + '\n')

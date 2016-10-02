@@ -180,9 +180,12 @@ class FormRender(object):
             checked = ''
             if o_value == value:
                 checked = 'checked'
-            radio_elems.append(tpl_option.format(name=name, value=value,
-                               checked=checked, label=o_label, classes=classes,
-                               style=style))
+            radio_elems.append(tpl_option.format(name=name,
+                                                 value=value,
+                                                 checked=checked,
+                                                 label=o_label,
+                                                 classes=classes,
+                                                 style=style))
         return u''.join(radio_elems)
 
     def r_field_checkbox(self, name, checked, classes='', style=""):
@@ -204,8 +207,9 @@ class FormRender(object):
             if o_value == value:
                 selected = 'selected'
             select_elems.append(tpl_option.format(value=o_value,
-                                selected=selected, label=o_label,
-                                style=style))
+                                                  selected=selected,
+                                                  label=o_label,
+                                                  style=style))
 
         tpl = self.field_tpl['select']
         return tpl.format(name=name, select_elems=''.join(select_elems),
