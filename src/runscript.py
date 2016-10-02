@@ -61,14 +61,14 @@ def run_script(form_def, form_values, stdout=None, stderr=None):
         ]
         msg = "Running script as user={0}, gid={1}, groups={2}"
         run_as_fn = run_as(runas_pw.pw_uid, runas_pw.pw_gid, groups)
-        log.info("%s", (msg.format(runas_pw.pw_name,
-                                   runas_gr.gr_name,
-                                   str(groups))))
+        log.info("%s", msg.format(runas_pw.pw_name,
+                                  runas_gr.gr_name,
+                                  str(groups)))
     else:
         run_as_fn = None
         if form_def.run_as is not None:
             log.critical("Not running as root, so we can't run the "
-                         "script as user '%s'", (form_def.run_as))
+                         "script as user '%s'", form_def.run_as)
 
     # If the form output type is 'raw', we directly stream the output to
     # the browser. Otherwise we store it for later displaying.
@@ -82,7 +82,7 @@ def run_script(form_def, form_values, stdout=None, stderr=None):
                                     close_fds=True,
                                     preexec_fn=run_as_fn)
             stdout, stderr = proc.communicate(input)
-            log.info("Exit code: %s", (proc.returncode))
+            log.info("Exit code: %s", proc.returncode)
             return proc.returncode
         except OSError as err:
             log.exception(err)
@@ -99,7 +99,7 @@ def run_script(form_def, form_values, stdout=None, stderr=None):
                                     close_fds=True,
                                     preexec_fn=run_as_fn)
             stdout, stderr = proc.communicate()
-            log.info("Exit code: %s", (proc.returncode))
+            log.info("Exit code: %s", proc.returncode)
             return {
                 'stdout': stdout,
                 'stderr': stderr,

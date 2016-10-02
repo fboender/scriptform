@@ -136,7 +136,7 @@ class Daemon(object):  # pragma: no cover
         # Fork a child and end parent (so init now owns process)
         pid = os.fork()
         if pid > 0:
-            self.log.info("PID = %s", (pid))
+            self.log.info("PID = %s", pid)
             pidfile = file(self.pid_file, 'w')
             pidfile.write(str(pid))
             pidfile.close()
@@ -165,7 +165,7 @@ class Daemon(object):  # pragma: no cover
         """
         Remvoe pid files and call registered shutodnw callbacks.
         """
-        self.log.info("Received signal %s", (sig))
+        self.log.info("Received signal %s", sig)
         if os.path.exists(self.pid_file):
             os.unlink(self.pid_file)
         self.shutdown_callback()
