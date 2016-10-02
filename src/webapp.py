@@ -413,10 +413,10 @@ class ScriptFormWebApp(RequestHandler):
             # Log the callback and its parameters for auditing purposes.
             log = logging.getLogger('CALLBACK_AUDIT')
             cwd = os.path.realpath(os.curdir)
-            log.info("Calling script: {0}".format(form_def.script))
-            log.info("Current working dir: {0}".format(cwd))
-            log.info("User: {0}".format(username))
-            log.info("Variables: {0}".format(dict(form_values.items())))
+            log.info("Calling script: %s", (form_def.script))
+            log.info("Current working dir: %s", (cwd))
+            log.info("User: %s", (username))
+            log.info("Variables: %s", (dict(form_values.items())))
 
             form_def = form_config.get_form_def(form_name)
             result = runscript.run_script(form_def, form_values, self.wfile,

@@ -139,7 +139,7 @@ class ScriptForm(object):
         self.httpd = ThreadedHTTPServer((listen_addr, listen_port),
                                         ScriptFormWebApp)
         self.httpd.daemon_threads = True
-        self.log.info("Listening on {0}:{1}".format(listen_addr, listen_port))
+        self.log.info("Listening on %s:%s", (listen_addr, listen_port))
         self.running = True
         self.httpd.serve_forever()
         self.running = False
