@@ -64,6 +64,7 @@ Form configuration file: `test_server.json`
     {
       "title": "Test server",
       "forms": [
+        {
           "name": "add_user",
           "title": "Add user",
           "description": "Add a user to the htpasswd file",
