@@ -84,7 +84,12 @@ class ScriptForm(object):
         if self.cache and self.form_config_singleton is not None:
             return self.form_config_singleton
 
-        config = json.load(file(self.config_file, 'r'))
+        file_contents = file(self.config_file, 'r').read()
+        try:
+            config = json.loads(file_contents)
+        except ValueError as e:
+            sys.stderr.write("Error in form configuration '{}': {}\n".format(self.config_file, e))
+            sys.exit(1)
 
         static_dir = None
         custom_css = None
