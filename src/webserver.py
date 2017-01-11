@@ -46,7 +46,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         """
         Handle a GET request.
         """
-        self._call(*self._parse(self.path))
+        self._call(*self._parse(self.path.lstrip('/')))
 
     def do_POST(self):
         """
