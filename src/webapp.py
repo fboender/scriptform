@@ -195,7 +195,8 @@ class ScriptFormWebApp(RequestHandler):
             if auth_header is not None:
                 # Validate the username and password
                 auth_unpw = auth_header.split(' ', 1)[1]
-                username, password = base64.decodestring(auth_unpw).split(":", 1)
+                username, password = base64.decodestring(auth_unpw).split(":",
+                                                                          1)
                 pw_hash = hashlib.sha256(password).hexdigest()
 
                 if username in form_config.users and \

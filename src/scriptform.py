@@ -87,8 +87,9 @@ class ScriptForm(object):
         file_contents = file(self.config_file, 'r').read()
         try:
             config = json.loads(file_contents)
-        except ValueError as e:
-            sys.stderr.write("Error in form configuration '{}': {}\n".format(self.config_file, e))
+        except ValueError as err:
+            sys.stderr.write("Error in form configuration '{}': {}\n".format(
+                self.config_file, err))
             sys.exit(1)
 
         static_dir = None

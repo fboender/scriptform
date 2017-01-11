@@ -163,7 +163,7 @@ class Daemon(object):  # pragma: no cover
 
     def _cleanup(self, sig=None, frame=None):
         """
-        Remvoe pid files and call registered shutodnw callbacks.
+        Remove pid files and call registered shutodnw callbacks.
         """
         self.log.info("Received signal %s", sig)
         if os.path.exists(self.pid_file):
