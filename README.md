@@ -179,37 +179,38 @@ point at the form configuration JSON file you'd like to use.
 
 Usage:
 
-    Usage: ./scriptform.py [option] (--start|--stop) <form_definition.json>
-           ./scriptform.py --generate-pw
+    Usage: /usr/bin/scriptform [option] (--start|--stop) <form_definition.json>
+           /usr/bin/scriptform --generate-pw
 
     Options:
+      --version             show program's version number and exit
       -h, --help            show this help message and exit
       -g, --generate-pw     Generate password
-      -p PORT, --port=PORT  Port to listen on
+      -p PORT, --port=PORT  Port to listen on (default=80)
       -f, --foreground      Run in foreground (debugging)
+      -r, --reload          Reload form config on every request (DEV)
       --pid-file=PID_FILE   Pid file
       --log-file=LOG_FILE   Log file
       --start               Start daemon
       --stop                Stop daemon
 
-
 ScriptForm can run both in daemon mode or in the foreground. In daemon mode, we
 can control ScriptForm with the `--start` and `--stop` options. By default it
 runs on port 80, which we can change with the `-p` option.
 
-    $ ./scriptform -p8081 ./test_server.json
+    $ scriptform -p8081 ./test_server.json
 
 This puts ScriptForm in the background as a daemon. It creates a PID file and a
 log file.
 
-    $ tail scriptform.py.log
+    $ tail scriptform.log
     2015-04-08 07:57:27,160:DAEMON:INFO:Starting
     2015-04-08 07:57:27,161:DAEMON:INFO:PID = 5614
     2015-04-08 07:57:27,162:SCRIPTFORM:INFO:Listening on 0.0.0.0:8081
 
 In order to stop the daemon:
 
-    $ ./scriptform --stop
+    $ scriptform --stop
 
 We can control the location of the PID file and log file with the `--pid-file`
 and `--log-file` options. If we don't specify these, ScriptForm will create
@@ -220,7 +221,7 @@ To run ScriptForm in the foreground, specify the `-f` option.
 If you're going to use basic authentication, you can generate a password for
 your user with the `--generate-pw` option:
 
-    $ ./scriptform.py --generate-pw
+    $ scriptform --generate-pw
     Password: 
     Repeat password: 
     2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae

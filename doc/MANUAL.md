@@ -1194,11 +1194,16 @@ Passwords are unsalted SHA256 hashed passwords. To generate one, you can use
 the `--generate-pw` option of Scriptform. This will ask you twice for a
 plaintext password and return the hash that can be used in the `users` element.
 
-    $ ./scriptform.py --generate-pw
+    $ scriptform --generate-pw
     Password: 
     Repeat password: 
     ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad
     
+**Note** that if you're running from the repository, you'll have to run
+Scriptform as:
+
+    $ src/scriptform.py --generate-pw
+
 ### <a name="users_formlimit">Form limiting</a>
 
 You may specify a `allowed_users` field in a form definition. Only user names
