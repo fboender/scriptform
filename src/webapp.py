@@ -170,7 +170,7 @@ class ScriptFormWebApp(RequestHandler):
         """
         form_config = self.scriptform.get_form_config()
 
-        username = getattr(self, 'username', None)
+        username = self.auth()
         visible_forms = form_config.get_visible_forms(username)
         if len(visible_forms) == 1:
             first_form = visible_forms[0]
@@ -216,7 +216,6 @@ class ScriptFormWebApp(RequestHandler):
         Render a list of available forms.
         """
         username = self.auth()
-
         form_config = self.scriptform.get_form_config()
         h_form_list = []
         for form_def in form_config.get_visible_forms(username):
@@ -320,7 +319,6 @@ class ScriptFormWebApp(RequestHandler):
             errors = {}
 
         username = self.auth()
-
         form_config = self.scriptform.get_form_config()
         fr_inst = FormRender(None)
 
@@ -462,8 +460,7 @@ class ScriptFormWebApp(RequestHandler):
 
     def h_static(self, fname):
         """Serve static files"""
-        self.auth()
-
+        username = self.auth()
         form_config = self.scriptform.get_form_config()
 
         if not form_config.static_dir:
