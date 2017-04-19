@@ -135,7 +135,7 @@ class ScriptForm(object):
         self.form_config_singleton = form_config
         return form_config
 
-    def run(self, listen_addr='0.0.0.0', listen_port=80):
+    def run(self, listen_addr='0.0.0.0', listen_port=8081):
         """
         Start the webserver on address `listen_addr` and port `listen_port`.
         This call is blocking until the user hits Ctrl-c, the shutdown() method
@@ -187,7 +187,7 @@ def main():  # pragma: no cover
                       action="store_true", default=False,
                       help="Generate password")
     parser.add_option("-p", "--port", dest="port", action="store", type="int",
-                      default=80, help="Port to listen on (default=80)")
+                      default=8081, help="Port to listen on (default=8081)")
     parser.add_option("-f", "--foreground", dest="foreground",
                       action="store_true", default=False,
                       help="Run in foreground (debugging)")

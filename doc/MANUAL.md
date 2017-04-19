@@ -176,18 +176,18 @@ production ready.
 Sriptform can be run directly from the shell in the foreground with the `-f`
 (`--foreground`) option. This is most useful for testing and development:
 
-    $ /usr/bin/scriptform -p8000 -f ./formdef.json
+    $ /usr/bin/scriptform -p8081 -f ./formdef.json
 
 You can specify the `-r` option to automatically reload the JSON file upon each
 request:
 
-    $ /usr/bin/scriptform -p8000 -r -f ./formdef.json
+    $ /usr/bin/scriptform -p8081 -r -f ./formdef.json
 
 ### <a name="invocations_daemon">Daemon</a>
 
 If you do not specify the `-f` option, Scriptform will go into the background:
 
-    $ /usr/bin/scriptform -p8000 ./formdef.json
+    $ /usr/bin/scriptform -p8081 ./formdef.json
     $
 
 A pid file will be written in the current directory, or to the file specified
@@ -260,8 +260,8 @@ Enable Apache modules mod_proxy and mod_proxy_http:
 Configure:
 
     Redirect permanent /scriptform /scriptform/
-    ProxyPass /scriptform/ http://localhost:8000/
-    ProxyPassReverse /scriptform/ http://localhost:8000/
+    ProxyPass /scriptform/ http://localhost:8081/
+    ProxyPassReverse /scriptform/ http://localhost:8081/
 
 Make sure the path ends in a slash! (That's what the redirect is for).
 Otherwise, you may encounter the following error:
@@ -336,10 +336,10 @@ Fix the permisions so it is executable:
 
 Now start Scriptform with our newly created form configuration file:
 
-    $ scriptform -p8000 -f -r ./sf_tutorial.json
+    $ scriptform -p8081 -f -r ./sf_tutorial.json
 
-This starts the built-in webserver which will serve the form on port 8000. When
-you open it in your browser (http://127.0.0.1:8000/) you will immediately see
+This starts the built-in webserver which will serve the form on port 8081. When
+you open it in your browser (http://127.0.0.1:8081/) you will immediately see
 the form. If we had multiple forms in this form configuration, you would first
 see a list of all the forms.
 
@@ -378,7 +378,7 @@ Now modify the `job_sysinfo.sh` script to output HTML instead of plain text:
     <pre>$DISK</pre>
     END_OF_TEXT
 
-Open http://127.0.0.1:8000 in your browser and submit the form. That looks a
+Open http://127.0.0.1:8081 in your browser and submit the form. That looks a
 little better, doesn't it? The `html` output type lets you embed HTML in the
 output of the script. The default output type is `escaped`, which escaped any
 HTML and just outputs plain text wrapped in a Scriptform response header and
@@ -441,9 +441,9 @@ Make it executable:
 And start Scriptform (not required if it's still running and you're using the
 same .json file):
 
-    $ scriptform -p8000 -f -r ./sf_tutorial.json
+    $ scriptform -p8081 -f -r ./sf_tutorial.json
 
-Point your browser to http://127.0.0.01:8000. Try submitting the form with and
+Point your browser to http://127.0.0.01:8081. Try submitting the form with and
 without entering a name. 
 
 As you can see, Scriptform makes form values available to scripts through the

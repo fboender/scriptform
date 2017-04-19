@@ -18,7 +18,7 @@ PIDFILE=/var/run/scriptform.pid
 LOGFILE=/var/log/scriptform.log
 DAEMON=/usr/bin/scriptform
 FORM_CONFIG=
-PORT=8080
+PORT=8081
 DAEMON_ARGS="--port $PORT --pid-file $PIDFILE --log-file $LOGFILE $FORM_CONFIG"
 
 start() {

@@ -101,9 +101,9 @@ Set some rights and create the initial `htpasswd` file:
 
 We can now start ScriptForm to start serving the form over HTTP. By default it
 starts as a daemon, so we specify the `-f` option to start it in the foreground
-instead.
+instead. We also specify the port, even though 8081 is already the default.
 
-    $ scriptform -f -p8080 ./test_server.json
+    $ scriptform -f -p8081 ./test_server.json
 
 The user is presented with the following form:
 
@@ -197,7 +197,7 @@ ScriptForm can run both in daemon mode or in the foreground. In daemon mode, we
 can control ScriptForm with the `--start` and `--stop` options. By default it
 runs on port 80, which we can change with the `-p` option.
 
-    $ ./scriptform -p8000 ./test_server.json
+    $ ./scriptform -p8081 ./test_server.json
 
 This puts ScriptForm in the background as a daemon. It creates a PID file and a
 log file.
@@ -205,7 +205,7 @@ log file.
     $ tail scriptform.py.log
     2015-04-08 07:57:27,160:DAEMON:INFO:Starting
     2015-04-08 07:57:27,161:DAEMON:INFO:PID = 5614
-    2015-04-08 07:57:27,162:SCRIPTFORM:INFO:Listening on 0.0.0.0:8000
+    2015-04-08 07:57:27,162:SCRIPTFORM:INFO:Listening on 0.0.0.0:8081
 
 In order to stop the daemon:
 
