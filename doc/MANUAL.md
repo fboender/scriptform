@@ -1307,6 +1307,14 @@ There are a few security issues to take into consideration when deploying Script
 - Scriptform logs the invocation of scripts and variables to the log file for
   auditing purposes.
 
-- Scriptform is not meant to be served to the public internet. **You should
-  only use it in controlled environments where a certain level of trust is
-  placed in the users!**
+- Although Scriptform is written to be secure, it not meant to be served to
+  the public internet. **You should only use it in controlled environments
+  where a certain level of trust is placed in the users!**. The reason for
+  this is because it's really easy to make mistakes in validating input in
+  the shell scripts called by Scriptform.
+
+- Although Scriptform validates form fields, it does little to protect against
+  things such as shell expansion attacks and such. You should validate your
+  input, even (and perhaps most importantly) in shell scripts. If you're
+  worried about security, you may want to write your backend scripts in a
+  proper language such as Perl or Python.
