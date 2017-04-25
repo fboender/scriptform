@@ -181,12 +181,18 @@ class ScriptFormWebApp(RequestHandler):
     def auth(self):
         """
         Verify that the user is authenticated. This is required if the form
-        definition contains a 'users' field. Returns the username if the user
-        is validated or None if no validation is required.. Otherwise, raises a
-        401 HTTP back to the client.
+        definition contains a 'users' field (unless pre-auth from a front-end
+        such as Apache is used). Returns the username if the user is validated
+        or None if no validation is required. Otherwise, raises a 401 HTTP
+        back to the client.
         """
         form_config = self.scriptform.get_form_config()
         username = None
+
+        # Allow pre-auth from e.g. Apache htauth
+        if 'REMOTE_USER' in self.headers:
+            username = self.headers.get('REMOTE_USER')
+            return self.headers.get('REMOTE_USER')
 
         # If a 'users' element was present in the form configuration file, the
         # user must be authenticated.

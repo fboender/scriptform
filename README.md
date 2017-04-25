@@ -218,15 +218,16 @@ them in the local directory.
 
 To run ScriptForm in the foreground, specify the `-f` option. 
 
-If you're going to use basic authentication, you can generate a password for
-your user with the `--generate-pw` option:
+If you're going to use built-in basic authentication, you can generate a
+password for your user with the `--generate-pw` option:
 
     $ scriptform --generate-pw
     Password: 
     Repeat password: 
     2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae
 
-You can paste the generated password into the password field. For more
+You can paste the generated password into the password field. You can also use
+an Apache (or other webserver) frontend for authentication. For more
 information, see the User Manual.
 
 ## Documentation

@@ -51,6 +51,7 @@ This is the manual for version %%VERSION%%.
     - [Passwords](#users_passwords)
     - [Form limiting](#users_formlimit)
     - [Security considerations](#users_security)
+    - [Pre-authentication with Apache](#users_preauth)
 1. [Form customization](#cust)
     - [Custom CSS](#cust_css)
 1. [Security](#security)
@@ -1221,7 +1222,31 @@ For an example, see the [beginning of this chapter](#users).
   *does* support HTTPS, such as Apache. For more information on that, see the
   "Invocations" chapter.
 
+### <a name="users_preauth">Pre-authentication with Apache</a>
 
+If you're running behind Apache or another webserver, you can use
+features in Apache to do the authentication for you. This allows you to use
+LDAP or OpenID (SSO) authentication.
+
+You must pass the `REMOTE_USER` header (not environment variable!) to
+Scriptform to get this working. For example, in Apache:
+
+    RequestHeader set REMOTE_USER %{REMOTE_USER}s
+
+    Redirect permanent /scriptform /scriptform/
+    ProxyPass /scriptform/ http://localhost:8081/
+    ProxyPassReverse /scriptform/ http://localhost:8081/
+
+    <Location /scriptform>
+        AuthType Basic
+        AuthName "Restricted Files"
+        AuthBasicProvider file
+        AuthUserFile "/var/www/users"
+        Require valid-user
+    </Location>
+
+If such a header is seen, Scriptform won't perform validation of the password
+and just assumes the username is correct.
 
 
 ## <a name="cust">Form customization</a>
