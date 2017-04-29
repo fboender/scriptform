@@ -1305,7 +1305,7 @@ There are a few security issues to take into consideration when deploying Script
   "Invocations" chapter.
 
 - Scriptform logs the invocation of scripts and variables to the log file for
-  auditing purposes.
+  auditing purposes. Password values are censored.
 
 - Although Scriptform is written to be secure, it not meant to be served to
   the public internet. **You should only use it in controlled environments

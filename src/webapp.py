@@ -9,6 +9,7 @@ import tempfile
 import os
 import base64
 import hashlib
+import copy
 
 from formrender import FormRender
 from webserver import HTTPError, RequestHandler
@@ -157,6 +158,16 @@ HTML_SUBMIT_RESPONSE = u'''
 </div>
 {footer}
 '''
+
+def censor_form_values(form_def, form_values):
+    """
+    Remove sensitive field values from form_values dict.
+    """
+    censored_form_values = copy.copy(form_values)
+    for field in form_def.fields:
+        if field['type'] == 'password':
+            censored_form_values[field['name']] = '********'
+    return censored_form_values
 
 
 class ScriptFormWebApp(RequestHandler):
@@ -421,7 +432,7 @@ class ScriptFormWebApp(RequestHandler):
             log.info("Calling script: %s", form_def.script)
             log.info("Current working dir: %s", cwd)
             log.info("User: %s", username)
-            log.info("Variables: %s", dict(form_values.items()))
+            log.info("Variables: %s", censor_form_values(form_def, form_values))
 
             form_def = form_config.get_form_def(form_name)
             result = runscript.run_script(form_def, form_values, self.wfile,
