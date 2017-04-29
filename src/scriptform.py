@@ -51,13 +51,6 @@ from webserver import ThreadedHTTPServer
 from webapp import ScriptFormWebApp
 
 
-class ScriptFormError(Exception):
-    """
-    Default exception thrown by ScriptForm errors.
-    """
-    pass
-
-
 class ScriptForm(object):
     """
     'Main' class that orchestrates parsing the Form configurations and running
