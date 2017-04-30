@@ -111,6 +111,7 @@ class ScriptForm(object):
                                form['description'],
                                form['fields'],
                                script,
+                               default_value=form.get('default_value', ""),
                                output=form.get('output', 'escaped'),
                                hidden=form.get('hidden', False),
                                submit_title=form.get('submit_title', 'Submit'),

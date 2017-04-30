@@ -280,7 +280,8 @@ class ScriptFormWebApp(RequestHandler):
 
             # Get field-specific parameters
             if field['type'] not in ('file', 'checkbox'):
-                params['value'] = form_values.get(field['name'], '')
+                default_value = field.get('default_value', '')
+                params['value'] = form_values.get(field['name'], default_value)
 
             if field['type'] not in ('radio', 'checkbox', 'select'):
                 params['required'] = field.get('required', False)

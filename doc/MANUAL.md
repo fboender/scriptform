@@ -756,6 +756,7 @@ The `string` field type supports the following additional options:
 - **`minlen`**: The minimum allowed length for the field.
 - **`maxlen`**: The maximum allowed length for the field.
 - **`size`**: The size (in characters) of the input field.
+- **`default_value`**: The default value.
 
 For example:
 
@@ -782,6 +783,7 @@ The `integer` field type supports the following additional options:
 
 - **`min`**: The minimum allowed value for the field.
 - **`max`**: The maximum allowed value for the field.
+- **`default_value`**: The default value.
 
 For example:
 
@@ -806,6 +808,7 @@ The `float` field type supports the following additional options:
 
 - **`min`**: The minimum allowed value for the field.
 - **`max`**: The maximum allowed value for the field.
+- **`default_value`**: The default value.
 
 For example:
 
@@ -839,6 +842,7 @@ The `date` field type supports the following additional options:
 
 - **`min`**: The minimum allowed date (format: a string YYYY-MM-DD)
 - **`max`**: The maximum allowed date (format: a string YYYY-MM-DD)
+- **`default_value`**: The default value.
 
 For example:
 
@@ -849,7 +853,7 @@ For example:
           "title": "Birthdate",
           "type": "date",
           "min": "1900-01-01",
-          "max": "2015-01-01",
+          "max": "2015-01-01"
         }
     ]
     ...
@@ -945,6 +949,7 @@ The `text` field type supports the following additional options:
 - **`cols`**: The number of cols to make the input filed.
 - **`minlen`**: The minimum allowed length for the field.
 - **`maxlen`**: The maximum allowed length for the field.
+- **`default_value`**: The default value.
 
 For example:
 
@@ -966,6 +971,7 @@ For example:
 ### <a name="field_types_password">Password</a>
 
 - **`minlen`**: The minimum allowed length for the field.
+- **`default_value`**: The default value.
 
 ### <a name="field_types_file">File</a>
 

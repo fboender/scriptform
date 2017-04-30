@@ -18,13 +18,14 @@ class FormDefinition(object):
     for validation of the form values.
     """
     def __init__(self, name, title, description, fields, script,
-                 output='escaped', hidden=False, submit_title="Submit",
-                 allowed_users=None, run_as=None):
+                 default_value=None, output='escaped', hidden=False,
+                 submit_title="Submit", allowed_users=None, run_as=None):
         self.name = name
         self.title = title
         self.description = description
         self.fields = fields
         self.script = script
+        self.default_value = default_value
         self.output = output
         self.hidden = hidden
         self.submit_title = submit_title

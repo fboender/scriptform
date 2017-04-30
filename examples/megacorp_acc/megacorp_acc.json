@@ -23,6 +23,14 @@
                     "type": "string"
                 },
                 {
+                    "name": "birthdate",
+                    "title": "Birthdate",
+                    "type": "date",
+                    "min": "1900-01-01",
+                    "max": "2015-01-01",
+                    "default_value": "1980-02-05"
+                },
+                {
                     "name": "email_address",
                     "title": "What's your email address?",
                     "type": "string",
@@ -37,24 +45,6 @@
             "description": "Please check which topics you are interested in",
             "script": "job_signup_step2.sh",
             "fields": [
-                {
-                    "name": "first_name",
-                    "title": "First name",
-                    "type": "string",
-                    "hidden": true
-                },
-                {
-                    "name": "last_name",
-                    "title": "Last name",
-                    "type": "string",
-                    "hidden": true
-                },
-                {
-                    "name": "email_address",
-                    "title": "What's your email address?",
-                    "type": "string",
-                    "hidden": true
-                },
                 {
                     "name": "check_company",
                     "title": "Negacorp Company news",
@@ -154,6 +144,7 @@
                     "title": "From IP Address",
                     "type": "string",
                     "required": true,
+                    "default_value": "192.168.4.",
                     "min_length": 7,
                     "size": 15
                 },
@@ -162,7 +153,8 @@
                     "title": "Expire (days)",
                     "type": "integer",
                     "max": 31,
-                    "min": 2
+                    "min": 2,
+                    "default_value": 7
                 },
                 {
                     "name": "network",
