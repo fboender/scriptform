@@ -1167,6 +1167,17 @@ in some cases:
 * If Scriptform itself is running as a non-root user, scripts will be executed
   as that user.
 
+If you use an init script, Scriptform will run as user `root`, which will
+cause Scriptform to automatically drop privileges to user `nobody` and group
+`nobody` when executing shell scripts. This may cause "permission denied"
+problems! There are a few possible ways to work around this:
+
+* Make sure the user or group `nobody` has rights to view and execute the
+  scripts. The form configuration itself should probably not be viewable by
+  user `nobody` since it may contain passwords.
+* Modify the init or systemd script to run as a different user.
+* Add `run_as` properties to each form definition to specify the user it
+  should run as.
 
 
 
@@ -1256,6 +1267,7 @@ Scriptform to get this working. For example, in Apache:
 
 If such a header is seen, Scriptform won't perform validation of the password
 and just assumes the username is correct.
+
 
 
 ## <a name="cust">Form customization</a>

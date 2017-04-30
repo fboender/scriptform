@@ -154,6 +154,12 @@ time.  These are not installed by default. You can find init scripts for
 Debian / Ubuntu at `/usr/share/doc/scriptform/scriptform.init.d_debian` and
 for Redhat / Centos at `/usr/share/doc/scriptform/scriptform.init.d_debian`. 
 
+**NOTE**: If you use an init script, Scriptform will run as user `root`, which
+will cause Scriptform to automatically drop privileges to user `nobody` and
+group `nobody` when executing shell scripts. This may cause "permission
+denied" problems! See the "Execution security policy" chapter in the User
+Manual for more information.
+
 To install the init script:
 
 For **Debian / Ubuntu** systems:
