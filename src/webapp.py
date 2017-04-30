@@ -53,8 +53,8 @@ HTML_HEADER = u'''<html>
     div.form li.hidden {{ display: none; }}
     div.form p.form-field-title {{ margin-bottom: 0px; }}
     div.form p.form-field-input {{ margin-top: 0px; }}
-    div.form li.checkbox p.form-field-input {{ float: left;
-                                               margin-right: 8px; }}
+    div.form li.checkbox p.form-field-input {{ display: inline; }}
+    div.form li.checkbox p.form-field-title {{ display: inline; }}
     div.form li.required abbr {{ color: #FF0000; }}
     select,
     textarea,
