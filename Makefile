@@ -63,6 +63,7 @@ release_deb: release_src doc
 
 	cp contrib/scriptform.init.d_debian rel_deb/usr/share/doc/$(PROG)
 	cp contrib/scriptform.init.d_redhat rel_deb/usr/share/doc/$(PROG)
+	cp contrib/scriptform.service rel_deb/usr/share/doc/$(PROG)
 	cp -ar contrib/debian/DEBIAN rel_deb/
 
 	# Bump version numbers

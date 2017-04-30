@@ -1,0 +1,14 @@
+[Unit]
+Description=Scriptform
+After=network.target
+
+[Service]
+Environment=FORM_CONFIG=/home/fboender/Projects/fboender/scriptform/examples/megacorp_acc/megacorp_acc.json
+Environment=LOG_FILE=/var/log/scriptform.log
+Environment=PORT=8081
+ExecStart=/usr/bin/scriptform --pid-file=/var/run/scriptform.pid --port=${PORT} --log-file=${LOG_FILE} ${FORM_CONFIG}
+Type=forking
+PIDFile=/var/run/scriptform.pid
+
+[Install]
+WantedBy=default.target

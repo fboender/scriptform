@@ -181,6 +181,18 @@ For **RedHat / Centos** systems:
 Then edit `/etc/init.d/scriptform` and change the `FORM_CONFIG` setting to
 point at the form configuration JSON file you'd like to use.
 
+There's also a **Systemd** unit file, which should work on most systems that
+run on systemd:
+
+    sudo cp /usr/share/doc/scriptform/scriptform.service /etc/systemd/system/
+
+Then edit `/etc/systemd/system/scriptform.service` and make change the
+`FORM_CONFIG` environment variable to point at the form configuration JSON
+file you'd like to use.
+
+
+
+
 ## Usage
 
 Usage:
