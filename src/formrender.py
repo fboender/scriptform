@@ -62,7 +62,7 @@ class FormRender(object):
         "select": u'<select name="{name}" class="{classes}" '
                   u'style="{style}">{select_elems}</select>',
         "checkbox": u'<input {checked} type="checkbox" name="{name}" '
-                    u'value="on" class="{classes} style="{style}"" />',
+                    u'value="on" class="{classes}" style="{style}" />',
     }
 
     def __init__(self, form_def):
