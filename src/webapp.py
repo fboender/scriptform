@@ -478,7 +478,6 @@ class ScriptFormWebApp(RequestHandler):
 
     def h_static(self, fname):
         """Serve static files"""
-        username = self.auth()
         form_config = self.scriptform.get_form_config()
 
         if not form_config.static_dir:

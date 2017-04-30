@@ -1077,6 +1077,8 @@ Scriptform does not provide the browser with a content-type of the file, since
 it is impossible to guess.  Generally, browsers do a decent job at figuring it
 out themselves.
 
+**Note**: Static file serving does not require authentication. All users,
+including anonymous users, can view static files.
 
 
 
