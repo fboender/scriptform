@@ -47,7 +47,7 @@
             "fields": [
                 {
                     "name": "check_company",
-                    "title": "Negacorp Company news",
+                    "title": "Megacorp Company news",
                     "type": "checkbox"
                 },
                 {
