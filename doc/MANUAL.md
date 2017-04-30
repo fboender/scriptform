@@ -1239,8 +1239,6 @@ LDAP or OpenID (SSO) authentication.
 You must pass the `REMOTE_USER` header (not environment variable!) to
 Scriptform to get this working. For example, in Apache:
 
-    RequestHeader set REMOTE_USER %{REMOTE_USER}s
-
     Redirect permanent /scriptform /scriptform/
     ProxyPass /scriptform/ http://localhost:8081/
     ProxyPassReverse /scriptform/ http://localhost:8081/
@@ -1251,6 +1249,9 @@ Scriptform to get this working. For example, in Apache:
         AuthBasicProvider file
         AuthUserFile "/var/www/users"
         Require valid-user
+
+        Header unset REMOTE_USER
+        RequestHeader set REMOTE_USER %{REMOTE_USER}s
     </Location>
 
 If such a header is seen, Scriptform won't perform validation of the password
