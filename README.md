@@ -197,24 +197,25 @@ file you'd like to use.
 
 Usage:
 
-    Usage: /usr/bin/scriptform [option] (--start|--stop) <form_definition.json>
-           /usr/bin/scriptform --generate-pw
+	Usage: /usr/bin/scriptform [option] (--start|--stop) <form_definition.json>
+		   /usr/bin/scriptform --generate-pw
 
-    Options:
-      --version             show program's version number and exit
-      -h, --help            show this help message and exit
-      -g, --generate-pw     Generate password
-      -p PORT, --port=PORT  Port to listen on (default=80)
-      -f, --foreground      Run in foreground (debugging)
-      -r, --reload          Reload form config on every request (DEV)
-      --pid-file=PID_FILE   Pid file
-      --log-file=LOG_FILE   Log file
-      --start               Start daemon
-      --stop                Stop daemon
+	Options:
+	  --version             show program's version number and exit
+	  -h, --help            show this help message and exit
+	  -g, --generate-pw     Generate password
+	  -p PORT, --port=PORT  Port to listen on (default=8081)
+	  -f, --foreground      Run in foreground (debugging)
+	  -r, --reload          Reload form config on every request (DEV)
+	  --pid-file=PID_FILE   Pid file
+	  --log-file=LOG_FILE   Log file
+	  --start               Start daemon
+	  --stop                Stop daemon
+
 
 ScriptForm can run both in daemon mode or in the foreground. In daemon mode, we
 can control ScriptForm with the `--start` and `--stop` options. By default it
-runs on port 80, which we can change with the `-p` option.
+runs on port 8081, which we can change with the `-p` option.
 
     $ scriptform -p8081 ./test_server.json
 
