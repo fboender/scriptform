@@ -20,7 +20,7 @@ else
     UPDATE=0
 fi
 
-htpasswd -s -b $HTPASSWD $username $password1 || exit $?
+htpasswd -s -b $HTPASSWD "$username" "$password1" || exit $?
 
 if [ "$UPDATE" -eq 1 ]; then
     echo "User password updated"
