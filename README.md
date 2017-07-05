@@ -35,6 +35,9 @@ Packages are available for:
   response to the client. The last one lets you stream images or binaries to
   the browser.
 - Run scripts as different users without requiring sudo.
+- Audit log: All form submissions including entered values can be logged to a
+  logfile for auditing.
+
 
 ## Use-cases
 
@@ -90,7 +93,7 @@ The script `job_add_user.sh`:
         echo "Passwords do not match" >&2; exit 1
     fi
 
-    htpasswd -s -b .htpasswd $username $password1 || exit $?
+    htpasswd -s -b .htpasswd "$username" "$password1" || exit $?
 
     echo "User created or password updated"
 
