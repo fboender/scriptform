@@ -55,6 +55,34 @@
                     "title": "Product news",
                     "type": "checkbox",
                     "checked": true
+                },
+                {
+                    "name": "first_name",
+                    "title": "First name",
+                    "type": "string",
+                    "hidden": true
+                },
+                {
+                    "name": "last_name",
+                    "title": "Last name",
+                    "type": "string",
+                    "hidden": true
+                },
+                {
+                    "name": "birthdate",
+                    "title": "Birthdate",
+                    "type": "date",
+                    "min": "1900-01-01",
+                    "max": "2015-01-01",
+                    "default_value": "1980-02-05",
+                    "hidden": true
+                },
+                {
+                    "name": "email_address",
+                    "title": "What's your email address?",
+                    "type": "string",
+                    "style": "width: 300px;",
+                    "hidden": true
                 }
             ]
         },
