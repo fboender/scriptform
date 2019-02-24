@@ -216,7 +216,7 @@ def main():  # pragma: no cover
 
         # If a form configuration was specified, change to that dir so we can
         # find the job scripts and such.
-        if len(args) > 0:
+        if args:
             path = os.path.dirname(args[0])
             if path:
                 os.chdir(path)
@@ -245,6 +245,7 @@ def main():  # pragma: no cover
         except Exception as err:
             log.exception(err)
             raise
+
 
 if __name__ == "__main__":  # pragma: no cover
     main()

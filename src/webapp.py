@@ -159,6 +159,7 @@ HTML_SUBMIT_RESPONSE = u'''
 {footer}
 '''
 
+
 def censor_form_values(form_def, form_values):
     """
     Remove sensitive field values from form_values dict.
@@ -433,7 +434,7 @@ class ScriptFormWebApp(RequestHandler):
             log.info("Calling script: %s", form_def.script)
             log.info("Current working dir: %s", cwd)
             log.info("User: %s", username)
-            log.info("Variables: %s", censor_form_values(form_def, form_values))
+            log.info("Vars: %s", censor_form_values(form_def, form_values))
 
             form_def = form_config.get_form_def(form_name)
             result = runscript.run_script(form_def, form_values, self.wfile,

@@ -10,9 +10,6 @@ import grp
 import subprocess
 
 
-log = logging.getLogger('RUNSCRIPT')
-
-
 def run_as(uid, gid, groups):
     """Closure that changes the current running user and groups. Called before
     executing scripts by Subprocess."""
@@ -33,6 +30,8 @@ def run_script(form_def, form_values, stdout=None, stderr=None):
     callback should be written. The output of the script is hooked up to
     the output, depending on the output type.
     """
+    log = logging.getLogger('RUNSCRIPT')
+
     # Validate params
     if form_def.output == 'raw' and (stdout is None or stderr is None):
         msg = 'stdout and stderr cannot be none if script output ' \
