@@ -1,0 +1,176 @@
+#
+# This is a script containing functions that are used as build rules. You can
+# use the Simple Little Automator (https://github.com/fboender/sla.git) to run
+# these rules, or you can run them directly in your shell:
+#
+#   $ bash -c ". build.sla && test"
+#
+
+PROG="scriptform"
+
+test () {
+    # Run tests
+	cd test && python ./test.py
+	cd src && flake8 *.py || true
+	cd src && pylint --reports=n -dR -d star-args -d no-member *.py || true
+}
+
+clean () {
+    # Clean the repo of artifacts
+    rm -rf $PROG.spec
+	rm -rf *.tar.gz
+	rm -rf *.zip
+	rm -rf *.deb
+	rm -rf rel_deb
+	rm -rf scriptform-*
+	rm -rf doc/manual.html
+	rm -rf doc/MANUAL.html
+	rm -rf examples/megacorp_acc/megacorp.db
+	rm -rf examples/megacorp_acc/.coverage
+	rm -rf examples/megacorp_acc/htmlcov
+	find ./ -name "*.log" -delete
+	find ./ -name "*.pyc" -delete
+	rm -f test/data.csv
+	rm -f test/data.raw
+    rm -rf dist/
+    rm -rf build
+}
+
+doc () {
+    # Generate documentation
+    cat doc/header.html > doc/MANUAL.html
+    markdown_py doc/MANUAL.md >> doc/MANUAL.html
+    cat doc/footer.html >> doc/MANUAL.html
+
+    cat doc/header.html > README.html
+    markdown_py README.md >> README.html
+    cat doc/footer.html >> README.html
+    T_DOC_BUILT=1
+}
+
+_release_check() {
+    # Verify and prepare for release
+
+    # Only run this rule once
+    if [ -z "$RELEASE_CHECK_DONE" ]; then
+        RELEASE_CHECK_DONE=1
+
+        # Prepare project for release
+        clean
+        doc
+
+        # Check that REL_VERSION is set
+        if [ ! -z "$1" ]; then
+            REL_VERSION="$1"
+            shift
+        else
+            echo "REL_VERSION not set. Aborting" >&2
+            exit 1
+        fi
+    fi
+}
+
+release_src () {
+    # Build source (tar.gz) release
+    _release_check "$*"
+
+	# Prepare source
+	rm -rf "$PROG-$REL_VERSION"
+	mkdir "$PROG-$REL_VERSION"
+	cp src/*.py "$PROG-$REL_VERSION/"
+	mv "$PROG-$REL_VERSION/scriptform.py" "$PROG-$REL_VERSION/$PROG"
+	cp LICENSE "$PROG-$REL_VERSION/"
+	cp README.md "$PROG-$REL_VERSION/"
+	cp contrib/release_Makefile "$PROG-$REL_VERSION/Makefile"
+	cp doc/MANUAL.html "$PROG-$REL_VERSION/MANUAL.html"
+
+	# Bump version numbers
+	find "$PROG-$REL_VERSION/" -type f -print0 | xargs -0 sed -i "s/%%VERSION%%/$REL_VERSION/g" 
+
+	# Create archives
+	zip -q -r "$PROG-$REL_VERSION.zip" "$PROG-$REL_VERSION"
+	tar -czf "$PROG-$REL_VERSION.tar.gz" "$PROG-$REL_VERSION"
+}
+
+release_deb () {
+    # Build deb release
+    _release_check "$*"
+
+    if [ -z "$RELEASE_DEB_DONE" ]; then
+        mkdir -p "rel_deb/usr/bin"
+        mkdir -p "rel_deb/usr/lib/$PROG"
+        mkdir -p "rel_deb/usr/share/doc/$PROG"
+        mkdir -p "rel_deb/usr/share/man/man1"
+
+        # Copy the source to the release directory structure.
+        cp LICENSE "rel_deb/usr/share/doc/$PROG"
+        cp README.md "rel_deb/usr/share/doc/$PROG"
+        cp doc/MANUAL.md "rel_deb/usr/share/doc/$PROG"
+        cp README.html "rel_deb/usr/share/doc/$PROG"
+        cp doc/MANUAL.html "rel_deb/usr/share/doc/$PROG"
+        cp -ar examples "rel_deb/usr/share/doc/$PROG"
+        cp src/*.py "rel_deb/usr/lib/$PROG/"
+        ln -s "/usr/lib/$PROG/scriptform.py" "rel_deb/usr/bin/$PROG"
+
+        cp contrib/scriptform.init.d_debian "rel_deb/usr/share/doc/$PROG"
+        cp contrib/scriptform.init.d_redhat "rel_deb/usr/share/doc/$PROG"
+        cp contrib/scriptform.service "rel_deb/usr/share/doc/$PROG"
+        cp -ar contrib/debian/DEBIAN "rel_deb/"
+
+        # Bump version numbers
+        find rel_deb/ -type f -print0 | xargs -0 sed -i "s/%%VERSION%%/$REL_VERSION/g" 
+
+        # Create debian pacakge
+        fakeroot dpkg-deb --build rel_deb > /dev/null
+        mv rel_deb.deb "$PROG-$REL_VERSION.deb"
+
+        # Cleanup
+        rm -rf rel_deb
+        rm -rf "$PROG-$REL_VERSION"
+
+        RELEASE_DEB_DONE=1
+    fi
+}
+
+release_rpm () {
+    # Build rpm release
+    _release_check "$*"
+    release_deb
+
+    alien -r -g -v scriptform-$REL_VERSION.deb
+    sed -i 's#%dir "/"##' scriptform-$REL_VERSION/scriptform-$REL_VERSION-2.spec
+    sed -i 's#%dir "/usr/"##' scriptform-$REL_VERSION/scriptform-$REL_VERSION-2.spec
+    sed -i 's#%dir "/usr/bin/"##' scriptform-$REL_VERSION/scriptform-$REL_VERSION-2.spec
+    sed -i 's#%dir "/usr/lib/"##' scriptform-$REL_VERSION/scriptform-$REL_VERSION-2.spec
+    sed -i 's#%dir "/usr/share/"##' scriptform-$REL_VERSION/scriptform-$REL_VERSION-2.spec
+    sed -i 's#%dir "/usr/share/doc/"##' scriptform-$REL_VERSION/scriptform-$REL_VERSION-2.spec
+    sed -i 's#%dir "/usr/share/man/"##' scriptform-$REL_VERSION/scriptform-$REL_VERSION-2.spec
+    sed -i 's#%dir "/usr/share/man/man1/"##' scriptform-$REL_VERSION/scriptform-$REL_VERSION-2.spec
+    pushd .
+    cd scriptform-$REL_VERSION/
+    FULLPATH="$(pwd)"
+    rpmbuild --quiet --target=noarch --buildroot "$FULLPATH" -bb scriptform-$REL_VERSION-2.spec
+    popd
+}
+
+release_bin () {
+    # Build binary release
+    _release_check "$*"
+
+    rm -rf dist/scriptform/
+    pyinstaller --strip --onefile src/scriptform.py
+    mv dist $PROG-$REL_VERSION-bin64
+    tar -czf $PROG-$REL_VERSION-bin64.tar.gz $PROG-$REL_VERSION-bin64
+    rm -rf $PROG-$REL_VERSION-bin64
+    rm -rf $PROG.spec
+    rm -rf build
+}
+
+release () {
+    # Build releases for all platforms
+    _release_check "$*"
+    release_src
+    release_deb
+    release_rpm
+    release_bin
+}
