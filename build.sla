@@ -10,9 +10,13 @@ PROG="scriptform"
 
 test () {
     # Run tests
+    ROOTDIR="$(pwd)"
 	cd test && python ./test.py
+    cd $ROOTDIR
 	cd src && flake8 *.py || true
+    cd $ROOTDIR
 	cd src && pylint --reports=n -dR -d star-args -d no-member *.py || true
+    cd $ROOTDIR
 }
 
 clean () {
