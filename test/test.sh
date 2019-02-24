@@ -1,5 +1,8 @@
 #!/bin/sh
 
-echo "HTTP/1.1 200 OK"
-echo "Content-type: text/plain;"
+cat << EOF
+HTTP/1.0 200 Ok
+echo "Content-type: text/plain"
+
+EOF
 env
