@@ -181,7 +181,7 @@ class FormRender(object):
             if o_value == value:
                 checked = 'checked'
             radio_elems.append(tpl_option.format(name=name,
-                                                 value=value,
+                                                 value=o_value,
                                                  checked=checked,
                                                  label=o_label,
                                                  classes=classes,
