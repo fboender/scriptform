@@ -4,6 +4,9 @@
 FormRender takes care of the rendering of forms to HTML.
 """
 
+import datetime
+
+
 HTML_FIELD = u'''
   <li class="{classes}">
     <p class="form-field-title">{title}</p>
@@ -140,6 +143,12 @@ class FormRender(object):
         Render a date field to HTML.
         """
         tpl = self.field_tpl['date']
+        if value == "today":
+            value = datetime.datetime.now().strftime("%Y-%m-%d")
+        if minval == "today":
+            minval = datetime.datetime.now().strftime("%Y-%m-%d")
+        if maxval == "today":
+            maxval = datetime.datetime.now().strftime("%Y-%m-%d")
         return tpl.format(name=name, value=value, minval=minval, maxval=maxval,
                           required=required, classes=classes, style=style)
 

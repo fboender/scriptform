@@ -836,13 +836,16 @@ enter a date. Depending on the browser's support for HTML5 forms, the input
 field may have a pop-out calendar from which the user can select a date. 
 
 The date must be entered, and will be passed to the callback, in the form
-YYYY-MM-DD.
+`YYYY-MM-DD`.
 
 The `date` field type supports the following additional options:
 
-- **`min`**: The minimum allowed date (format: a string YYYY-MM-DD)
-- **`max`**: The maximum allowed date (format: a string YYYY-MM-DD)
-- **`default_value`**: The default value.
+- **`min`**: The minimum allowed date (format: a string `YYYY-MM-DD`)  or
+  "`today`" for today.
+- **`max`**: The maximum allowed date (format: a string `YYYY-MM-DD`) or
+  "`today`" for today.
+- **`default_value`**: The default value (format: a string `YYYY-MM-DD`) or
+  "`today`" for today.
 
 For example:
 
@@ -854,6 +857,20 @@ For example:
           "type": "date",
           "min": "1900-01-01",
           "max": "2015-01-01"
+        }
+    ]
+    ...
+
+Must start today or in the future (Default value today):
+
+    ...
+    "fields": [
+        {
+          "name": "startdate",
+          "title": "Start date",
+          "type": "date",
+          "min": "today",
+          "default_value": "today"
         }
     ]
     ...
