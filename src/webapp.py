@@ -25,7 +25,7 @@ HTML_HEADER = u'''<html>
             background-color: #1D98E4; padding: 9px; border-radius: 4px;
             border-width: 0px; text-decoration: none; }}
     .btn-act {{ background-color: #1D98E4; }}
-    .btn-lnk {{ background-color: #D0D0D0; }}
+    .btn-lnk {{ background-color: #B0B0B0; }}
     .error {{ color: #FF0000; }}
 
     /* Main element markup */
