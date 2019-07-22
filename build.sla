@@ -11,31 +11,31 @@ PROG="scriptform"
 test () {
     # Run tests
     ROOTDIR="$(pwd)"
-	cd test && python ./test.py
+    cd test && python ./test.py
     cd $ROOTDIR
-	cd src && flake8 *.py || true
+    cd src && flake8 *.py || true
     cd $ROOTDIR
-	cd src && pylint --reports=n -dR -d star-args -d no-member *.py || true
+    cd src && pylint --reports=n -dR -d star-args -d no-member *.py || true
     cd $ROOTDIR
 }
 
 clean () {
     # Clean the repo of artifacts
     rm -rf $PROG.spec
-	rm -rf *.tar.gz
-	rm -rf *.zip
-	rm -rf *.deb
-	rm -rf rel_deb
-	rm -rf scriptform-*
-	rm -rf doc/manual.html
-	rm -rf doc/MANUAL.html
-	rm -rf examples/megacorp_acc/megacorp.db
-	rm -rf examples/megacorp_acc/.coverage
-	rm -rf examples/megacorp_acc/htmlcov
-	find ./ -name "*.log" -delete
-	find ./ -name "*.pyc" -delete
-	rm -f test/data.csv
-	rm -f test/data.raw
+    rm -rf *.tar.gz
+    rm -rf *.zip
+    rm -rf *.deb
+    rm -rf rel_deb
+    rm -rf scriptform-*
+    rm -rf doc/manual.html
+    rm -rf doc/MANUAL.html
+    rm -rf examples/megacorp_acc/megacorp.db
+    rm -rf examples/megacorp_acc/.coverage
+    rm -rf examples/megacorp_acc/htmlcov
+    find ./ -name "*.log" -delete
+    find ./ -name "*.pyc" -delete
+    rm -f test/data.csv
+    rm -f test/data.raw
     rm -rf dist/
     rm -rf build
 }
@@ -78,22 +78,22 @@ release_src () {
     # Build source (tar.gz) release
     _release_check "$*"
 
-	# Prepare source
-	rm -rf "$PROG-$REL_VERSION"
-	mkdir "$PROG-$REL_VERSION"
-	cp src/*.py "$PROG-$REL_VERSION/"
-	mv "$PROG-$REL_VERSION/scriptform.py" "$PROG-$REL_VERSION/$PROG"
-	cp LICENSE "$PROG-$REL_VERSION/"
-	cp README.md "$PROG-$REL_VERSION/"
-	cp contrib/release_Makefile "$PROG-$REL_VERSION/Makefile"
-	cp doc/MANUAL.html "$PROG-$REL_VERSION/MANUAL.html"
+    # Prepare source
+    rm -rf "$PROG-$REL_VERSION"
+    mkdir "$PROG-$REL_VERSION"
+    cp src/*.py "$PROG-$REL_VERSION/"
+    mv "$PROG-$REL_VERSION/scriptform.py" "$PROG-$REL_VERSION/$PROG"
+    cp LICENSE "$PROG-$REL_VERSION/"
+    cp README.md "$PROG-$REL_VERSION/"
+    cp contrib/release_Makefile "$PROG-$REL_VERSION/Makefile"
+    cp doc/MANUAL.html "$PROG-$REL_VERSION/MANUAL.html"
 
-	# Bump version numbers
-	find "$PROG-$REL_VERSION/" -type f -print0 | xargs -0 sed -i "s/%%VERSION%%/$REL_VERSION/g" 
+    # Bump version numbers
+    find "$PROG-$REL_VERSION/" -type f -print0 | xargs -0 sed -i "s/%%VERSION%%/$REL_VERSION/g" 
 
-	# Create archives
-	zip -q -r "$PROG-$REL_VERSION.zip" "$PROG-$REL_VERSION"
-	tar -czf "$PROG-$REL_VERSION.tar.gz" "$PROG-$REL_VERSION"
+    # Create archives
+    zip -q -r "$PROG-$REL_VERSION.zip" "$PROG-$REL_VERSION"
+    tar -czf "$PROG-$REL_VERSION.tar.gz" "$PROG-$REL_VERSION"
 }
 
 release_deb () {
