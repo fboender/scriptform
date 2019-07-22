@@ -161,7 +161,7 @@ class Daemon(object):  # pragma: no cover
 
         return pid
 
-    def _cleanup(self, sig=None, frame=None):
+    def _cleanup(self, sig=None):
         """
         Remove pid files and call registered shutodnw callbacks.
         """

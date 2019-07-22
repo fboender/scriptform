@@ -11,9 +11,16 @@ PROG="scriptform"
 test () {
     # Run tests
     ROOTDIR="$(pwd)"
+
+    # Unit / integration tests
     cd test && python ./test.py
+
+    # Code quality linting (flake8)
     cd $ROOTDIR
-    cd src && flake8 *.py || true
+    # E402 == module level import not at top of file
+    #cd src && flake8 --extend-ignore=E402 *.py || true
+
+    # Code quality linting (pylint)
     cd $ROOTDIR
     cd src && pylint --reports=n -dR -d star-args -d no-member *.py || true
     cd $ROOTDIR

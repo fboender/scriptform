@@ -101,8 +101,8 @@ class FormRender(object):
         """
         params = self.cast_params(kwargs)
         method_name = 'r_field_{0}'.format(field_type)
-        method = getattr(self, method_name, None)
-        field = method(**params)
+        method = getattr(self, method_name)
+        field = method(**params)  # pylint: disable=not-callable
 
         if 'required' in kwargs and kwargs['required'] is True:
             return HTML_REQUIRED.format(field)

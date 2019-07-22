@@ -100,7 +100,7 @@ class FormDefinition(object):
         field_def = self.get_field_def(field_name)
 
         field_type = field_def['type']
-        validate_cb = getattr(self, 'validate_{0}'.format(field_type), None)
+        validate_cb = getattr(self, 'validate_{0}'.format(field_type))
         return validate_cb(field_def, form_values)
 
     def validate_string(self, field_def, form_values):

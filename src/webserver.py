@@ -4,7 +4,6 @@ Basic web server / framework.
 
 from SocketServer import ThreadingMixIn
 import BaseHTTPServer
-from BaseHTTPServer import BaseHTTPRequestHandler
 import urlparse
 import cgi
 
@@ -30,25 +29,25 @@ class ThreadedHTTPServer(ThreadingMixIn, BaseHTTPServer.HTTPServer):
     pass
 
 
-class RequestHandler(BaseHTTPRequestHandler):
+class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     """
     Basic web server request handler. Handles GET and POST requests. You should
     inherit from this class and implement h_ methods for handling requests.
     If no path is set, it dispatches to the 'index' or 'default' method.
     """
-    def log_message(self, fmt, *args):
+    def log_message(self, fmt, *args):  # pylint: disable=arguments-differ
         """Overrides BaseHTTPRequestHandler which logs to the console. We log
         to our log file instead"""
         fmt = "{0} {1}"
         self.scriptform.log.info(fmt.format(self.address_string(), args))
 
-    def do_GET(self):
+    def do_GET(self):  # pylint: disable=invalid-name
         """
         Handle a GET request.
         """
         self._call(*self._parse(self.path.lstrip('/')))
 
-    def do_POST(self):
+    def do_POST(self):  # pylint: disable=invalid-name
         """
         Handle a POST request.
         """

@@ -6,9 +6,6 @@ Main ScriptForm program
 """
 
 import sys
-if hasattr(sys, 'dont_write_bytecode'):
-    sys.dont_write_bytecode = True
-
 import optparse
 import os
 import json
@@ -17,6 +14,10 @@ import thread
 import hashlib
 import socket
 
+if hasattr(sys, 'dont_write_bytecode'):
+    sys.dont_write_bytecode = True
+
+# pylint: disable=wrong-import-position
 from daemon import Daemon
 from formdefinition import FormDefinition
 from formconfig import FormConfig
