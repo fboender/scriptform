@@ -297,16 +297,16 @@ class ScriptFormWebApp(RequestHandler):
                 params['maxlen'] = field.get('maxlen', '')
 
             if field['type'] in ('integer', 'float'):
-                params['minval'] = field.get("min", '')
-                params['maxval'] = field.get("max", '')
+                params['minval'] = field.get('min', '')
+                params['maxval'] = field.get('max', '')
 
             if field['type'] == 'date':
                 params['minval'] = field.get('min', '')
                 params['maxval'] = field.get('max', '')
 
             if field['type'] == 'text':
-                params['rows'] = field.get("rows", '')
-                params['cols'] = field.get("cols", '')
+                params['rows'] = field.get('rows', '')
+                params['cols'] = field.get('cols', '')
 
             if field['type'] == 'radio':
                 if not form_values.get(field['name'], None):
