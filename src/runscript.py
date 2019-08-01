@@ -11,10 +11,14 @@ import subprocess
 
 
 def run_as(uid, gid, groups):
-    """Closure that changes the current running user and groups. Called before
-    executing scripts by Subprocess."""
+    """
+    Closure that changes the current running user and groups. Called before
+    executing scripts by Subprocess.
+    """
     def set_acc():
-        """Change user and groups"""
+        """
+        Change user and groups
+        """
         os.setgroups(groups)
         os.setgid(gid)
         os.setuid(uid)
