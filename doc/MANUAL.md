@@ -39,6 +39,7 @@ This is the manual for version %%VERSION%%.
     - [Text](#field_types_text)
     - [Password](#field_types_password)
     - [File](#field_types_file)
+1. [Dynamic forms](#dynamic_forms)
 1. [Output](#output)
     - [Output types](#output_types)
     - [Exit codes](#output_exitcodes)
@@ -882,6 +883,10 @@ The `radio` field type lets the user pick one option from a list of options.
 The `radio` field type supports the following additional options:
 
 - **`options`**: The options available to the user. (list of lists, **required**)
+- **`options_from`**: A list of available options from which the user can
+  choose, read from an external file or executable. 
+
+Either `options` or `options_from` may be given, but not both.
 
 For example:
 
@@ -936,14 +941,18 @@ The `select` field type supports the following additional options:
 - **`options`**: A list of available options from which the user can choose.
   Each item in the list is itself a list of two values: the value and the
   title.
+- **`options_from`**: A list of available options from which the user can
+  choose, read from an external file or executable. 
+
+Either `options` or `options_from` may be given, but not both.
 
 For example
 
     ...
     "fields": [
         {
-          "name": "source_sql",
-          "title": "Load which kind of database?",
+          "name": "target_db",
+          "title": "Load CSV into which database?",
           "type": "select",
           "options": [
             ["empty", "Empty database"],
@@ -954,6 +963,18 @@ For example
     ]
     ...
 
+Dynamically read select options from a script:
+
+    ...
+    "fields": [
+        {
+          "name": "target_db",
+          "title": "Load CSV into which database?",
+          "type": "select",
+          "options_from": "form_loadcsv_target_db.sh"
+        }
+    ]
+    ...
 
 ### <a name="field_types_text">Text</a>
 
@@ -1021,6 +1042,79 @@ For example:
     ...
 
 
+
+## <a name="dynamic_forms">Dynamic Forms</a>
+
+Often it won't be enough to have staticly defined fields in forms. For
+example, you may  want the user to be able to select from a dynamically
+created list of files or databases.
+
+Scriptform offers a way to fill in parts of a form definition file dynamically
+from extern files or scripts. This is done at runtime when showing or
+validating the form, so no restarting of scriptform is required.
+
+When it's possible to dynamically load parts of a form, the form definition
+haev a `_from` option. For example, normally you'd use the `options` element
+for a `select` field in  a form, like so:
+
+    ...
+    "fields": [
+        {
+          "name": "target_db",
+          "title": "Load CSV into which database?",
+          "type": "select",
+          "options": [
+            ["empty", "Empty database"],
+            ["dev", "Development test database"],
+            ["ua", "Acceptance database"]
+          ]
+        }
+    ]
+    ...
+
+Scriptform also understands the `options_from` field, which replaces the
+`options` field. The value should point to a normal or executable file.
+Depending on that, the file is read or executed and its output interpreted as
+JSON. The form then uses that JSON as a replacement for the `options` field.
+
+For example:
+
+    ...
+    "fields": [
+        {
+          "name": "target_db",
+          "title": "Load CSV into which database?",
+          "type": "select",
+          "options_from": "form_loadcsv_target_db.sh"
+        }
+    ]
+    ...
+
+The script `form_loadcsv_target_db.sh` could look like:
+
+    #!/bin/sh
+    
+    cat << END_TEXT
+    [
+        ["test", "Test DB"],
+        ["acc", "Acc DB"],
+        ["prod", "Prod DB"]
+    ]
+    END_TEXT
+
+Notes:
+
+* The executable bit must be set in order for scriptform to execute the file.
+  Otherwise, the contents of the file is read.
+* Executable scripts are *always* executed as the user scriptform runs at!
+  While its not possible for the user to inject anything into the script, you
+  should still be careful with what the scripts do.
+
+### Supported dynamic form parts
+
+Currently the following parts of form definitions support dynamic form parts:
+
+* `fields`: `type` = `select`.
 
 
 ## <a name="output">Output</a>

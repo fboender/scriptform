@@ -6,6 +6,8 @@ validation of the form values.
 import os
 import datetime
 
+import runscript
+
 
 class ValidationError(Exception):
     """Default exception for Validation errors"""
@@ -190,8 +192,15 @@ class FormDefinition(object):
         """
         Validate a form field of type 'radio'.
         """
+        if 'options_from' in field_def:
+            # Dynamic options from file
+            active_options = runscript.from_file(field_def["options_from"])
+        else:
+            # Static options defined in form definition
+            active_options = field_def['options']
+
         value = form_values[field_def['name']]
-        if value not in [o[0] for o in field_def['options']]:
+        if value not in [o[0] for o in active_options]:
             raise ValidationError(
                 "Invalid value for radio button: {0}".format(value))
         return value
@@ -200,8 +209,15 @@ class FormDefinition(object):
         """
         Validate a form field of type 'select'.
         """
+        if 'options_from' in field_def:
+            # Dynamic options from file
+            active_options = runscript.from_file(field_def["options_from"])
+        else:
+            # Static options defined in form definition
+            active_options = field_def['options']
+
         value = form_values[field_def['name']]
-        if value not in [o[0] for o in field_def['options']]:
+        if value not in [o[0] for o in active_options]:
             raise ValidationError(
                 "Invalid value for dropdown: {0}".format(value))
         return value

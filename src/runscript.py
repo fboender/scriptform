@@ -8,6 +8,40 @@ import os
 import pwd
 import grp
 import subprocess
+import json
+
+
+def from_file(fname):
+    """
+    Read or execute `fname` and decode its contents as JSON. Used for reading
+    parts of forms from external files or scripts.
+    """
+    log = logging.getLogger(__name__)
+
+    if not fname.startswith('/'):
+        path = os.path.join(os.path.realpath(os.curdir), fname)
+    else:
+        path = fname
+
+    if os.access(path, os.X_OK):
+        # Executable. Run and grab output
+        log.debug("Executing %s", path)
+        proc = subprocess.Popen(path,
+                                shell=True,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE,
+                                close_fds=True)
+        stdout, stderr = proc.communicate(input)
+        if proc.returncode != 0:
+            log.error("%s returned non-zero exit code %s", path, proc.returncode)
+            log.error(stderr)
+            raise subprocess.CalledProcessError(proc.returncode, path, stderr)
+        out = stdout
+    else:
+        # Normal file
+        with open(path, 'r') as filehandle:
+            out = filehandle.read()
+    return json.loads(out)
 
 
 def run_as(uid, gid, groups):

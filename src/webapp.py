@@ -309,12 +309,22 @@ class ScriptFormWebApp(RequestHandler):
                 params['cols'] = field.get('cols', '')
 
             if field['type'] == 'radio':
+                if 'options_from' in field:
+                    fname = field['options_from']
+                    options = runscript.from_file(fname)
+                else:
+                    options = field['options']
+
                 if not form_values.get(field['name'], None):
-                    params['value'] = field['options'][0][0]
-                params['options'] = field['options']
+                    # Set default value
+                    params['value'] = options[0][0]
 
             if field['type'] in ('radio', 'select'):
-                params['options'] = field['options']
+                if 'options_from' in field:
+                    fname = field['options_from']
+                    params['options'] = runscript.from_file(fname)
+                else:
+                    params['options'] = field['options']
 
             if field['type'] == 'checkbox':
                 # Set default value from field definition
