@@ -165,7 +165,7 @@ def censor_form_values(form_def, form_values):
     Remove sensitive field values from form_values dict.
     """
     censored_form_values = copy.copy(form_values)
-    for field in form_def.fields:
+    for field in form_def.get_fields():
         if field['type'] == 'password':
             censored_form_values[field['name']] = '********'
     return censored_form_values
@@ -374,7 +374,7 @@ class ScriptFormWebApp(RequestHandler):
             name=form_def.name,
             fields=u''.join(
                 [render_field(f, errors.get(f['name'], []))
-                 for f in form_def.fields]
+                 for f in form_def.get_fields()]
             ),
             submit_title=form_def.submit_title
         )

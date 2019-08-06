@@ -39,7 +39,11 @@ This is the manual for version %%VERSION%%.
     - [Text](#field_types_text)
     - [Password](#field_types_password)
     - [File](#field_types_file)
-1. [Dynamic forms](#dynamic_forms)
+1. [Dynamic forms](#dynform)
+    - [Supported dynamic form parts](#dynform_support)
+    - [Dynamic select and radio options](#dynform_selectradio)
+    - [Dynamic fields](#dynform_fields)
+    - [Notes](#dynform_notes)
 1. [Output](#output)
     - [Output types](#output_types)
     - [Exit codes](#output_exitcodes)
@@ -649,7 +653,7 @@ Structurally, they are made up of the following elements:
       **Default:** `nobody`.
 
     - **`fields`**: List of fields in the form. Each field is a dictionary.
-      **Required**, **List of dictionaries**.
+      **Optional**, **List of dictionaries**.
 
         - **`name`**: The name of the field. This is what is passed as an
           environment variable to the callback. **Required**, **String**.
@@ -676,6 +680,11 @@ Structurally, they are made up of the following elements:
 
         - **`...`**: Other options, which depend on the type of field.  For
           more information, see [Field types](#field_types). **Optional**.
+
+    - **`fields_from`**: Path to a file or executable from which to read the
+      list of fields. See the **fields** option for information on fields. See
+      the [Dynamic forms](#dynamic_forms) chapter for more information.
+      **Optional**, **String**.
 
 - **`users`**: A dictionary of users where the key is the username and the
   value is the plain text password. This field is not required. **Dictionary**.
@@ -1043,7 +1052,7 @@ For example:
 
 
 
-## <a name="dynamic_forms">Dynamic Forms</a>
+## <a name="dynform">Dynamic Forms</a>
 
 Often it won't be enough to have staticly defined fields in forms. For
 example, you may  want the user to be able to select from a dynamically
@@ -1053,9 +1062,20 @@ Scriptform offers a way to fill in parts of a form definition file dynamically
 from extern files or scripts. This is done at runtime when showing or
 validating the form, so no restarting of scriptform is required.
 
-When it's possible to dynamically load parts of a form, the form definition
-haev a `_from` option. For example, normally you'd use the `options` element
-for a `select` field in  a form, like so:
+### <a name="dynform_support">Supported dynamic form parts</a>
+
+Currently the following parts of form definitions support dynamic form parts:
+
+* `forms.X.fields_from`: Form's fields are read from a file or script.
+*  Fields of type `select`. Options for dropdowns are read from a file or
+   script.
+*  Fields of type `radio`. Options for radio buttons are read from a file or
+   script.
+
+### <a name="dynform_selectradio">Dynamic select and radio options</a>
+
+Normally you'd use the `options` element for a `select` field in  a form, like
+so:
 
     ...
     "fields": [
@@ -1102,19 +1122,71 @@ The script `form_loadcsv_target_db.sh` could look like:
     ]
     END_TEXT
 
-Notes:
+Dynamic options for radio buttons works exactly the same, except the type
+will be `radio`:
+
+    "type": "select",
+    "options": [
+      ["empty", "Empty database"],
+      ["dev", "Development test database"],
+      ["ua", "Acceptance database"]
+    ]
+
+### <a name="dynform_fields">Dynamic fields</a>
+
+You can also generate all the fields in a form dynamically. For example, the
+following form definition will read all the fields from `form_dyn_fields.sh`:
+
+    {
+        "name": "dyn_fields",
+        "title": "Dynamic fileds",
+        "description": "All the fields in this form are dynamically read from a script.",
+        "submit_title": "Import",
+        "script": "job_import.sh",
+        "fields_from": "form_dyn_fields.sh"
+    }
+
+The script `form_dyn_fields.sh` could look something like:
+
+    #!/bin/sh
+
+    OPTIONS=$(cat <<'END_HEREDOC'
+    [
+        ["test", "Test DB"],
+        ["acc", "Acc DB"],
+        ["prod", "Prod DB"]
+    ]
+    END_HEREDOC
+    )
+
+    cat << END_TEXT
+    [
+        {
+            "name": "target_db",
+            "title": "Database to import to",
+            "type": "radio",
+            "options": $OPTIONS
+        },
+        {
+            "name": "sql_file",
+            "title": "SQL file",
+            "type": "file"
+        }
+    ]
+    END_TEXT
+
+### <a name="dynform_notes">Notes</a>
 
 * The executable bit must be set in order for scriptform to execute the file.
   Otherwise, the contents of the file is read.
 * Executable scripts are *always* executed as the user scriptform runs at!
   While its not possible for the user to inject anything into the script, you
   should still be careful with what the scripts do.
-
-### Supported dynamic form parts
-
-Currently the following parts of form definitions support dynamic form parts:
-
-* `fields`: `type` = `select`.
+* Dynamic parts of a form are loaded / executed each time the form is
+  referenced, so may be read or executed often. E.g. when loading the form,
+  when listing the forms, when showing the form, when submitting the form,
+  when validatinng the form, etc. You should make sure executables run
+  quickly.
 
 
 ## <a name="output">Output</a>

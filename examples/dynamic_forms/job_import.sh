@@ -1,6 +1,5 @@
 #!/bin/sh
 
-
 MYSQL_DEFAULTS_FILE="my.cnf"
 MYSQL="mysql --defaults-file=$MYSQL_DEFAULTS_FILE"
 

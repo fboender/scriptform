@@ -20,13 +20,15 @@ class FormDefinition(object):
     for validation of the form values.
     """
     def __init__(self, name, title, description, fields, script,
-                 default_value=None, output='escaped', hidden=False,
-                 submit_title="Submit", allowed_users=None, run_as=None):
+                 fields_from=None, default_value=None, output='escaped',
+                 hidden=False, submit_title="Submit", allowed_users=None,
+                 run_as=None):
         self.name = name
         self.title = title
         self.description = description
         self.fields = fields
         self.script = script
+        self.fields_from = fields_from
         self.default_value = default_value
         self.output = output
         self.hidden = hidden
@@ -34,7 +36,20 @@ class FormDefinition(object):
         self.allowed_users = allowed_users
         self.run_as = run_as
 
-        self.validate_field_defs(self.fields)
+        self.validate_field_defs(self.get_fields())
+
+    def get_fields(self):
+        """
+        Return the fields for the form either from statically defined fields in
+        the form definition, or dynamically from an externally executable
+        script.
+        """
+        if self.fields is not None:
+            return self.fields
+        elif self.fields_from is not None:
+            return runscript.from_file(self.fields_from)
+        else:
+            raise ValueError("Missing either 'fields' or 'fields_from' in '{}' form".format(self.name))
 
     def validate_field_defs(self, fields):
         """
@@ -52,7 +67,7 @@ class FormDefinition(object):
         """
         Return the field definition for `field_name`.
         """
-        for field in self.fields:
+        for field in self.get_fields():
             if field['name'] == field_name:
                 return field
         raise KeyError("Unknown field: {0}".format(field_name))
@@ -67,7 +82,7 @@ class FormDefinition(object):
         values = form_values.copy()
 
         # First make sure all required fields are there
-        for field in self.fields:
+        for field in self.get_fields():
             field_required = ('required' in field and
                               field['required'] is True)
             field_missing = (field['name'] not in form_values or
@@ -78,7 +93,7 @@ class FormDefinition(object):
                 )
 
         # Validate the field values, possible casting them to the correct type.
-        for field in self.fields:
+        for field in self.get_fields():
             field_name = field['name']
             if field_name in errors:
                 # Skip fields that are required but missing, since they can't

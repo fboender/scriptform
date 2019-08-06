@@ -2,17 +2,17 @@
     "title": "Dynamic forms",
     "forms": [
         {
-            "name": "import",
-            "title": "Import CSV data",
-            "description": "Import CSV into a database",
+            "name": "dyn_options",
+            "title": "Dynamic options",
+            "description": "The values for the target database are dynamically read from a script.",
             "submit_title": "Import",
             "script": "job_import.sh",
             "fields": [
                 {
                     "name": "target_db",
-                    "title": "Database to import to",
+                    "title": "Target database to import to",
                     "type": "radio",
-                    "options_from": "form_import_target_dbs.sh"
+                    "options_from": "form_dyn_options_target_db.sh"
                 },
                 {
                     "name": "sql_file",
@@ -20,6 +20,14 @@
                     "type": "file"
                 }
             ]
+        },
+        {
+            "name": "dyn_fields",
+            "title": "Dynamic fileds",
+            "description": "All the fields in this form are dynamically read from a script.",
+            "submit_title": "Import",
+            "script": "job_import.sh",
+            "fields_from": "form_dyn_fields.sh"
         }
     ]
 }
