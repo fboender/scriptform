@@ -50,7 +50,7 @@ class FormConfigTestCase(unittest.TestCase):
         sf = scriptform.ScriptForm('test_formconfig_callback.json')
         fc = sf.get_form_config()
         fd = fc.get_form_def('test_store')
-        res = runscript.run_script(fd, {})
+        res = runscript.run_script(fd, {}, {})
         self.assertEquals(res['exitcode'], 33)
         self.assertTrue('stdout' in res['stdout'])
         self.assertTrue('stderr' in res['stderr'])
@@ -62,7 +62,7 @@ class FormConfigTestCase(unittest.TestCase):
         fd = fc.get_form_def('test_raw')
         stdout = file('tmp_stdout', 'w+') # can't use StringIO
         stderr = file('tmp_stderr', 'w+')
-        exitcode = runscript.run_script(fd, {}, stdout, stderr)
+        exitcode = runscript.run_script(fd, {}, {}, stdout, stderr)
         stdout.seek(0)
         stderr.seek(0)
         self.assertTrue(exitcode == 33)
@@ -74,7 +74,7 @@ class FormConfigTestCase(unittest.TestCase):
         sf = scriptform.ScriptForm('test_formconfig_callback.json')
         fc = sf.get_form_config()
         fd = fc.get_form_def('test_raw')
-        self.assertRaises(ValueError, runscript.run_script, fd, {})
+        self.assertRaises(ValueError, runscript.run_script, fd, {}, {})
 
 
 class FormDefinitionTest(unittest.TestCase):

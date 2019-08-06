@@ -1333,10 +1333,18 @@ The contents of the file is available in a shell script as:
     echo "The CSV file has $(expr $ROWS - 1) rows"
 
 These temporary files are automatically cleaned up after the script's execution
-ends. 
+ends.
 
 Examples of file uploads can be found in the `examples/simple` and
 `examples/megacorp` directories.
+
+### <a name="script_env">Environment</a>
+
+Other than the field values, a few additional values are provided through the
+environment to the script:
+
+* `__SF__FORM`: The name of the form. E.g. `clean_database`.
+* `__SF__USER`: The logged in user executing the form. E.g. `admin`.
 
 ### <a name="script_runas">Execution security policy</a>
 

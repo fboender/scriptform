@@ -59,7 +59,7 @@ def run_as(uid, gid, groups):
     return set_acc
 
 
-def run_script(form_def, form_values, stdout=None, stderr=None):
+def run_script(form_def, form_values, env, stdout=None, stderr=None):
     """
     Perform a callback for the form `form_def`. This calls a script.
     `form_values` is a dictionary of validated values as returned by
@@ -77,7 +77,6 @@ def run_script(form_def, form_values, stdout=None, stderr=None):
         raise ValueError(msg)
 
     # Pass form values to the script through the environment as strings.
-    env = os.environ.copy()
     for key, value in form_values.items():
         env[key] = str(value)
 

@@ -447,8 +447,16 @@ class ScriptFormWebApp(RequestHandler):
             log.info("Vars: %s", censor_form_values(form_def, form_values))
 
             form_def = form_config.get_form_def(form_name)
-            result = runscript.run_script(form_def, form_values, self.wfile,
-                                          self.wfile)
+
+            # Construct base environment. The field values are added in
+            # run_scripts.
+            env = os.environ.copy()
+            env["__SF__FORM"] = form_name
+            if username is not None:
+                env["__SF__USER"] = username
+
+            result = runscript.run_script(form_def, form_values, env,
+                                          self.wfile, self.wfile)
             if form_def.output != 'raw':
                 # Ignore everything if we're doing raw output, since it's the
                 # scripts responsibility.
