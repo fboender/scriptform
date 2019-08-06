@@ -49,7 +49,8 @@ class FormDefinition(object):
         elif self.fields_from is not None:
             return runscript.from_file(self.fields_from)
         else:
-            raise ValueError("Missing either 'fields' or 'fields_from' in '{}' form".format(self.name))
+            msg = "Missing either 'fields' or 'fields_from' in '{}' form"
+            raise ValueError(msg.format(self.name))
 
     def validate_field_defs(self, fields):
         """
