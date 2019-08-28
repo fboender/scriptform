@@ -18,7 +18,7 @@ test () {
     # Code quality linting (flake8)
     cd $ROOTDIR
     # E402 == module level import not at top of file
-    #cd src && flake8 --extend-ignore=E402 *.py || true
+    cd src && flake8 --extend-ignore=E402 *.py || true
 
     # Code quality linting (pylint)
     cd $ROOTDIR

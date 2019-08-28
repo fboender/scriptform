@@ -33,7 +33,9 @@ def from_file(fname):
                                 close_fds=True)
         stdout, stderr = proc.communicate(input)
         if proc.returncode != 0:
-            log.error("%s returned non-zero exit code %s", path, proc.returncode)
+            log.error("%s returned non-zero exit code %s",
+                      path,
+                      proc.returncode)
             log.error(stderr)
             raise subprocess.CalledProcessError(proc.returncode, path, stderr)
         out = stdout
