@@ -13,7 +13,6 @@ class FormConfigError(Exception):
     """
     Default error for FormConfig errors
     """
-    pass
 
 
 class FormConfig(object):

@@ -12,7 +12,6 @@ import json
 import logging
 import threading
 import hashlib
-import socket
 
 if hasattr(sys, 'dont_write_bytecode'):
     sys.dont_write_bytecode = True
@@ -68,7 +67,8 @@ class ScriptForm(object):
         if 'static_dir' in config:
             static_dir = config['static_dir']
         if 'custom_css' in config:
-            custom_css = file(config['custom_css'], 'r').read()
+            with open(config["custom_css"], "r") as fh:
+                custom_css = fh.read()
         if 'users' in config:
             users = config['users']
         for form in config['forms']:
@@ -186,10 +186,11 @@ def main():  # pragma: no cover
         if plain_pw != getpass.getpass('Repeat password: '):
             sys.stderr.write("Passwords do not match.\n")
             sys.exit(1)
-        sys.stdout.write(hashlib.sha256(plain_pw.encode('utf8')).hexdigest() + '\n')
+        sha = hashlib.sha256(plain_pw.encode('utf8')).hexdigest()
+        sys.stdout.write("{}\n".format(sha))
         sys.exit(0)
     else:
-        if not options.action_stop and len(args) < 1:
+        if not options.action_stop and not args:
             parser.error("Insufficient number of arguments")
         if not options.action_stop and not options.action_start:
             options.action_start = True

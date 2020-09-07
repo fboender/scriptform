@@ -29,7 +29,6 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """
     Base class for multithreaded HTTP servers.
     """
-    pass
 
 
 class RequestHandler(BaseHTTPRequestHandler):

@@ -22,7 +22,7 @@ test () {
 
     # Code quality linting (pylint)
     cd $ROOTDIR
-    cd src && pylint --reports=n -dR -d star-args -d no-member *.py || true
+    cd src && pylint --reports=n -dR -d subprocess-popen-preexec-fn -d invalid-name -d star-args -d no-member *.py || true
     cd $ROOTDIR
 }
 

@@ -3,7 +3,6 @@ The webapp part of Scriptform, which takes care of serving requests and
 handling them.
 """
 
-import cgi
 import html
 import logging
 import tempfile
@@ -214,7 +213,8 @@ class ScriptFormWebApp(RequestHandler):
             if auth_header is not None:
                 # Validate the username and password
                 auth_unpw = auth_header.split(' ', 1)[1].encode('utf-8')
-                username, password = base64.b64decode(auth_unpw).decode('utf-8').split(":", 1)
+                username, password = \
+                    base64.b64decode(auth_unpw).decode('utf-8').split(":", 1)
                 pw_hash = hashlib.sha256(password.encode('utf-8')).hexdigest()
                 if username in form_config.users and \
                    pw_hash == form_config.users[username]:
