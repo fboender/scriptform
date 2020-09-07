@@ -124,17 +124,28 @@ For more screenshots, see the [screenshots Wiki page](https://github.com/fboende
 
 ### Requirements
 
-ScriptForm requires:
+The binary release of Scriptform requires:
 
-* Python 2.6+
+* Glibc v2.2.5+
 
-No other libraries are required. Python v2.6+ is generally available by default
-on almost every major linux distribution. For other platforms Python is almost
-certainly available.
+The python release of Scriptform requires:
+
+* Python 3.6+
+
+No other libraries are required.
 
 ### Installation
 
 Get the package for your operating system from the [Github releases page](https://github.com/fboender/scriptform/releases). 
+
+The **binary release** should work on most modern systems:
+
+Get the latest `*-bin64.tar.gz` release from the [releases page](https://github.com/fboender/scriptform/releases).
+
+Unpack it and copy it to some location in your `PATH`:
+
+    tar -vxzf scriptform-*-bin64.tar.gz
+    sudo cp scriptform-*-bin64/scriptform /usr/local/bin
 
 For **Debian / Ubuntu** systems:
 
