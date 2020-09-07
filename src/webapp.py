@@ -508,5 +508,5 @@ class ScriptFormWebApp(RequestHandler):
 
         self.send_response(200)
         self.end_headers()
-        with open(path, "r") as static_file:
+        with open(path, "rb") as static_file:
             self.wfile.write(static_file.read())
