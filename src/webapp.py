@@ -4,6 +4,7 @@ handling them.
 """
 
 import cgi
+import html
 import logging
 import tempfile
 import os
@@ -458,11 +459,11 @@ class ScriptFormWebApp(RequestHandler):
                 # Ignore everything if we're doing raw output, since it's the
                 # scripts responsibility.
                 if result['exitcode'] != 0:
-                    stderr = cgi.escape(result['stderr'].decode('utf8'))
+                    stderr = html.escape(result['stderr'].decode('utf8'))
                     msg = u'<span class="error">{0}</span>'.format(stderr)
                 else:
                     if form_def.output == 'escaped':
-                        stdout = cgi.escape(result['stdout'].decode('utf8'))
+                        stdout = html.escape(result['stdout'].decode('utf8'))
                         msg = u'<pre>{0}</pre>'.format(stdout)
                     else:
                         # Non-escaped output (html, usually)
