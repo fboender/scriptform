@@ -57,12 +57,16 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             environ={'REQUEST_METHOD': 'POST'})
         self._call(self.path.strip('/'), params={'form_values': form_values})
 
-    def do_OPTIONS(self):
-        self.send_response(200, "ok")
+    def do_OPTIONS(self):  # pylint: disable=invalid-name
+        """
+        Handle OPTIONS request and return CORS headers.
+        """
+        self.send_response(200, 'ok')
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
-        self.send_header("Access-Control-Allow-Headers", "X-Requested-With")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        self.send_header('Access-Control-Allow-Headers', 'X-Requested-With')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, '
+                                                         'Authorization')
         self.end_headers()
 
     def _parse(self, reqinfo):
