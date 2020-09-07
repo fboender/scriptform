@@ -6,7 +6,7 @@ Main ScriptForm program
 """
 
 import sys
-import optparse
+import argparse
 import os
 import json
 import logging
@@ -150,34 +150,52 @@ def main():  # pragma: no cover
     """
     main method
     """
-    usage = [
-        sys.argv[0] + " [option] (--start|--stop) <form_definition.json>",
-        "       " + sys.argv[0] + " --generate-pw",
-    ]
-    parser = optparse.OptionParser(version="%%VERSION%%")
-    parser.set_usage('\n'.join(usage))
-
-    parser.add_option("-g", "--generate-pw", dest="generate_pw",
-                      action="store_true", default=False,
-                      help="Generate password")
-    parser.add_option("-p", "--port", dest="port", action="store", type="int",
-                      default=8081, help="Port to listen on (default=8081)")
-    parser.add_option("-f", "--foreground", dest="foreground",
-                      action="store_true", default=False,
-                      help="Run in foreground (debugging)")
-    parser.add_option("-r", "--reload", dest="reload", action="store_true",
-                      default=False,
-                      help="Reload form config on every request (DEV)")
-    parser.add_option("--pid-file", dest="pid_file", action="store",
-                      default=None, help="Pid file")
-    parser.add_option("--log-file", dest="log_file", action="store",
-                      default=None, help="Log file")
-    parser.add_option("--start", dest="action_start", action="store_true",
-                      default=None, help="Start daemon")
-    parser.add_option("--stop", dest="action_stop", action="store_true",
-                      default=None, help="Stop daemon")
-
-    (options, args) = parser.parse_args()
+    parser = argparse.ArgumentParser(description='My Application.')
+    parser.add_argument('--version',
+                        action='version',
+                        version='%(prog)s %%VERSION%%')
+    parser.add_argument('-g', '--generate-pw',
+                        action='store_true',
+                        default=False,
+                        help='Generate password')
+    parser.add_argument('-p', '--port',
+                        metavar='PORT',
+                        dest='port',
+                        type=int,
+                        default=8081,
+                        help='Port to listen on (default=8081)')
+    parser.add_argument('-f', '--foreground',
+                        dest='foreground',
+                        action='store_true',
+                        default=False,
+                        help='Run in foreground (debugging)')
+    parser.add_argument('-r', '--reload',
+                        dest='reload',
+                        action='store_true',
+                        default=False,
+                        help='Reload form config on every request (DEV)')
+    parser.add_argument('--pid-file',
+                        metavar='PATH',
+                        dest='pid_file',
+                        type=str,
+                        default=None,
+                        help='Pid file')
+    parser.add_argument('--log-file',
+                        metavar='PATH',
+                        dest='log_file',
+                        type=str,
+                        default=None,
+                        help='Log file')
+    parser.add_argument('--stop',
+                        dest='action_stop',
+                        action='store_true',
+                        default=None,
+                        help='Stop daemon')
+    parser.add_argument(dest='config',
+                        metavar="CONFIG_FILE",
+                        help="Path to form definition config",
+                        )
+    options = parser.parse_args()
 
     if options.generate_pw:
         # Generate a password for use in the `users` section
@@ -190,35 +208,23 @@ def main():  # pragma: no cover
         sys.stdout.write("{}\n".format(sha))
         sys.exit(0)
     else:
-        if not options.action_stop and not args:
-            parser.error("Insufficient number of arguments")
-        if not options.action_stop and not options.action_start:
-            options.action_start = True
+        # Switch to dir of form definition configuration
+        formconfig_path = os.path.realpath(options.config)
+        os.chdir(os.path.dirname(formconfig_path))
 
-        # If a form configuration was specified, change to that dir so we can
-        # find the job scripts and such.
-        if args:
-            path = os.path.dirname(args[0])
-            if path:
-                os.chdir(path)
-            args[0] = os.path.basename(args[0])
-
+        # Initialize daemon so we can start or stop it
         daemon = Daemon(options.pid_file, options.log_file,
                         foreground=options.foreground)
-        log = logging.getLogger('MAIN')
-        try:
-            if options.action_start:
-                cache = not options.reload
-                scriptform_instance = ScriptForm(args[0], cache=cache)
-                daemon.register_shutdown_callback(scriptform_instance.shutdown)
-                daemon.start()
-                scriptform_instance.run(listen_port=options.port)
-            elif options.action_stop:
-                daemon.stop()
-                sys.exit(0)
-        except Exception as err:
-            log.exception(err)
-            raise
+
+        if options.action_stop:
+            daemon.stop()
+            sys.exit(0)
+        else:
+            cache = not options.reload
+            scriptform_instance = ScriptForm(formconfig_path, cache=cache)
+            daemon.register_shutdown_callback(scriptform_instance.shutdown)
+            daemon.start()
+            scriptform_instance.run(listen_port=options.port)
 
 
 if __name__ == "__main__":  # pragma: no cover
