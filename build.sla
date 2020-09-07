@@ -33,6 +33,7 @@ clean () {
     rm -rf *.zip
     rm -rf *.deb
     rm -rf rel_deb
+    rm -rf rel_bin
     rm -rf scriptform-*
     rm -rf doc/manual.html
     rm -rf doc/MANUAL.html
@@ -96,7 +97,7 @@ release_src () {
     cp doc/MANUAL.html "$PROG-$REL_VERSION/MANUAL.html"
 
     # Bump version numbers
-    find "$PROG-$REL_VERSION/" -type f -print0 | xargs -0 sed -i "s/%%VERSION%%/$REL_VERSION/g" 
+    find "$PROG-$REL_VERSION/" -type f -print0 | xargs -0 sed -i "s/%%VERSION%%/$REL_VERSION/g"
 
     # Create archives
     zip -q -r "$PROG-$REL_VERSION.zip" "$PROG-$REL_VERSION"
@@ -129,7 +130,7 @@ release_deb () {
         cp -ar contrib/debian/DEBIAN "rel_deb/"
 
         # Bump version numbers
-        find rel_deb/ -type f -print0 | xargs -0 sed -i "s/%%VERSION%%/$REL_VERSION/g" 
+        find rel_deb/ -type f -print0 | xargs -0 sed -i "s/%%VERSION%%/$REL_VERSION/g"
 
         # Create debian pacakge
         fakeroot dpkg-deb --build rel_deb > /dev/null
@@ -169,12 +170,24 @@ release_bin () {
     _release_check "$*"
 
     rm -rf dist/scriptform/
-    pyinstaller --strip --onefile src/scriptform.py
+
+    # Create copy and bump version numbers
+    cp -ar src/ rel_bin/
+    find rel_bin/ -type f -print0 | xargs -0 sed -i "s/%%VERSION%%/$REL_VERSION/g"
+
+    # Generate binary
+    pyinstaller --strip --onefile rel_bin/scriptform.py
+
+    # Generate tarball
     mv dist $PROG-$REL_VERSION-bin64
+    cp contrib/scriptform.service $PROG-$REL_VERSION-bin64
     tar -czf $PROG-$REL_VERSION-bin64.tar.gz $PROG-$REL_VERSION-bin64
+
+    # Cleanup
     rm -rf $PROG-$REL_VERSION-bin64
     rm -rf $PROG.spec
     rm -rf build
+    rm -rf rel_bin
 }
 
 release () {
