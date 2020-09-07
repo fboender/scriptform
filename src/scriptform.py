@@ -117,7 +117,10 @@ class ScriptForm(object):
         self.httpd.daemon_threads = True
         self.log.info("Listening on %s:%s", listen_addr, listen_port)
         self.running = True
-        self.httpd.serve_forever()
+        try:
+            self.httpd.serve_forever()
+        except KeyboardInterrupt:
+            pass
         self.running = False
 
     def shutdown(self):
