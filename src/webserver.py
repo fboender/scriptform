@@ -2,9 +2,9 @@
 Basic web server / framework.
 """
 
-from SocketServer import ThreadingMixIn
-import BaseHTTPServer
-import urlparse
+from socketserver import ThreadingMixIn
+from http.server import HTTPServer, BaseHTTPRequestHandler
+import urllib.parse
 import cgi
 
 
@@ -14,6 +14,9 @@ class HTTPError(Exception):
     etc. They are caught by the 'framework' and sent to the client's browser.
     """
     def __init__(self, status_code, msg, headers=None):
+        assert isinstance(status_code, int)
+        assert isinstance(msg, str)
+
         if headers is None:
             headers = {}
         self.status_code = status_code
@@ -22,14 +25,14 @@ class HTTPError(Exception):
         Exception.__init__(self, status_code, msg, headers)
 
 
-class ThreadedHTTPServer(ThreadingMixIn, BaseHTTPServer.HTTPServer):
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """
     Base class for multithreaded HTTP servers.
     """
     pass
 
 
-class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+class RequestHandler(BaseHTTPRequestHandler):
     """
     Basic web server request handler. Handles GET and POST requests. You should
     inherit from this class and implement h_ methods for handling requests.
@@ -61,9 +64,9 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         """
         Parse information from a request.
         """
-        url_comp = urlparse.urlsplit(reqinfo)
+        url_comp = urllib.parse.urlsplit(reqinfo)
         path = url_comp.path
-        query_vars = urlparse.parse_qs(url_comp.query)
+        query_vars = urllib.parse.parse_qs(url_comp.query)
         # Only return the first value of each query var. E.g. for
         # "?foo=1&foo=2" return '1'.
         var_values = dict([(k, v[0]) for k, v in query_vars.items()])
@@ -104,7 +107,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 self.send_header(header_k, header_v)
             self.end_headers()
             self.wfile.write("Error {0}: {1}".format(err.status_code,
-                                                     err.msg))
+                                                     err.msg).encode('utf-8'))
             self.wfile.flush()
             return False
         except Exception as err:

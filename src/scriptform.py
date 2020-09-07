@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
@@ -10,7 +10,7 @@ import optparse
 import os
 import json
 import logging
-import thread
+import threading
 import hashlib
 import socket
 
@@ -51,7 +51,8 @@ class ScriptForm(object):
         if self.cache and self.form_config_singleton is not None:
             return self.form_config_singleton
 
-        file_contents = file(self.config_file, 'r').read()
+        with open(self.config_file, "r") as fh:
+            file_contents = fh.read()
         try:
             config = json.loads(file_contents)
         except ValueError as err:
@@ -138,7 +139,7 @@ class ScriptForm(object):
         # We need to spawn a new thread in which the server is shut down,
         # because doing it from the main thread blocks, since the server is
         # waiting for connections..
-        thread.start_new_thread(t_shutdown, (self, ))
+        threading.Thread(target=t_shutdown, args=(1,))
 
 
 def main():  # pragma: no cover
@@ -181,7 +182,7 @@ def main():  # pragma: no cover
         if plain_pw != getpass.getpass('Repeat password: '):
             sys.stderr.write("Passwords do not match.\n")
             sys.exit(1)
-        sys.stdout.write(hashlib.sha256(plain_pw).hexdigest() + '\n')
+        sys.stdout.write(hashlib.sha256(plain_pw.encode('utf8')).hexdigest() + '\n')
         sys.exit(0)
     else:
         if not options.action_stop and len(args) < 1:
@@ -210,13 +211,6 @@ def main():  # pragma: no cover
             elif options.action_stop:
                 daemon.stop()
                 sys.exit(0)
-        except socket.error as err:
-            log.exception(err)
-            sys.stderr.write("Cannot bind to port {0}: {1}\n".format(
-                options.port,
-                str(err)
-            ))
-            sys.exit(2)
         except Exception as err:
             log.exception(err)
             raise
