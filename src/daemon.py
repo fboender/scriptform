@@ -15,7 +15,6 @@ class DaemonError(Exception):
     """
     Default error for Daemon class.
     """
-    pass
 
 
 class Daemon(object):  # pragma: no cover
@@ -97,7 +96,8 @@ class Daemon(object):  # pragma: no cover
             return None
 
         try:
-            pid = int(file(self.pid_file, 'r').read().strip())
+            with open(self.pid_file, "r") as fh:
+                pid = int(fh.read().strip())
         except ValueError:
             return None
 
@@ -137,9 +137,8 @@ class Daemon(object):  # pragma: no cover
         pid = os.fork()
         if pid > 0:
             self.log.info("PID = %s", pid)
-            pidfile = file(self.pid_file, 'w')
-            pidfile.write(str(pid))
-            pidfile.close()
+            with open(self.pid_file, "w") as fh:
+                fh.write(str(pid))
             sys.exit(0)  # End parent
 
         atexit.register(self._cleanup)

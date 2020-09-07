@@ -2,10 +2,10 @@
 Basic web server / framework.
 """
 
-import BaseHTTPServer
+from socketserver import ThreadingMixIn
+from http.server import HTTPServer, BaseHTTPRequestHandler
+import urllib.parse
 import cgi
-import urlparse
-from SocketServer import ThreadingMixIn
 
 
 class HTTPError(Exception):
@@ -14,6 +14,9 @@ class HTTPError(Exception):
     etc. They are caught by the 'framework' and sent to the client's browser.
     """
     def __init__(self, status_code, msg, headers=None):
+        assert isinstance(status_code, int)
+        assert isinstance(msg, str)
+
         if headers is None:
             headers = {}
         self.status_code = status_code
@@ -22,14 +25,13 @@ class HTTPError(Exception):
         Exception.__init__(self, status_code, msg, headers)
 
 
-class ThreadedHTTPServer(ThreadingMixIn, BaseHTTPServer.HTTPServer):
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """
     Base class for multithreaded HTTP servers.
     """
-    pass
 
 
-class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+class RequestHandler(BaseHTTPRequestHandler):
     """
     Basic web server request handler. Handles GET and POST requests. You should
     inherit from this class and implement h_ methods for handling requests.
@@ -57,25 +59,13 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             environ={'REQUEST_METHOD': 'POST'})
         self._call(self.path.strip('/'), params={'form_values': form_values})
 
-    def do_OPTIONS(self):  # pylint: disable=invalid-name
-        """
-        Handle OPTIONS request and return CORS headers.
-        """
-        self.send_response(200, 'ok')
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'X-Requested-With')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type, '
-                                                         'Authorization')
-        self.end_headers()
-
     def _parse(self, reqinfo):
         """
         Parse information from a request.
         """
-        url_comp = urlparse.urlsplit(reqinfo)
+        url_comp = urllib.parse.urlsplit(reqinfo)
         path = url_comp.path
-        query_vars = urlparse.parse_qs(url_comp.query)
+        query_vars = urllib.parse.parse_qs(url_comp.query)
         # Only return the first value of each query var. E.g. for
         # "?foo=1&foo=2" return '1'.
         var_values = dict([(k, v[0]) for k, v in query_vars.items()])
@@ -116,7 +106,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 self.send_header(header_k, header_v)
             self.end_headers()
             self.wfile.write("Error {0}: {1}".format(err.status_code,
-                                                     err.msg))
+                                                     err.msg).encode('utf-8'))
             self.wfile.flush()
             return False
         except Exception as err:

@@ -10,8 +10,9 @@ import runscript
 
 
 class ValidationError(Exception):
-    """Default exception for Validation errors"""
-    pass
+    """
+    Default exception for Validation errors
+    """
 
 
 class FormDefinition(object):

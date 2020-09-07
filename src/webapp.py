@@ -3,7 +3,7 @@ The webapp part of Scriptform, which takes care of serving requests and
 handling them.
 """
 
-import cgi
+import html
 import logging
 import tempfile
 import os
@@ -209,14 +209,13 @@ class ScriptFormWebApp(RequestHandler):
         # If a 'users' element was present in the form configuration file, the
         # user must be authenticated.
         if form_config.users:
-            auth_header = self.headers.getheader("Authorization")
+            auth_header = self.headers.get("Authorization")
             if auth_header is not None:
                 # Validate the username and password
-                auth_unpw = auth_header.split(' ', 1)[1]
-                username, password = base64.decodestring(auth_unpw).split(":",
-                                                                          1)
-                pw_hash = hashlib.sha256(password).hexdigest()
-
+                auth_unpw = auth_header.split(' ', 1)[1].encode('utf-8')
+                username, password = \
+                    base64.b64decode(auth_unpw).decode('utf-8').split(":", 1)
+                pw_hash = hashlib.sha256(password.encode('utf-8')).hexdigest()
                 if username in form_config.users and \
                    pw_hash == form_config.users[username]:
                     # Valid username and password. Return the username.
@@ -414,13 +413,12 @@ class ScriptFormWebApp(RequestHandler):
                 if field.filename == '':
                     continue
                 tmp_fname = tempfile.mktemp(prefix="scriptform_")
-                tmp_file = file(tmp_fname, 'w')
-                while True:
-                    buf = field.file.read(1024 * 16)
-                    if not buf:
-                        break
-                    tmp_file.write(buf)
-                tmp_file.close()
+                with open(tmp_fname, "wb") as tmp_file:
+                    while True:
+                        buf = field.file.read(1024 * 16)
+                        if not buf:
+                            break
+                        tmp_file.write(buf)
                 field.file.close()
 
                 tmp_files.append(tmp_fname)  # For later cleanup
@@ -461,11 +459,11 @@ class ScriptFormWebApp(RequestHandler):
                 # Ignore everything if we're doing raw output, since it's the
                 # scripts responsibility.
                 if result['exitcode'] != 0:
-                    stderr = cgi.escape(result['stderr'].decode('utf8'))
+                    stderr = html.escape(result['stderr'].decode('utf8'))
                     msg = u'<span class="error">{0}</span>'.format(stderr)
                 else:
                     if form_def.output == 'escaped':
-                        stdout = cgi.escape(result['stdout'].decode('utf8'))
+                        stdout = html.escape(result['stdout'].decode('utf8'))
                         msg = u'<pre>{0}</pre>'.format(stdout)
                     else:
                         # Non-escaped output (html, usually)
@@ -509,7 +507,7 @@ class ScriptFormWebApp(RequestHandler):
         if not os.path.exists(path):
             raise HTTPError(404, "Not found")
 
-        static_file = file(path, 'r')
         self.send_response(200)
         self.end_headers()
-        self.wfile.write(static_file.read())
+        with open(path, "rb") as static_file:
+            self.wfile.write(static_file.read())

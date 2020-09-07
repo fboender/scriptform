@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
@@ -6,13 +6,12 @@ Main ScriptForm program
 """
 
 import sys
-import optparse
+import argparse
 import os
 import json
 import logging
-import thread
+import threading
 import hashlib
-import socket
 
 if hasattr(sys, 'dont_write_bytecode'):
     sys.dont_write_bytecode = True
@@ -51,7 +50,8 @@ class ScriptForm(object):
         if self.cache and self.form_config_singleton is not None:
             return self.form_config_singleton
 
-        file_contents = file(self.config_file, 'r').read()
+        with open(self.config_file, "r") as fh:
+            file_contents = fh.read()
         try:
             config = json.loads(file_contents)
         except ValueError as err:
@@ -67,7 +67,8 @@ class ScriptForm(object):
         if 'static_dir' in config:
             static_dir = config['static_dir']
         if 'custom_css' in config:
-            custom_css = file(config['custom_css'], 'r').read()
+            with open(config["custom_css"], "r") as fh:
+                custom_css = fh.read()
         if 'users' in config:
             users = config['users']
         for form in config['forms']:
@@ -116,7 +117,10 @@ class ScriptForm(object):
         self.httpd.daemon_threads = True
         self.log.info("Listening on %s:%s", listen_addr, listen_port)
         self.running = True
-        self.httpd.serve_forever()
+        try:
+            self.httpd.serve_forever()
+        except KeyboardInterrupt:
+            pass
         self.running = False
 
     def shutdown(self):
@@ -138,41 +142,60 @@ class ScriptForm(object):
         # We need to spawn a new thread in which the server is shut down,
         # because doing it from the main thread blocks, since the server is
         # waiting for connections..
-        thread.start_new_thread(t_shutdown, (self, ))
+        thread = threading.Thread(target=t_shutdown, args=(self,))
+        thread.start()
 
 
 def main():  # pragma: no cover
     """
     main method
     """
-    usage = [
-        sys.argv[0] + " [option] (--start|--stop) <form_definition.json>",
-        "       " + sys.argv[0] + " --generate-pw",
-    ]
-    parser = optparse.OptionParser(version="%%VERSION%%")
-    parser.set_usage('\n'.join(usage))
-
-    parser.add_option("-g", "--generate-pw", dest="generate_pw",
-                      action="store_true", default=False,
-                      help="Generate password")
-    parser.add_option("-p", "--port", dest="port", action="store", type="int",
-                      default=8081, help="Port to listen on (default=8081)")
-    parser.add_option("-f", "--foreground", dest="foreground",
-                      action="store_true", default=False,
-                      help="Run in foreground (debugging)")
-    parser.add_option("-r", "--reload", dest="reload", action="store_true",
-                      default=False,
-                      help="Reload form config on every request (DEV)")
-    parser.add_option("--pid-file", dest="pid_file", action="store",
-                      default=None, help="Pid file")
-    parser.add_option("--log-file", dest="log_file", action="store",
-                      default=None, help="Log file")
-    parser.add_option("--start", dest="action_start", action="store_true",
-                      default=None, help="Start daemon")
-    parser.add_option("--stop", dest="action_stop", action="store_true",
-                      default=None, help="Stop daemon")
-
-    (options, args) = parser.parse_args()
+    parser = argparse.ArgumentParser(description='My Application.')
+    parser.add_argument('--version',
+                        action='version',
+                        version='%(prog)s %%VERSION%%')
+    parser.add_argument('-g', '--generate-pw',
+                        action='store_true',
+                        default=False,
+                        help='Generate password')
+    parser.add_argument('-p', '--port',
+                        metavar='PORT',
+                        dest='port',
+                        type=int,
+                        default=8081,
+                        help='Port to listen on (default=8081)')
+    parser.add_argument('-f', '--foreground',
+                        dest='foreground',
+                        action='store_true',
+                        default=False,
+                        help='Run in foreground (debugging)')
+    parser.add_argument('-r', '--reload',
+                        dest='reload',
+                        action='store_true',
+                        default=False,
+                        help='Reload form config on every request (DEV)')
+    parser.add_argument('--pid-file',
+                        metavar='PATH',
+                        dest='pid_file',
+                        type=str,
+                        default=None,
+                        help='Pid file')
+    parser.add_argument('--log-file',
+                        metavar='PATH',
+                        dest='log_file',
+                        type=str,
+                        default=None,
+                        help='Log file')
+    parser.add_argument('--stop',
+                        dest='action_stop',
+                        action='store_true',
+                        default=None,
+                        help='Stop daemon')
+    parser.add_argument(dest='config',
+                        metavar="CONFIG_FILE",
+                        help="Path to form definition config",
+                        )
+    options = parser.parse_args()
 
     if options.generate_pw:
         # Generate a password for use in the `users` section
@@ -181,45 +204,27 @@ def main():  # pragma: no cover
         if plain_pw != getpass.getpass('Repeat password: '):
             sys.stderr.write("Passwords do not match.\n")
             sys.exit(1)
-        sys.stdout.write(hashlib.sha256(plain_pw).hexdigest() + '\n')
+        sha = hashlib.sha256(plain_pw.encode('utf8')).hexdigest()
+        sys.stdout.write("{}\n".format(sha))
         sys.exit(0)
     else:
-        if not options.action_stop and len(args) < 1:
-            parser.error("Insufficient number of arguments")
-        if not options.action_stop and not options.action_start:
-            options.action_start = True
+        # Switch to dir of form definition configuration
+        formconfig_path = os.path.realpath(options.config)
+        os.chdir(os.path.dirname(formconfig_path))
 
-        # If a form configuration was specified, change to that dir so we can
-        # find the job scripts and such.
-        if args:
-            path = os.path.dirname(args[0])
-            if path:
-                os.chdir(path)
-            args[0] = os.path.basename(args[0])
-
+        # Initialize daemon so we can start or stop it
         daemon = Daemon(options.pid_file, options.log_file,
                         foreground=options.foreground)
-        log = logging.getLogger('MAIN')
-        try:
-            if options.action_start:
-                cache = not options.reload
-                scriptform_instance = ScriptForm(args[0], cache=cache)
-                daemon.register_shutdown_callback(scriptform_instance.shutdown)
-                daemon.start()
-                scriptform_instance.run(listen_port=options.port)
-            elif options.action_stop:
-                daemon.stop()
-                sys.exit(0)
-        except socket.error as err:
-            log.exception(err)
-            sys.stderr.write("Cannot bind to port {0}: {1}\n".format(
-                options.port,
-                str(err)
-            ))
-            sys.exit(2)
-        except Exception as err:
-            log.exception(err)
-            raise
+
+        if options.action_stop:
+            daemon.stop()
+            sys.exit(0)
+        else:
+            cache = not options.reload
+            scriptform_instance = ScriptForm(formconfig_path, cache=cache)
+            daemon.register_shutdown_callback(scriptform_instance.shutdown)
+            daemon.start()
+            scriptform_instance.run(listen_port=options.port)
 
 
 if __name__ == "__main__":  # pragma: no cover
