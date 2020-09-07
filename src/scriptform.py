@@ -142,7 +142,8 @@ class ScriptForm(object):
         # We need to spawn a new thread in which the server is shut down,
         # because doing it from the main thread blocks, since the server is
         # waiting for connections..
-        threading.Thread(target=t_shutdown, args=(1,))
+        thread = threading.Thread(target=t_shutdown, args=(self,))
+        thread.start()
 
 
 def main():  # pragma: no cover
