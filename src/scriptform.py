@@ -150,7 +150,9 @@ def main():  # pragma: no cover
     """
     main method
     """
-    parser = argparse.ArgumentParser(description='My Application.')
+    desc = """A stand-alone webserver that automatically generates forms """ \
+           """from JSON to serve as frontends to scripts."""
+    parser = argparse.ArgumentParser(description=desc)
     parser.add_argument('--version',
                         action='version',
                         version='%(prog)s %%VERSION%%')
