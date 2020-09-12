@@ -8,6 +8,13 @@ import threading
 import time
 import requests
 import re
+import random
+
+
+def gen_random_file(fname, size=1024):
+    with open(fname, 'wb') as fh:
+        for i in range(size):
+            fh.write(chr(random.randint(0, 255)).encode('utf-8'))
 
 
 class FormConfigTestCase(unittest.TestCase):
@@ -360,10 +367,7 @@ class WebAppTest(unittest.TestCase):
             "select": "option_a",
         }
 
-        import random
-        with open('data.csv', 'w') as fh:
-            for i in range(1024):
-                fh.write(chr(random.randint(0, 255)))
+        gen_random_file('data.csv')
 
         with open('data.csv', 'rb') as fh:
             files = {'file': fh}
@@ -395,10 +399,7 @@ class WebAppTest(unittest.TestCase):
             "select": "invalidvalue",
         }
 
-        import random
-        with open('data.txt', 'w') as fh:
-            for i in range(1024):
-                fh.write(chr(random.randint(0, 255)))
+        gen_random_file('data.txt')
 
         with open('data.txt', 'rb') as fh:
             files = {'file': fh}
@@ -435,10 +436,7 @@ class WebAppTest(unittest.TestCase):
             "select": "option_b",
         }
 
-        import random
-        with open('data.txt', 'w') as fh:
-            for i in range(1024):
-                fh.write(chr(random.randint(0, 255)))
+        gen_random_file('data.txt')
 
         with open ('data.txt', 'rb') as fh:
             files = {'file': fh}
@@ -480,9 +478,7 @@ class WebAppTest(unittest.TestCase):
         self.assertIn('string=<foo>', r.text)
 
     def testUpload(self):
-        import random
-        with open('data.raw', 'w') as fh:
-            fh.write(chr(random.randint(0, 255)))
+        gen_random_file('data.raw')
 
         data = {
             "form_name": "upload"
