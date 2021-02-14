@@ -1,3 +1,6 @@
 requests
+flake8
+pylint
+markdown
 coverage
 pyinstaller
