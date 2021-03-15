@@ -44,6 +44,8 @@ clean () {
     find ./ -name "*.pyc" -delete
     rm -f test/data.csv
     rm -f test/data.raw
+    rm -f test/.coverage
+    rm -rf test/htmlcov
     rm -rf dist/
     rm -rf build
 }
