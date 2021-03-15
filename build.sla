@@ -10,6 +10,7 @@ PROG="scriptform"
 
 test () {
     # Run tests
+    # Runs unit, integration, linting and code quality tests.
     ROOTDIR="$(pwd)"
 
     # Unit / integration tests
@@ -86,6 +87,10 @@ _release_check() {
 
 release_src () {
     # Build source (tar.gz) release
+    # Usage: sla release_src <version>
+    #
+    # Example:
+    #   sla release_src 9.99
     _release_check "$*"
 
     # Prepare source
@@ -108,6 +113,10 @@ release_src () {
 
 release_deb () {
     # Build deb release
+    # Usage: sla release_deb <version>
+    #
+    # Example:
+    #   sla release_deb 9.99
     _release_check "$*"
 
     if [ -z "$RELEASE_DEB_DONE" ]; then
@@ -148,6 +157,10 @@ release_deb () {
 
 release_rpm () {
     # Build rpm release
+    # Usage: sla release_rpm <version>
+    #
+    # Example:
+    #   sla release_rpm 9.99
     _release_check "$*"
     release_deb
 
@@ -168,7 +181,11 @@ release_rpm () {
 }
 
 release_bin () {
-    # Build binary release
+    # Build standalone binary release
+    # Usage: sla release_bin <version>
+    #
+    # Example:
+    #   sla release_bin 9.99
     _release_check "$*"
 
     rm -rf dist/scriptform/
@@ -193,7 +210,13 @@ release_bin () {
 }
 
 release () {
-    # Build releases for all platforms
+    # Build all releases
+    # Usage: sla release <version>
+    #
+    # Builds the debian, rpm packages, source release and standalone binary.
+    #
+    # Example:
+    #   sla release 9.99
     _release_check "$*"
     release_src
     release_deb
