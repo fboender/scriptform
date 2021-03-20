@@ -152,7 +152,7 @@ class FormDefinition(object):
         try:
             value = int(value)
         except ValueError:
-            raise ValidationError("Must be an integer number")
+            raise ValidationError("Must be an integer number") from None
         if minval is not None and value < int(minval):
             raise ValidationError("Minimum value is {0}".format(minval))
         if maxval is not None and value > int(maxval):
@@ -173,7 +173,7 @@ class FormDefinition(object):
         try:
             value = float(value)
         except ValueError:
-            raise ValidationError("Must be an real (float) number")
+            raise ValidationError("Must be an real (float) number") from None
         if minval is not None and value < float(minval):
             raise ValidationError("Minimum value is {0}".format(minval))
         if maxval is not None and value > float(maxval):
@@ -194,7 +194,8 @@ class FormDefinition(object):
         try:
             value = datetime.datetime.strptime(value, '%Y-%m-%d').date()
         except ValueError:
-            raise ValidationError("Invalid date, must be in form YYYY-MM-DD")
+            e_msg = "Invalid date, must be in form YYYY-MM-DD"
+            raise ValidationError(e_msg) from None
 
         if minval is not None:
             if value < datetime.datetime.strptime(minval, '%Y-%m-%d').date():
@@ -290,7 +291,7 @@ class FormDefinition(object):
         except KeyError:
             # Field is missing. Check if it's required.
             if 'required' in field_def and field_def['required'] is True:
-                raise ValidationError("Invalid file upload")
+                raise ValidationError("Invalid file upload") from None
             else:
                 return ''
 

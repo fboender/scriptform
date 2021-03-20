@@ -12,6 +12,7 @@ import json
 import logging
 import threading
 import hashlib
+import getpass
 
 if hasattr(sys, 'dont_write_bytecode'):
     sys.dont_write_bytecode = True
@@ -201,7 +202,6 @@ def main():  # pragma: no cover
 
     if options.generate_pw:
         # Generate a password for use in the `users` section
-        import getpass
         plain_pw = getpass.getpass()
         if plain_pw != getpass.getpass('Repeat password: '):
             sys.stderr.write("Passwords do not match.\n")
