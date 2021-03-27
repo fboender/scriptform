@@ -14,7 +14,7 @@ test () {
     ROOTDIR="$(pwd)"
 
     # Unit / integration tests
-    cd test && python ./test.py
+    cd test && /usr/bin/env python3 ./test.py
 
     # Code quality linting (flake8)
     cd $ROOTDIR
